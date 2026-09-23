@@ -39,7 +39,7 @@ Red flags:
 
 - Mocking internal collaborators
 - Testing private methods
-- Asserting on call counts/order
+- Asserting on call counts/order of internal collaborators (counting calls at a system boundary, such as retries against an external API, is behavior)
 - Test breaks when refactoring without behavior change
 - Test name describes HOW not WHAT
 - Verifying through external means instead of interface

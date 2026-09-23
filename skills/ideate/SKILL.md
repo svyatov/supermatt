@@ -22,7 +22,7 @@ Every idea carries a **basis**, the evidence a reader can check. An idea without
 
 The argument is the **focus**: a feature, a flow, a constraint, or nothing. Ideate at full ambition inside the focus, and keep the whole repo as the subject when there is none.
 
-When the subject cannot be identified (no argument and no clear project in the working directory), ask one question with these options: a subject the user names, **Surprise me** (each frame picks the subject it finds most interesting), and **Cancel**. Leave solution direction, audience, and success criteria to `/grill-with-docs`.
+When the subject cannot be identified (no argument and no clear project in the working directory), ask one question (through your harness's multiple-choice question tool if it has one, such as `AskUserQuestion` in Claude Code) with these options: a subject the user names, **Surprise me** (each frame picks the subject it finds most interesting), and **Cancel**. Leave solution direction, audience, and success criteria to `/grill-with-docs`.
 
 Done when the subject is named or the user picked Surprise me.
 
@@ -34,7 +34,7 @@ Done when the grounding summary exists. If grounding fails (no repo, empty repo)
 
 ### 3. Generate
 
-Spawn the frame subagents in parallel, in one message. Each gets the same grounding summary, the focus, and one or two **frames**. A frame is a starting bias, not a fence; cross-frame ideas are welcome.
+Spawn the frame subagents in parallel, in one message. Each gets the same grounding summary, the focus, and its assigned **frames**. A frame is a starting bias, not a fence; cross-frame ideas are welcome.
 
 1. **Pain and friction**: what is slow, broken, or annoying.
 2. **Inversion, removal, or automation**: flip a painful step, delete it, or automate it away.

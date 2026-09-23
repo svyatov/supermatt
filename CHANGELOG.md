@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- `code-review`: no longer claims the `claude` peer runs on the default model; `--safe-mode` keeps the user's model selection.
+- `ideate`: frame agents get their assigned frames (the fourth takes three), and the Scope question goes through the harness's multiple-choice tool when it has one.
+- `wizard`: GitHub variables are a named destination, and the static trace checks every `set_var` name against a `vars.*` reference.
+- `triage`: a quick override to `ready-for-agent` on a PR writes the agent brief that state requires.
+- `tdd`: the call-count red flag covers internal collaborators only, so a retry-count test at a system boundary no longer contradicts it.
+- `prototype`: a logic demo that checks persistence uses `localStorage`, since it has no server.
+- `writing-for-agents`: says hosts shorten or drop descriptions when the skill listing overflows, instead of claiming they always stay loaded.
+- `grilling`: a round whose questions all have short options goes through the harness's multiple-choice tool when it has one.
+
 ## [0.3.0]
 
 ### Added

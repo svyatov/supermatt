@@ -24,7 +24,7 @@ Work out every manual step the human must take and every value that gets capture
 
 Then show the user the ordered list of stages and the values each produces, and confirm: they may add, drop, or reorder.
 
-**Done when:** every stage is named in order, and for each captured value you know (a) where the human gets it, (b) where it's written (`.env`, a GitHub secret, both, or nowhere; some stages are pure actions), and (c) whether it's secret (hidden entry) or public.
+**Done when:** every stage is named in order, and for each captured value you know (a) where the human gets it, (b) where it's written (`.env`, a GitHub secret or variable, a combination, or nowhere; some stages are pure actions), and (c) whether it's secret (hidden entry) or public.
 
 ### 2. Map each stage's journey
 
@@ -42,5 +42,5 @@ Hold the bar the template sets: open the URL before asking for its value, use `a
 
 - `bash -n <script>`; run `shellcheck` if available.
 - `chmod +x <script>`.
-- Don't run it end-to-end yourself: it opens browsers and blocks on human input. Trace it statically instead: every value from step 1 is captured and lands where step 1 said, and every `set_secret` name exactly matches a `secrets.*` reference in CI.
+- Don't run it end-to-end yourself: it opens browsers and blocks on human input. Trace it statically instead: every value from step 1 is captured and lands where step 1 said, every `set_secret` name exactly matches a `secrets.*` reference in CI, and every `set_var` name exactly matches a `vars.*` reference.
 - Tell the user how to run it. If it's a repeatable setup path, commit it and link it from the README so the next person runs the script instead of asking an AI.
