@@ -1,12 +1,12 @@
 ---
-name: improve-codebase-architecture
+name: architecture-review
 description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
 disable-model-invocation: true
 argument-hint: "[module, subsystem, or pain point]"
 license: MIT
 ---
 
-# Improve Codebase Architecture
+# Architecture Review
 
 Surface architectural friction and propose **deepening opportunities**: refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
 
@@ -50,6 +50,7 @@ For each candidate, render a card with:
 - **Benefits**: explained in terms of locality and leverage, and how tests would improve
 - **Before / After diagram**: side-by-side, custom-drawn, illustrating the shallowness and the deepening
 - **Recommendation strength**: one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
+- **Tackle later**: a self-contained prompt that takes this candidate into `/grill-with-docs` in a fresh session, for the candidates the user doesn't pick now
 
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
 
@@ -71,3 +72,12 @@ Side effects happen inline as decisions crystallize; call the Skill tool with "d
 - **Sharpening a fuzzy term during the conversation?** Update `GLOSSARY.md` right there.
 - **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing; skip ephemeral reasons ("not worth it right now") and self-evident ones.
 - **Want to explore alternative interfaces for the deepened module?** Call the Skill tool with "codebase-design" and use its design-it-twice parallel sub-agent pattern.
+
+### 4. Hand off to the build
+
+The grilling ends when the shape of the deepened module is settled: its interface, what sits behind the seam, and which tests survive. Stay in this session, since the build needs the grilling as it happened, and tell the user the next step:
+
+- **The refactor takes more than one session**: `/to-spec`, then `/to-tickets`, then `/implement` per ticket.
+- **It fits in this session**: `/implement` right here.
+
+To tackle another candidate later, the user pastes its **Tackle later** prompt from the report into a fresh session.

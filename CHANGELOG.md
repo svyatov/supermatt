@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- `architecture-review` report cards carry a **Tackle later** prompt that takes a candidate into `/grill-with-docs` in a fresh session.
+
+### Changed
+
+- `improve-codebase-architecture` is now `architecture-review`, because it reviews the codebase and changes no code. Run `/architecture-review` (Codex: `$architecture-review`) instead.
+
+### Fixed
+
+- `architecture-review` ends by handing the settled refactor to `/to-spec` or `/implement`, where before the grilling had no exit.
+- `ask-matt` no longer sends a picked `architecture-review` candidate to `/grill-with-docs`, which the skill already does inline.
+
 ## [0.2.1]
 
 ### Changed
