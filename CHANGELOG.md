@@ -31,6 +31,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `prototype` asks its logic-or-UI question through a multiple-choice tool where the harness has one, and `UI.md` has a table of contents.
 - `wayfinder` runs each research subagent in its own git worktree, and keeps out-of-scope tickets out of Decisions so far in the map template.
 - `triage` uses one `.out-of-scope/` file format in its example brief and its reference.
+- `tdd` shows a valid Jest call in its implementation-detail example, and the README no longer says refactoring is part of its loop.
 
 ## [0.2.1]
 
