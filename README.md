@@ -11,6 +11,12 @@ In Claude Code:
 /plugin install supermatt@supermatt
 ```
 
+Claude Code has a bundled `/code-review` skill with the same name as this plugin's `code-review`. Plugin skills are namespaced, so the plugin's review is `/supermatt:code-review`, and a bare `/code-review` runs the bundled one. To turn the bundled skill off, add this to your Claude Code settings:
+
+```json
+{ "skillOverrides": { "code-review": "off" } }
+```
+
 In Codex:
 
 ```
@@ -18,7 +24,7 @@ codex plugin marketplace add svyatov/supermatt
 codex plugin add supermatt@supermatt
 ```
 
-Maintainers working on this repo can instead link every skill into `~/.claude/skills` and `~/.agents/skills` with `scripts/link-skills.sh`.
+Maintainers working on this repo can instead link every skill into `~/.claude/skills` and `~/.agents/skills` with `scripts/link-skills.sh`. Linked skills are not namespaced, so in Claude Code a linked `code-review` replaces the bundled `/code-review`.
 
 ## Engineering
 
