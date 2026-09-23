@@ -1,12 +1,12 @@
 ---
-name: ask-matt
+name: ask-supermatt
 description: Ask which skill or flow fits your situation. A router over the skills in this repo.
 disable-model-invocation: true
 argument-hint: "[your situation]"
 license: MIT
 ---
 
-# Ask Matt
+# Ask SuperMatt
 
 You don't remember every skill, so ask.
 

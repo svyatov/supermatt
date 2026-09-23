@@ -4,7 +4,7 @@ Every skill must have an entry in the top-level `README.md`, under **Engineering
 
 Every `SKILL.md` is either user-invoked (`disable-model-invocation: true` plus `policy.allow_implicit_invocation: false` in `agents/openai.yaml`, reachable only by the human) or model-invoked (model- or user-reachable). See [.agents/invocation.md](./.agents/invocation.md).
 
-[`ask-matt`](./skills/ask-matt/SKILL.md) is the router that maps every user-reachable skill and how they relate. The same trigger that re-syncs a docs page applies to it: whenever you add, rename, remove, or change how a user-reachable skill fits the flows, re-read `ask-matt`'s `SKILL.md` and update it so the map stays accurate: a new skill it never mentions, or a stale one it still routes to, is a router that lies.
+[`ask-supermatt`](./skills/ask-supermatt/SKILL.md) is the router that maps every user-reachable skill and how they relate. The same trigger that re-syncs a docs page applies to it: whenever you add, rename, remove, or change how a user-reachable skill fits the flows, re-read `ask-supermatt`'s `SKILL.md` and update it so the map stays accurate: a new skill it never mentions, or a stale one it still routes to, is a router that lies.
 
 Any change to a shipped skill must bump `version` in `.claude-plugin/plugin.json` (semver: PATCH for fixes, MINOR for new skills or features, MAJOR for removals or renames) and add a `CHANGELOG.md` entry. Plugin users get updates only on a version bump; commits without one never reach them. `plugin.json` holds the only `version`: the Claude Code catalog (`.claude-plugin/marketplace.json`) and the Codex catalog (`.agents/plugins/marketplace.json`) must not set one, and both must list the same plugins.
 

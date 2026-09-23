@@ -30,7 +30,7 @@ Maintainers working on this repo can instead link every skill into `~/.claude/sk
 
 ### User-invoked
 
-- **[ask-matt](./skills/ask-matt/SKILL.md)**: Ask which skill or flow fits your situation. A router over the user-invoked skills in this repo.
+- **[ask-supermatt](./skills/ask-supermatt/SKILL.md)**: Ask which skill or flow fits your situation. A router over the user-invoked skills in this repo.
 - **[grill-with-docs](./skills/grill-with-docs/SKILL.md)**: Grilling session that also builds your project's domain model, sharpening terminology and updating `GLOSSARY.md` and ADRs inline.
 - **[triage](./skills/triage/SKILL.md)**: Move issues through a state machine of triage roles.
 - **[ideate](./skills/ideate/SKILL.md)**: Generate grounded ideas for what to build next, critique every one, and rank the survivors in a Markdown file, each with a prompt that takes it into `/grill-with-docs`.

@@ -32,6 +32,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 
 - `improve-codebase-architecture` is now `architecture-review`, because it reviews the codebase and changes no code. Run `/architecture-review` (Codex: `$architecture-review`) instead.
+- `ask-matt` is now `ask-supermatt`, to match the project name. Run `/ask-supermatt` (Codex: `$ask-supermatt`) instead.
 - `architecture-review` finds hot spots by change count over the last year, ranked by complexity, and leaves out bot and bulk reformat commits.
 - `grilling` offers the smallest option first in every question and recommends it unless a concrete case fails. It asks at most four questions a round, and only questions that change what gets built.
 - `tdd` checks that a new test goes red for the reason it names, counts a cycle green only when the full suite passes, and ends with a mutation check. It flags change-detector tests, and `mocking.md` covers asserting on mocks, partial mock data, and test-only methods in production classes. Adapted from obra's Superpowers `test-driven-development`.
@@ -40,10 +41,10 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 
 - `architecture-review` ends by handing the settled refactor to `/to-spec` or `/implement`, where before the grilling had no exit.
-- `ask-matt` no longer sends a picked `architecture-review` candidate to `/grill-with-docs`, which the skill already does inline.
+- `ask-supermatt` no longer sends a picked `architecture-review` candidate to `/grill-with-docs`, which the skill already does inline.
 - `code-review` includes uncommitted changes in the diff, so it can review work in progress as its description says.
 - `architecture-review` gives the Codex form of the skills it hands off to, allows a `Healthy` verdict in the report header, and calls the card field **Wins** in both files.
-- `ask-matt` gives the right reason the prototype detour uses `/handoff`, and lists forking a side task among the mid-phase moves.
+- `ask-supermatt` gives the right reason the prototype detour uses `/handoff`, and lists forking a side task among the mid-phase moves.
 - `prototype` asks its logic-or-UI question through a multiple-choice tool where the harness has one, and `UI.md` has a table of contents.
 - `wayfinder` runs each research subagent in its own git worktree, and keeps out-of-scope tickets out of Decisions so far in the map template.
 - `triage` uses one `.out-of-scope/` file format in its example brief and its reference.
