@@ -1,6 +1,6 @@
 # TERMS.md Format
 
-`TERMS.md` is the canonical language for this teaching workspace. It is separate from any domain-model `GLOSSARY.md` in the directory: do not read or edit that file for teaching. All explainers, exercises, and learning records should adhere to its terminology. Building it is itself part of learning: compressing a concept into a tight definition is evidence the user understands it.
+`TERMS.md` is the canonical language for this teaching workspace. It is separate from any domain-model `GLOSSARY.md` in the directory: do not read or edit that file for teaching. All lessons, reference documents, and learning records should adhere to its terminology. Building it is itself part of learning: compressing a concept into a tight definition is evidence the user understands it.
 
 ## Structure
 

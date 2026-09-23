@@ -52,6 +52,14 @@ All notable changes to this project are documented here. The format follows [Kee
 - `implement` calls the Skill tool with `tdd` before it writes characterization tests.
 - The `setup-supermatt-skills` tracker templates name the same map sections as `wayfinder`.
 - `diagnosing-bugs` reports a missing regression-test seam to the user in its cleanup checklist, where before it flagged the seam for a phase that did not exist.
+- `implement` fixes a review finding that changes behavior test-first through `tdd`, where before its keep-behavior rules covered every review fix.
+- `triage` puts the AI disclaimer at the top of its needs-info and agent brief templates, as its own rule requires.
+- `ask-supermatt` tells plugin users to type `/supermatt:name`, because a bare `/code-review` runs Claude Code's bundled review.
+- `architecture-review` declares its git and network needs in `compatibility`, asks for the candidate through a multiple-choice tool where the harness has one, and sends the report file to a remote or cloud user.
+- `to-tickets` explores the codebase in a subagent, so the file contents stay out of the context that drafts the tickets.
+- `wizard` lists the GitHub variables it set in its closing summary.
+- `teach` format files use the same names for lessons and reference documents as `SKILL.md`.
+- `writing-for-agents` scopes "zero context load" to Claude Code, and says a shared reference file must sit inside the plugin root to ship.
 
 ## [0.2.1]
 

@@ -18,9 +18,10 @@ Once done, commit your work to the current branch.
 
 Then call the Skill tool with "code-review" to review the changes since the commit you recorded.
 
-When the work is a refactor, or when you fix what the review found, keep behavior the same:
+When the work is a refactor, or when a review fix only restructures code, keep behavior the same:
 
 - If the code has no tests, pin its current behavior first: call the Skill tool with "tdd" and write the characterization tests it describes.
 - Leave test files alone, except for a mechanical rename or move. A test that has to change means behavior changed.
-- Commit structural and behavioral changes separately.
 - When a step goes red, revert it and take a smaller step.
+
+A review fix that has to change behavior (a bug or a spec gap) goes test-first: call the Skill tool with "tdd". Commit it separately from structural changes.
