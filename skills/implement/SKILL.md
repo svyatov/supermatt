@@ -3,6 +3,7 @@ name: implement
 description: "Implement a piece of work based on a spec or set of tickets."
 argument-hint: "[spec path or ticket references]"
 disable-model-invocation: true
+license: MIT
 ---
 
 Implement the work described by the user in the spec or tickets.

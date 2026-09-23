@@ -3,6 +3,7 @@ name: retro
 description: "Conduct a retrospective on a coding session."
 disable-model-invocation: true
 argument-hint: "[session to review, defaults to this one]"
+license: MIT
 ---
 
 The user has asked for a **retrospective**. You are suggesting improvements to the coding agent's **environment** to improve future runs.
