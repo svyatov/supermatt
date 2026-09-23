@@ -29,6 +29,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `architecture-review` gives the Codex form of the skills it hands off to, allows a `Healthy` verdict in the report header, and calls the card field **Wins** in both files.
 - `ask-matt` gives the right reason the prototype detour uses `/handoff`, and lists forking a side task among the mid-phase moves.
 - `prototype` asks its logic-or-UI question through a multiple-choice tool where the harness has one, and `UI.md` has a table of contents.
+- `wayfinder` runs each research subagent in its own git worktree, and keeps out-of-scope tickets out of Decisions so far in the map template.
 
 ## [0.2.1]
 
