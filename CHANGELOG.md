@@ -17,6 +17,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - `tdd` has a characterization test reference, to pin the current behavior of untested code before a change.
 - `implement` has rules that keep behavior the same during a refactor, or while fixing what `code-review` found.
 - `code-review` flags a `refactor:` commit that changes a test file beyond a rename or a move.
+- `code-review` has an **Adversarial** axis that looks for the ways a change fails in production. From Claude Code it runs through `codex`, and from Codex through `claude`, read-only and with MCP servers and plugins off. Without the other CLI, it runs as a normal sub-agent. Adapted from Every's `ce-code-review`, credited in `CREDITS.md`.
+- `code-review` findings carry a P0-P3 severity and quote the line they flag, and every axis skips pre-existing code, linter territory, and speculative concerns. The report ends with a verdict: Not ready, Ready with fixes, or Ready.
 - `wayfinder` names the smallest version before it charts a map, and stops if building that version would teach more than planning it.
 - `wayfinder` has a subagent argue for the smallest answer before a ticket is recorded, prunes tickets and fog each answer makes unneeded, and tracks what the decisions add in a new **Added so far** map section.
 - `codebase-design` defines information leakage, back-door leakage included, and the two ways to repair a leak.
