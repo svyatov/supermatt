@@ -110,6 +110,8 @@ First, **audit your assumptions**: list the beliefs your picture of the bug depe
 
 Then match the symptom against the known **bug classes** in [BUG-CLASSES.md](BUG-CLASSES.md) (timezone, encoding, cache staleness, concurrency and others). A match is a cheap first hypothesis.
 
+Find a **working sibling**: similar code in the same codebase that works. List every difference between it and the broken path, however small. Each difference is a candidate hypothesis.
+
 Generate **3-5 ranked hypotheses** before testing any of them. Single-hypothesis generation anchors on the first plausible idea.
 
 Each hypothesis must be **falsifiable**: state the prediction it makes.
@@ -128,7 +130,8 @@ Tool preference:
 
 1. **Debugger / REPL inspection** if the env supports it. One breakpoint beats ten logs.
 2. **Targeted logs** at the boundaries that distinguish hypotheses.
-3. Never "log everything and grep".
+3. **Stack capture** when you do not know who passes the bad value: log a stack trace (`new Error().stack`, `traceback.print_stack()`) just before the failing operation. In tests, write it to stderr; the test logger can swallow it.
+4. Never "log everything and grep".
 
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
@@ -142,6 +145,8 @@ Phase 4 is done when you can state the chain from trigger to symptom, each step 
 
 ## Phase 5: Fix + regression test
 
+**Fix at the source.** Walk the causal chain back from the symptom to where the bad value or state first appears, and fix it there. A guard where the error shows leaves every other path from the source still broken.
+
 Write the regression test **before the fix**, but only if there is a **correct seam** for it.
 
 A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow (single-caller test when the bug needs multiple callers, unit test that can't replicate the chain that triggered the bug), a regression test there gives false confidence.
@@ -152,7 +157,7 @@ If a correct seam exists:
 
 1. Turn the minimised repro into a failing test at that seam.
 2. Watch it fail.
-3. Apply the fix.
+3. Apply the fix, and only the fix. A refactor bundled in hides which change turned the loop green.
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 

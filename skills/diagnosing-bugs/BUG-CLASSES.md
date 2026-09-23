@@ -13,3 +13,5 @@ Many symptoms fit a known class, and the class says where to look first. Match t
 - **Path and case:** works on macOS and fails on Linux (case), works on Linux and fails on Windows (separators, reserved names such as `CON`).
 - **Concurrency and ordering:** passes in serial and fails in parallel, or fails only in some randomized orders.
 - **TOCTOU:** a check passed, then the state changed before the action that depended on it.
+- **Test pollution:** a test passes alone and fails in the suite, or the suite leaves files or state behind. Run the test files one at a time and check the state after each to find the polluter.
+- **Timing guesses:** a fixed sleep before an assert, passing locally and failing under load or in CI. The fix waits for the actual condition, with a timeout.
