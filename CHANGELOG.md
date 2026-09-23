@@ -33,6 +33,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `triage` uses one `.out-of-scope/` file format in its example brief and its reference.
 - `tdd` shows a valid Jest call in its implementation-detail example, and the README no longer says refactoring is part of its loop.
 - `implement` calls the Skill tool with `tdd` before it writes characterization tests.
+- The `setup-supermatt-skills` tracker templates name the same map sections as `wayfinder`.
 
 ## [0.2.1]
 
