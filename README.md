@@ -1,4 +1,10 @@
-# SuperMatt Skills
+<p align="center">
+  <img src=".github/assets/logo.png" alt="SuperMatt" width="200">
+</p>
+
+<h1 align="center">SuperMatt Skills</h1>
+
+<p align="center"><b><a href="https://github.com/mattpocock/skills">Matt Pocock's skills</a>, supercharged.</b></p>
 
 Agent skills for coding agents. Run `/setup-supermatt-skills` once per repo before the first engineering flow.
 
