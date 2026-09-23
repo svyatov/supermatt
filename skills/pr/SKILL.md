@@ -2,11 +2,10 @@
 name: pr
 description: "The shape of a pull request body: a summary diagram, before/after evidence, and merge danger. Use when opening a PR, writing or rewriting a PR description, or when another flow needs a PR body."
 metadata:
-  credits:
-    skill: show-me
-    author: Dex Horthy
-    organisation: Humanlayer
-    url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
+  credits-skill: show-me
+  credits-author: Dex Horthy
+  credits-organisation: Humanlayer
+  credits-url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
 license: MIT
 ---
 
