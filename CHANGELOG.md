@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.3]
+
+### Changed
+
+- The plugin description in the Claude Code catalog now matches the README opening sentence.
+
 ## [0.3.2]
 
 ### Fixed
