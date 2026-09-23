@@ -51,6 +51,7 @@ Each candidate is one `<article>`:
 - **Solution**: one sentence. What changes.
 - **Wins**: bullets, ≤6 words each. e.g. "Tests hit one interface", "Pricing logic stops leaking", "Delete 4 shallow modules".
 - **ADR callout** (if applicable): one line in an amber-tinted box.
+- **Tackle later**: a `<pre class="whitespace-pre-wrap select-all">` holding a prompt the user can paste into a fresh session. It opens with the grilling invocation for the current harness (`/grill-with-docs` in Claude Code, `$grill-with-docs` in Codex), then names the files, the problem, the proposed deepening, and any ADR it touches, and asks for the `/codebase-design` vocabulary. The fresh session has no report and no exploration, so the prompt must stand alone.
 
 No paragraphs of explanation. If the diagram needs a paragraph to be understood, redraw the diagram.
 
