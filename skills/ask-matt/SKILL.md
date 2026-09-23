@@ -39,6 +39,8 @@ The limit on this is the **[smart zone](https://www.aihero.dev/ai-coding-diction
 
 A starting situation that generates work, then merges onto the main flow.
 
+- **No idea yet, and you want candidates** → **`/ideate`**. It grounds itself in the repo, generates ideas through six frames, has a fresh subagent try to refute each one, and writes the ranked **survivors** to `docs/ideation/`. Each survivor carries a prompt that takes it into **`/grill-with-docs`** in a fresh session, where the main flow starts. It finds *what* to build; `/grill-with-docs` shapes the one you pick.
+
 - **Bugs and requests piling up** → **`/triage`**. It moves issues through triage roles and produces agent-ready issues, which **`/implement`** later picks up.
 
   Triage is only for issues **you didn't create**: bug reports, incoming feature requests, anything that arrives raw. Tickets that `/to-tickets` produced are already agent-ready, so **don't triage them**.
