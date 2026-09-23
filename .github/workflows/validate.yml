@@ -18,3 +18,30 @@ jobs:
       - run: curl -fsSL https://claude.ai/install.sh | bash
       - run: ~/.local/bin/claude plugin validate --strict .
       - run: ~/.local/bin/claude plugin validate --strict ./skills
+
+  skills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: supermatt
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: svyatov/oss-kit
+          ref: f19ee20590d7de1e441f1ba46af097d15d52f0d9
+          path: oss-kit
+          persist-credentials: false
+      - run: node oss-kit/skills/oss-skill/scripts/validate.mjs supermatt
+
+  skillspector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - run: uv tool install git+https://github.com/NVIDIA/skillspector.git@a54947c307fe19a24a43db55f6148e181a987a67
+      - run: skillspector scan ./skills/ --no-llm --format json --baseline .skillspector-baseline.yaml
