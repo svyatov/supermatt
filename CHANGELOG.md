@@ -10,10 +10,14 @@ All notable changes to this project are documented here. The format follows [Kee
 - `architecture-review` assesses the codebase before it writes a report. A finding must cause change amplification, cognitive load, or unknown unknowns. On a healthy codebase, the skill says so and writes no report.
 - `architecture-review` cards state the deepened module's responsibility and what stays out of it, and a candidate whose responsibility needs "and" more than once is split or dropped.
 - `architecture-review` skips modules that are shallow by design: thin adapters, data classes, and configuration loaders.
+- `tdd` has a characterization test reference, to pin the current behavior of untested code before a change.
+- `implement` has rules that keep behavior the same during a refactor, or while fixing what `code-review` found.
+- `code-review` flags a `refactor:` commit that changes a test file beyond a rename or a move.
 
 ### Changed
 
 - `improve-codebase-architecture` is now `architecture-review`, because it reviews the codebase and changes no code. Run `/architecture-review` (Codex: `$architecture-review`) instead.
+- `architecture-review` finds hot spots by change count over the last year, ranked by complexity, and leaves out bot and bulk reformat commits.
 
 ### Fixed
 
