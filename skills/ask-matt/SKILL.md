@@ -10,6 +10,8 @@ license: MIT
 
 You don't remember every skill, so ask.
 
+Skills are named here as `/name`. In Codex, type `$name` instead.
+
 A **flow** is a path through the skills. Most paths run along one **main flow**, and two **on-ramps** merge onto it. Everything else is standalone, or a vocabulary layer that runs underneath.
 
 ## The main flow: idea → ship
