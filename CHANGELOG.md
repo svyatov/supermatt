@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.2]
+
 ### Fixed
 
 - `architecture-review`: names the `codebase-design` skill without a slash in its own instructions.
