@@ -13,6 +13,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - `tdd` has a characterization test reference, to pin the current behavior of untested code before a change.
 - `implement` has rules that keep behavior the same during a refactor, or while fixing what `code-review` found.
 - `code-review` flags a `refactor:` commit that changes a test file beyond a rename or a move.
+- `wayfinder` names the smallest version before it charts a map, and stops if building that version would teach more than planning it.
+- `wayfinder` has a subagent argue for the smallest answer before a ticket is recorded, prunes tickets and fog each answer makes unneeded, and tracks what the decisions add in a new **Added so far** map section.
 - `codebase-design` defines information leakage, back-door leakage included, and the two ways to repair a leak.
 - `codebase-design` has a red flags reference that names signs of shallow and leaky modules. `architecture-review` names the friction it finds with these flags. Adapted from Luke Ramsden's `software-design` skill, credited in `CREDITS.md`.
 
@@ -20,6 +22,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - `improve-codebase-architecture` is now `architecture-review`, because it reviews the codebase and changes no code. Run `/architecture-review` (Codex: `$architecture-review`) instead.
 - `architecture-review` finds hot spots by change count over the last year, ranked by complexity, and leaves out bot and bulk reformat commits.
+- `grilling` offers the smallest option first in every question and recommends it unless a concrete case fails. It asks at most four questions a round, and only questions that change what gets built.
+- A `wayfinder` map is done when the first working version can be built, and "not needed" closes a ticket as out of scope.
 
 ### Fixed
 
