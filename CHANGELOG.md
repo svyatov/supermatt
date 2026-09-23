@@ -13,6 +13,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - `tdd` has a characterization test reference, to pin the current behavior of untested code before a change.
 - `implement` has rules that keep behavior the same during a refactor, or while fixing what `code-review` found.
 - `code-review` flags a `refactor:` commit that changes a test file beyond a rename or a move.
+- `codebase-design` defines information leakage, back-door leakage included, and the two ways to repair a leak.
+- `codebase-design` has a red flags reference that names signs of shallow and leaky modules. `architecture-review` names the friction it finds with these flags. Adapted from Luke Ramsden's `software-design` skill, credited in `CREDITS.md`.
 
 ### Changed
 
