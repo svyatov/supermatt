@@ -17,3 +17,4 @@ jobs:
           persist-credentials: false
       - run: curl -fsSL https://claude.ai/install.sh | bash
       - run: ~/.local/bin/claude plugin validate --strict .
+      - run: ~/.local/bin/claude plugin validate --strict ./skills
