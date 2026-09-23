@@ -13,6 +13,8 @@ Don't mock:
 - Internal collaborators
 - Anything you control
 
+One exception: an in-memory adapter at a real port to a service you own across a network boundary (the Ports & Adapters case in the `codebase-design` skill's deepening reference). It is a second implementation of the port, not a mock of your own internals.
+
 ## Designing for Mockability
 
 At system boundaries, design interfaces that are easy to mock:

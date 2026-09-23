@@ -28,7 +28,7 @@ Done when the subject is named or the user picked Surprise me.
 
 ### 2. Ground
 
-Read `GLOSSARY.md`, the ADRs in `docs/adr/`, and the README. Then spawn one Explore subagent to map the subject: what exists, where it hurts, what recently changed (`git log`), open TODOs, and open issues in the repo's issue tracker (`docs/agents/issue-tracker.md` says where). It returns a **grounding summary** of at most 150 lines, with `file:line` pointers for every claim.
+Read the glossary and the ADRs (`docs/agents/domain.md` gives the layout; by default `GLOSSARY.md` and `docs/adr/` at the root), and the README. Then spawn one Explore subagent to map the subject: what exists, where it hurts, what recently changed (`git log`), open TODOs, and open issues in the repo's issue tracker (`docs/agents/issue-tracker.md` says where). It returns a **grounding summary** of at most 150 lines, with `file:line` pointers for every claim.
 
 Done when the grounding summary exists. If grounding fails (no repo, empty repo), say so and ideate from the user's description, with `reasoned:` and `external:` bases only.
 
@@ -68,7 +68,7 @@ Done when every merged idea is either ranked or carries a cut reason.
 Write `docs/ideation/YYYY-MM-DD-<topic>.md` (`open` as the topic when there is no focus), creating the directory if needed:
 
 - **Subject**: the focus, and the grounding summary cut to its key points.
-- **Ranked ideas**: for each survivor, the title, summary, basis, why it matters, size (S, M, or L), and a **Take it further** prompt in a fenced block. The prompt opens with `/grill-with-docs` (`$grill-with-docs` in Codex), then names the idea, its basis with the `file:line` pointers, and why it matters. A fresh session has no report and no grounding, so the prompt stands alone.
+- **Ranked ideas**: for each survivor, the title, summary, basis, why it matters, size (S, M, or L), and a **Take it further** prompt in a fenced block. The prompt opens with the grill-with-docs command in the form this session invoked `ideate` with (`/grill-with-docs`, `/supermatt:grill-with-docs` from the Claude Code plugin, `$grill-with-docs` in Codex), then names the idea, its basis with the `file:line` pointers, and why it matters. A fresh session has no report and no grounding, so the prompt stands alone.
 - **Cut**: a table of every cut idea and its reason.
 
 ### 7. Present

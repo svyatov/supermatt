@@ -8,7 +8,9 @@ license: MIT
 
 TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle: consult them before and during the loop, not after.
 
-When exploring the codebase, read `GLOSSARY.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
+When exploring the codebase, read the glossary (`docs/agents/domain.md` gives the layout; by default `GLOSSARY.md` at the root, if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
+
+For a bug whose cause is not yet known, call the Skill tool with "diagnosing-bugs" first: it finds the cause and brings the repro back here as the failing test.
 
 ## What a good test is
 
@@ -20,9 +22,9 @@ Read [tests.md](tests.md) for good and bad test examples before writing the firs
 
 ## Seams: where tests go
 
-A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
+A **seam** is where a module's interface lives (the `codebase-design` term): tests cross it the way callers do and observe behavior without reaching inside. Tests live at seams, never against internals.
 
-**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything, so agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
+**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. Seams named in the spec or issue you are working from are already confirmed. No test is written at an unconfirmed seam. You can't test everything, so agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
 
 Ask: "What's the public interface, and which seams should we test?"
 
@@ -41,4 +43,4 @@ When the shape of that interface is itself in question (how deep the module is, 
 - **Green is the whole suite.** A cycle is green when the project's full test command passes, not only the new test. Report every failure by name, including failures you did not cause.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Mutate before you finish.** Break the code under test in small, realistic ways, one at a time: a wrong constant or argument, the wrong branch, a missing side effect, an empty return, a missing check for empty, zero, null, or bad input. Run the tests for that seam, then undo the change. Each mutation must turn at least one test red; one that stays green marks behavior no test protects.
-- **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.
+- **Refactoring is not part of the loop.** It comes after the slice is green, usually on what review found (the `code-review` skill), with the tests left unchanged.

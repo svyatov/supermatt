@@ -39,7 +39,7 @@ Maintainers working on this repo can instead link every skill into `~/.claude/sk
 - **[to-spec](./skills/to-spec/SKILL.md)**: Turn the current conversation into a spec and publish it to the issue tracker.
 - **[to-tickets](./skills/to-tickets/SKILL.md)**: Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, whether as text in a local file or as native blocking links on a real tracker.
 - **[implement](./skills/implement/SKILL.md)**: Build the work described by a spec or set of tickets, driving `/tdd` at pre-agreed seams, then committing and closing out with `/code-review`.
-- **[retro](./skills/retro/SKILL.md)**: Run a retrospective on a coding session and get ranked suggestions for the agent's environment: automated checks, navigation pointers, coding-standards rules, stale or contradictory instructions, and a leaner `AGENTS.md`.
+- **[retro](./skills/retro/SKILL.md)**: Run a retrospective on a coding session and get ranked suggestions for the agent's environment: automated checks, context pointers, coding-standards rules, stale or contradictory instructions, and a leaner `AGENTS.md`.
 - **[wayfinder](./skills/wayfinder/SKILL.md)**: Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear.
 
 ### Model-invoked
@@ -60,7 +60,7 @@ Maintainers working on this repo can instead link every skill into `~/.claude/sk
 ### User-invoked
 
 - **[grill-me](./skills/grill-me/SKILL.md)**: Get relentlessly interviewed about a plan or design until every branch of the design tree is resolved.
-- **[handoff](./skills/handoff/SKILL.md)**: Compact the current conversation into a handoff document so another agent can continue the work.
+- **[handoff](./skills/handoff/SKILL.md)**: Write the current conversation into a portable handoff document so another agent can continue the work.
 - **[teach](./skills/teach/SKILL.md)**: Teach the user a new skill or concept over multiple sessions, using the current directory as a stateful teaching workspace.
 - **[to-questionnaire](./skills/to-questionnaire/SKILL.md)**: Turn a decision you can't answer alone into a Markdown questionnaire for the one person who can (filled in async, or together over a meeting).
 - **[wait-what](./skills/wait-what/SKILL.md)**: Fire this the moment a message doesn't land. The agent re-pitches it with the context you're missing, in plain English, using your `GLOSSARY.md` vocabulary.

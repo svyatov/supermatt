@@ -10,10 +10,13 @@ _Avoid_: backlog manager, backlog backend, issue host
 
 **Issue**:
 A single tracked unit of work inside an **Issue tracker**: a bug, task, spec, or slice produced by `to-tickets`.
-_Avoid_: ticket (use only when quoting external systems that call them tickets, or for a **Decision ticket**, see below)
+_Avoid_: ticket, except for a **Ticket** or a **Decision ticket** (below), or when quoting external systems that call them tickets
+
+**Ticket**:
+An **Issue** produced by `to-tickets`: one tracer-bullet slice of a spec, with its blocking edges. `implement` builds it and closes it.
 
 **Decision ticket**:
-A `wayfinder` unit: a child **Issue** of a `wayfinder:map` holding a *question* whose resolution is a decision, not a slice of a build to execute. The **decision** qualifier is what keeps it distinct from an implementation ticket; `wayfinder` introduces the term, then uses "ticket".
+A `wayfinder` unit: a child **Issue** of a `wayfinder:map` holding a *question* whose resolution is a decision, not a slice of a build to execute. The **decision** qualifier is what keeps it distinct from a **Ticket**; `wayfinder` introduces the term, then uses "ticket".
 
 **Triage role**:
 A canonical state-machine label applied to an **Issue** during triage (e.g. `needs-triage`, `ready-for-agent`). Each role maps to a real label string in the **Issue tracker** via `docs/agents/triage-labels.md`.
@@ -22,5 +25,6 @@ A canonical state-machine label applied to an **Issue** during triage (e.g. `nee
 
 - An **Issue tracker** holds many **Issues**
 - An **Issue** carries one **Triage role** at a time
+- A **Ticket** is an **Issue** (a slice of a spec)
 - A **Decision ticket** is an **Issue** (a child of a `wayfinder:map`)
 

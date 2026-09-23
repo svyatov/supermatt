@@ -121,7 +121,7 @@ User invokes with a loose idea.
 3. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** (the way to the destination is already clear, the whole journey small enough for one session), you don't need a map. Stop and ask the user how they'd like to proceed.
 4. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 5. **Create the tickets you can specify now** as child issues of the map, then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog: the **Not yet specified** section.
-6. **Fire the research subagents.** For each `research` ticket you just created, spin up a subagent that calls the Skill tool with "research" to resolve it in parallel, each in its own git worktree, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket.
+6. **Fire the research subagents.** Claim each `research` ticket you just created, then for each one spin up a subagent that calls the Skill tool with "research" to resolve it in parallel, each in its own git worktree, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket. As each subagent reports back, run the tracker's Resolve operation for its ticket from this session's own checkout, not the subagent's worktree.
 7. Stop: charting is one session's work; it hand-resolves nothing.
 
 ### Work through the map

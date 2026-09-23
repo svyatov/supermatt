@@ -12,7 +12,7 @@ license: MIT
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
 
-When exploring the codebase, read `GLOSSARY.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
+When exploring the codebase, read the glossary (`docs/agents/domain.md` gives the layout; by default `GLOSSARY.md` at the root, if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
 
 **Start from prior attempts.** If the user says they have been trying, ask what they tried before you start, so you skip their dead ends. If they link an issue, read the whole thread, latest comments first: they often carry newer repro steps or a different suspect. Run `git log --oneline -10 -- <file>` on the files you read to see what changed recently.
 
@@ -151,15 +151,13 @@ Write the regression test **before the fix**, but only if there is a **correct s
 
 A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow (single-caller test when the bug needs multiple callers, unit test that can't replicate the chain that triggered the bug), a regression test there gives false confidence.
 
-**If no correct seam exists, that itself is the finding.** Note it. The codebase architecture is preventing the bug from being locked down. Report it to the user in Phase 6.
+**If no correct seam exists, that itself is the finding.** Note it. The codebase architecture is preventing the bug from being locked down. Report it to the user in Phase 6, and tell them to run `/architecture-review` (`$architecture-review` in Codex) to find where the seam should go.
 
 If a correct seam exists:
 
-1. Turn the minimised repro into a failing test at that seam.
-2. Watch it fail.
-3. Apply the fix, and only the fix. A refactor bundled in hides which change turned the loop green.
-4. Watch it pass.
-5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
+1. Call the Skill tool with "tdd" and turn the minimised repro into its failing test at that seam. The seam you found and showed the user here counts as pre-agreed.
+2. Apply the fix, and only the fix. A refactor bundled in hides which change turned the loop green.
+3. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 
 ### When the fix fails
 
@@ -169,7 +167,7 @@ After **2-3 dead hypotheses or 3 failed fixes**, the diagnosis is what is wrong.
 
 | Pattern | Diagnosis | Next move |
 | --- | --- | --- |
-| Hypotheses point at different subsystems | Design problem, not a local bug | Stop and present the findings |
+| Hypotheses point at different subsystems | Design problem, not a local bug | Stop, present the findings, and suggest `/architecture-review` (`$architecture-review` in Codex) |
 | Evidence contradicts itself | Wrong mental model of the code | Re-read the path from its entry point, assuming nothing |
 | Works locally, fails in CI/prod | Environment difference | Compare config, dependencies, data, timing |
 | Fix works but the prediction was wrong | Symptom fix; the cause is still active | Keep investigating |
@@ -181,5 +179,6 @@ Required before declaring done:
 - [ ] Original repro no longer reproduces (re-run the Phase 1 loop)
 - [ ] Regression test passes (or the missing seam is reported to the user as an architecture finding)
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
-- [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
+- [ ] Throwaway debug harnesses deleted (or moved to a clearly-marked debug location)
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message, so the next debugger learns
+- [ ] The fix is reviewed: call the Skill tool with "code-review", with the commit before the fix as the fixed point

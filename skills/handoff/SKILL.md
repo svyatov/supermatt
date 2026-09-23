@@ -1,12 +1,12 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for another agent to pick up.
+description: Write the current conversation into a portable handoff document for another agent to pick up.
 argument-hint: "What will the next session be used for?"
 disable-model-invocation: true
 license: MIT
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS - not the current workspace.
+Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS - not the current workspace. Tell the user the file's absolute path, so they can open it in the next session or send it on.
 
 Include a "suggested skills" section in the document, naming which skills the next agent should call the Skill tool for. Name a user-invoked skill as an instruction to tell the user to run `/name` (`$name` in Codex).
 

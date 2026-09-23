@@ -14,7 +14,7 @@ Surface architectural friction and propose **deepening opportunities**: refactor
 This command is _informed_ by the project's domain model and built on a shared design vocabulary:
 
 - Call the Skill tool with "codebase-design" for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**, **information leakage**), its red flags, and its principles (the deletion test, "the interface is the test surface", "one adapter = hypothetical seam, two = real"). Use these terms exactly in every suggestion, and don't drift into "component," "service," "API," or "boundary."
-- The domain language in `GLOSSARY.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate.
+- The domain language in `GLOSSARY.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate. `docs/agents/domain.md` gives where both live.
 
 ## Process
 
@@ -25,7 +25,7 @@ This command is _informed_ by the project's domain model and built on a shared d
 - If the user named a direction (a module, a subsystem, a pain point), take it, and skip the inference below.
 - Otherwise, find the hot spots: files that change often and are complex. Count the changes per file over the last year with `git log --since="12 months ago" --name-only --pretty=format:`. Leave out bot commits and bulk reformat or move commits, because they inflate every file they touch. Rank the most-changed files by complexity, and let the top paths pull your attention first. If the changes are scattered with no clear hot spot, widen the net.
 
-Read the project's domain glossary (`GLOSSARY.md`) and any ADRs in the area you're touching first.
+Read the project's domain glossary and any ADRs in the area you're touching first (`docs/agents/domain.md` gives the layout; by default `GLOSSARY.md` and `docs/adr/` at the root).
 
 Then spawn a sub-agent to walk the codebase. Don't follow rigid heuristics; explore organically and note where you experience friction. Give the sub-agent the `codebase-design` red flags, and have it name each friction with a flag where one fits:
 

@@ -2,10 +2,13 @@
 name: to-spec
 description: "Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed."
 disable-model-invocation: true
+argument-hint: "[wayfinder map or issue reference]"
 license: MIT
 ---
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user; just synthesize what you already know.
+
+If the user passes a reference, fetch it through the issue tracker first. For a `wayfinder` map, also fetch every ticket its **Decisions so far** section links: those tickets hold the decisions the spec collapses into a plan.
 
 The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
 
@@ -61,7 +64,7 @@ A list of implementation decisions that were made. This can include:
 
 Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
 
-Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.
+Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype, citing its `prototype/<name>` branch. Trim to the decision-rich parts, not a working demo, just the important bits.
 
 ## Testing Decisions
 
@@ -69,6 +72,7 @@ A list of testing decisions that were made. Include:
 
 - A description of what makes a good test (only test external behavior, not implementation details)
 - Which modules will be tested
+- The seams under test, as agreed with the user in step 2
 - Prior art for the tests (i.e. similar types of tests in the codebase)
 
 ## Out of Scope

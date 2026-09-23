@@ -45,7 +45,7 @@ A starting situation that generates work, then merges onto the main flow.
 
   Triage is only for issues **you didn't create**: bug reports, incoming feature requests, anything that arrives raw. Tickets that `/to-tickets` produced are already agent-ready, so **don't triage them**.
 
-- **Something's broken** → **`/diagnosing-bugs`**. For the hard ones: the bug that resists a first glance, the intermittent flake, the regression that crept in between two known-good states. It refuses to theorise until it has a **tight feedback loop** (one command that already goes red on *this* bug), then fixes with a regression test.
+- **Something's broken** → **`/diagnosing-bugs`**. For the hard ones: the bug that resists a first glance, the intermittent flake, the regression that crept in between two known-good states. It refuses to theorise until it has a **tight feedback loop** (one command that already goes red on *this* bug), then fixes with a regression test and reviews the fix with **`/code-review`**.
 
 - **A huge, foggy effort: a greenfield project or a huge feature build, too big for one session** → **`/wayfinder`**, the most cognitively demanding flow here. When the way from here to the destination isn't visible yet, it charts a **shared map** of **decision tickets** on the issue tracker and resolves them one at a time, producing **decisions, not deliverables**, until the fog is pushed back and the way is clear. Where **`/grill-with-docs`** sharpens an idea you can hold in one session, wayfinder is for the idea you can't, and it's slower and denser, so save it for exactly that, never a well-scoped feature.
 
@@ -55,7 +55,7 @@ A starting situation that generates work, then merges onto the main flow.
 
 Not feature work, just upkeep.
 
-- **`/retro`** looks back at a finished session (this one by default) and suggests changes to the agent's **environment**: automated checks, navigation pointers, coding-standards rules, stale or contradictory instructions, a leaner `AGENTS.md`. Run it after a session that went badly, so the next one doesn't repeat the mistake.
+- **`/retro`** looks back at a finished session (this one by default) and suggests changes to the agent's **environment**: automated checks, context pointers, coding-standards rules, stale or contradictory instructions, a leaner `AGENTS.md`. Run it after a session that went badly, so the next one doesn't repeat the mistake.
 
 - **`/architecture-review`** runs whenever you have a spare moment to keep the codebase good for agents to operate in. When the architecture is healthy, it says so and stops. Otherwise it surfaces **deepening opportunities** in an HTML report, then grills you on the one you pick, the same way `/grill-with-docs` would, and merges onto the main flow at step 3 (`/to-spec`, or `/implement` for a small refactor). Each card in the report carries a prompt that takes that candidate into `/grill-with-docs` in a fresh session, for the ones you leave for later. It's the survey that finds the candidates; **`/codebase-design`** (below) is the bench you design the chosen one on.
 
