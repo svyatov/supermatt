@@ -4,31 +4,62 @@
 
 <h1 align="center"><a href="https://github.com/mattpocock/skills">Matt Pocock's skills</a>, supercharged.</h1>
 
-<p align="center">Agent skills for coding agents. Run `/setup-supermatt-skills` once per repo before the first engineering flow.</p>
+<p align="center">SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code.</p>
+
+- **Claude Code and Codex.** Each host installs SuperMatt from its own native plugin marketplace.
+- **28 skills.** 21 for engineering and 7 for productivity, listed below.
+- **A second model reviews your changes.** `code-review` adds an Adversarial axis and sends it to `codex` from Claude Code, or to `claude` from Codex, when that CLI is installed. Upstream reviews on two axes.
+- **One flow from idea to closed issue.** Forked from [mattpocock/skills](https://github.com/mattpocock/skills) at `c55ee46`, each skill checks its own work and hands the result to the next.
 
 ## Install
 
-In Claude Code:
+In Claude Code, type:
 
-```
+```text
 /plugin marketplace add svyatov/supermatt
 /plugin install supermatt@supermatt
 ```
 
-Claude Code has a bundled `/code-review` skill with the same name as this plugin's `code-review`. Plugin skills are namespaced, so the plugin's review is `/supermatt:code-review`, and a bare `/code-review` runs the bundled one. To turn the bundled skill off, add this to your Claude Code settings:
+In Codex, run:
+
+```bash
+codex plugin marketplace add svyatov/supermatt
+codex plugin add supermatt@supermatt
+```
+
+Then, in the repository you work in, type this in Claude Code (`$setup-supermatt-skills` in Codex):
+
+```text
+/supermatt:setup-supermatt-skills
+```
+
+It asks where you track issues (GitHub, GitLab, or local Markdown files) and which triage labels to use, then writes:
+
+```text
+CLAUDE.md or AGENTS.md          "## Agent skills" section
+docs/agents/issue-tracker.md    where issues live
+docs/agents/triage-labels.md    label names for the triage roles
+docs/agents/domain.md           where GLOSSARY.md and ADRs live
+```
+
+Claude Code has a bundled `/code-review` skill with the same name as this plugin's `code-review`. Plugin skills are namespaced, so the plugin's review is `/supermatt:code-review`, and a bare `/code-review` runs the bundled one. To turn the bundled skill off, add this to `~/.claude/settings.json`:
 
 ```json
 { "skillOverrides": { "code-review": "off" } }
 ```
 
-In Codex:
-
-```
-codex plugin marketplace add svyatov/supermatt
-codex plugin add supermatt@supermatt
-```
-
 Maintainers working on this repo can instead link every skill into `~/.claude/skills` and `~/.agents/skills` with `scripts/link-skills.sh`. Linked skills are not namespaced, so in Claude Code a linked `code-review` replaces the bundled `/code-review`.
+
+## Where to start
+
+Run `/supermatt:setup-supermatt-skills` once per repository, as above. After that, when you are not sure which skill fits, describe your situation to `/supermatt:ask-supermatt` and it names the skill or flow. In Codex, type `$name` for any skill below.
+
+Most work follows the main flow:
+
+1. `grill-with-docs` sharpens the idea by interview.
+2. `to-spec` turns the conversation into a spec on your issue tracker.
+3. `to-tickets` splits the spec into tickets. Skip it when the work fits in one session.
+4. `implement` builds each ticket through `tdd`, then closes it out with `code-review`.
 
 ## How it differs from mattpocock/skills
 
@@ -124,6 +155,12 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 
 - **[grilling](./skills/grilling/SKILL.md)**: Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved.
 - **[writing-for-agents](./skills/writing-for-agents/SKILL.md)**: Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
+
+## Help and status
+
+Ask questions and report bugs in [GitHub issues](https://github.com/svyatov/supermatt/issues). Report a security vulnerability privately, as [SECURITY.md](./SECURITY.md) describes. To send a change, read [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+SuperMatt is maintained by Leonid Svyatov. Fixes go to the latest release only.
 
 ## Authors
 
