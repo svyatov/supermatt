@@ -20,7 +20,7 @@ Then call the Skill tool with "code-review" to review the changes since the comm
 
 When the work is a refactor, or when you fix what the review found, keep behavior the same:
 
-- If the code has no tests, pin its current behavior first with the characterization tests in the `tdd` skill.
+- If the code has no tests, pin its current behavior first: call the Skill tool with "tdd" and write the characterization tests it describes.
 - Leave test files alone, except for a mechanical rename or move. A test that has to change means behavior changed.
 - Commit structural and behavioral changes separately.
 - When a step goes red, revert it and take a smaller step.
