@@ -39,7 +39,7 @@ Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give
 7. **Property / fuzz loop.** If the bug is "sometimes wrong output", run 1000 random inputs and look for the failure mode.
 8. **Bisection harness.** If the bug appeared between two known states (commit, dataset, version), automate "boot at state X, check, repeat" so you can `git bisect run` it.
 9. **Differential loop.** Run the same input through old-version vs new-version (or two configs) and diff outputs.
-10. **HITL bash script.** Last resort. If a human must click, drive _them_ with `scripts/hitl-loop.template.sh` so the loop is still structured: copy it, edit the steps, and ask the user to run it in their own terminal (in Claude Code, `! bash <path>` puts the output in the session). It reads from a TTY, so do not run it yourself. The printed `--- Captured ---` block feeds back to you.
+10. **HITL bash script.** Last resort. If a human must click, drive _them_ with [`scripts/hitl-loop.template.sh`](scripts/hitl-loop.template.sh) (bundled with this skill) so the loop is still structured: copy it, edit the steps, and ask the user to run it in their own terminal (in Claude Code, `! bash <path>` puts the output in the session). It reads from a TTY, so do not run it yourself. The printed `--- Captured ---` block feeds back to you.
 
 Build the right feedback loop, and the bug is 90% fixed.
 
@@ -145,6 +145,8 @@ Phase 4 is done when you can state the chain from trigger to symptom, each step 
 
 ## Phase 5: Fix + regression test
 
+Record the current commit with `git rev-parse HEAD` before you change any code: it is the fixed point for the review in Phase 6.
+
 **Fix at the source.** Walk the causal chain back from the symptom to where the bad value or state first appears, and fix it there. A guard where the error shows leaves every other path from the source still broken.
 
 Write the regression test **before the fix**, but only if there is a **correct seam** for it.
@@ -180,5 +182,6 @@ Required before declaring done:
 - [ ] Regression test passes (or the missing seam is reported to the user as an architecture finding)
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
 - [ ] Throwaway debug harnesses deleted (or moved to a clearly-marked debug location)
-- [ ] The hypothesis that turned out correct is stated in the commit / PR message, so the next debugger learns
-- [ ] The fix is reviewed: call the Skill tool with "code-review", with the commit before the fix as the fixed point
+- [ ] The full test suite passes
+- [ ] The regression test and the fix are committed, and the commit message states the hypothesis that turned out correct, so the next debugger learns
+- [ ] The fix is reviewed, unless an outer flow (such as `implement`) reviews this diff itself: call the Skill tool with "code-review", with the commit you recorded in Phase 5 as the fixed point and, as the spec, the path of a file in the OS temporary directory holding the bug report or captured symptom. Fix every verified P0 and P1 finding, and commit the fixes.

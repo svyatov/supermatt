@@ -43,4 +43,4 @@ When the shape of that interface is itself in question (how deep the module is, 
 - **Green is the whole suite.** A cycle is green when the project's full test command passes, not only the new test. Report every failure by name, including failures you did not cause.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Mutate before you finish.** Break the code under test in small, realistic ways, one at a time: a wrong constant or argument, the wrong branch, a missing side effect, an empty return, a missing check for empty, zero, null, or bad input. Run the tests for that seam, then undo the change. Each mutation must turn at least one test red; one that stays green marks behavior no test protects.
-- **Refactoring is not part of the loop.** It comes after the slice is green, usually on what review found (the `code-review` skill), with the tests left unchanged.
+- **Refactoring is not part of the loop.** It comes after the slice is green, usually on what review found (the `code-review` skill), with the tests left unchanged apart from a mechanical rename or move.

@@ -34,7 +34,7 @@ Before going further, confirm the fixed point resolves (`git rev-parse <fixed-po
 
 Look for the originating spec, in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
+1. Issue references in the commit messages (`#123`, `Closes #45`, a local issue file path, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
 2. A path the user passed as an argument.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
 4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
@@ -125,7 +125,7 @@ The verdict is a rule over severities. Don't pick a single worst finding across 
   - **P2**: a real problem with limited reach.
   - **P3**: minor.
 
-  Baseline smells are P2 or P3.
+  Baseline smells are P2 or P3. A refactor check hit is P1.
 - **Quote the line.** Every finding cites `file:line` and quotes the line it flags. Label a finding without a quote `unverified`; it does not move the verdict.
 - **Skip:**
   - Code the diff didn't change. Test: would you flag it on the same diff without the surrounding file?

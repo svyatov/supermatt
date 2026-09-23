@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- `architecture-review`: names the `codebase-design` skill without a slash in its own instructions.
+- `ask-supermatt`: keeps `/to-spec` specs out of triage along with `/to-tickets` tickets, points the prototype at the issue that asked the question, and sends questionnaire answers to `/grill-with-docs`.
+- `code-review`: a refactor check hit is P1, and the issue references it reads no longer list a GitLab merge request.
+- `diagnosing-bugs`: records the commit before the fix, commits the regression test and the fix after the full suite passes, and gives `code-review` the bug report, written to a file, as the spec. It fixes and commits verified P0 and P1 findings, and leaves the review to an outer flow such as `implement`. The HITL script is linked as a bundled file.
+- `domain-modeling`: the glossary format includes the optional `## Relationships` section.
+- `grill-with-docs`: "ADRs" in the description.
+- `handoff`: the save-location sentence no longer uses a spaced hyphen as a dash.
+- `implement`: works a triaged pull request on its head branch, stops when it cannot push there, and leaves the pull request open. It treats the seams of a refactor or a review fix as pre-agreed, and closes issues once every review axis completed and every verified P0 and P1 finding is fixed. It asks for `/setup-supermatt-skills` when the tracker file is missing, and accepts triaged issues as well as tickets.
+- `retro`: its Skill tool call uses the quoted form, and its Codex description drops the trailing period.
+- `setup-supermatt-skills`: lists GitLab among the supported trackers, and names every skill that reaches `domain-modeling`.
+- `tdd`: a refactor may rename or move a test file, as in `implement` and `code-review`.
+- `teach`: sentences that used a spaced hyphen as a dash are rewritten, and learning records point at `MISSION.md` and `TERMS.md` by path, not wiki links.
+- `to-spec`: reads the tracker and label files by path, so Codex finds them when setup wrote only `CLAUDE.md`. It asks the user only the seam check and any review finding that needs a decision.
+- `to-tickets`: reads the tracker and label files by path. Tickets carry `Status:` and `Blocked by:` lines at the top, in the tracker's format. It takes `ready-for-agent` off the parent spec, then stops and sends the user to `/implement` in a fresh context.
+- `triage`: reads the tracker and label files by path, and agrees the seams before every move to `ready-for-agent`, including a quick override, so agent briefs record them. Its queue leaves out specs, tickets, and `wayfinder` issues, and briefs no longer assume GitHub.
+- `wayfinder`: reads the tracker file by path, works each ticket by its type, and claims and resolves through the tracker's operations. It builds non-code prototypes itself, sizes tickets to the smart zone, and hands a finished map to `/to-spec`.
+
 ## [0.3.1]
 
 ### Fixed

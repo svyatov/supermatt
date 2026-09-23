@@ -6,17 +6,17 @@ argument-hint: "[wayfinder map or issue reference]"
 license: MIT
 ---
 
-This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user; just synthesize what you already know.
+This skill takes the current conversation context and codebase understanding and produces a spec. Synthesize what you already know instead of re-grilling the idea: you ask the user only the seam check in step 2 and any step 4 finding that needs a decision.
 
 If the user passes a reference, fetch it through the issue tracker first. For a `wayfinder` map, also fetch every ticket its **Decisions so far** section links: those tickets hold the decisions the spec collapses into a plan.
 
-The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
+Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If either is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
 
 ## Process
 
 1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the spec, and respect any ADRs in the area you're touching.
 
-2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better - the ideal number is one.
+2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better: the ideal number is one.
 
 Check with the user that these seams match their expectations.
 
@@ -26,7 +26,7 @@ Check with the user that these seams match their expectations.
 
 Fix the findings that have one clear fix. A finding that needs a decision goes to the user before you publish.
 
-5. Publish the spec to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+5. Publish the spec to the project issue tracker. Apply the `ready-for-agent` triage label: it needs no further triage.
 
 <spec-template>
 

@@ -10,7 +10,7 @@ license: MIT
 
 Break a plan, spec, or conversation into a set of **tickets**: tracer-bullet vertical slices, each declaring the tickets that **block** it.
 
-The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
+Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If either is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
 
 ## Process
 
@@ -61,24 +61,23 @@ Iterate until the user approves the breakdown.
 
 Publish the approved tickets. **How** depends on the tracker `/setup-supermatt-skills` configured; the tickets are the same either way, only the shape of the blocking edges changes:
 
-- **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's "Blocked by" lists the numbers/titles it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file.
-- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking relationship where it has one (the **Blocking** operation in `docs/agents/issue-tracker.md`); otherwise set each ticket's "Blocked by" to the blocking issues. Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.
+- **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's `Blocked by:` line lists the numbers it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file.
+- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking relationship where it has one (the **Blocking** operation in `docs/agents/issue-tracker.md`); otherwise put the tracker's `Blocked by:` fallback line at the top of each ticket's body. Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.
 
-Work the **frontier**: any ticket whose blockers are all done. For a purely linear chain that means top to bottom.
+If the source was a spec issue labelled `ready-for-agent`, remove that label from it: its tickets are now the work, and the spec stays open as their parent. Leave the parent issue otherwise untouched.
 
-Do NOT close or modify any parent issue.
+Then stop. Tell the user to run `/implement` (`$implement` in Codex) on a **frontier** ticket (one whose blockers are all closed) in a fresh context, one ticket per session.
 
 <local-ticket-template>
 
 # <NN>: <Ticket title>
 
+Status: ready-for-agent
+Blocked by: <NN, NN> (omit this line when nothing blocks it)
+
 **What to build:** the end-to-end behaviour this ticket makes work, from the user's perspective, not a layer-by-layer implementation list.
 
-**Blocked by:** the numbers/titles of the tickets that gate this one, or "None (can start immediately)".
-
 **Seams:** the seams under test for this ticket, taken from the spec's Testing Decisions (omit when there is no spec).
-
-**Status:** ready-for-agent
 
 - [ ] Acceptance criterion 1
 - [ ] Acceptance criterion 2
@@ -86,6 +85,8 @@ Do NOT close or modify any parent issue.
 </local-ticket-template>
 
 <issue-template>
+
+Blocked by: #<n>, #<n> (only where the tracker has no native blocking; omit it when nothing blocks the ticket)
 
 ## Parent
 
@@ -103,10 +104,6 @@ The end-to-end behaviour this ticket makes work, from the user's perspective, no
 ## Seams
 
 The seams under test for this ticket, taken from the parent spec's Testing Decisions (omit this section when there is no spec).
-
-## Blocked by
-
-- A reference to each blocking ticket, or "None (can start immediately)".
 
 </issue-template>
 

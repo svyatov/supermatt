@@ -9,7 +9,7 @@ license: MIT
 
 Scaffold the per-repo configuration that the engineering skills assume:
 
-- **Issue tracker**: where issues live (GitHub by default; local markdown is also supported out of the box)
+- **Issue tracker**: where issues live (GitHub by default; GitLab and local markdown are also supported out of the box)
 - **Triage labels**: the strings used for the seven canonical triage roles (two category, five state)
 - **Domain docs**: where `GLOSSARY.md` and ADRs live, and the consumer rules for reading them
 

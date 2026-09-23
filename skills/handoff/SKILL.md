@@ -6,7 +6,7 @@ disable-model-invocation: true
 license: MIT
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS - not the current workspace. Tell the user the file's absolute path, so they can open it in the next session or send it on.
+Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS, outside the current workspace. Tell the user the file's absolute path, so they can open it in the next session or send it on.
 
 Include a "suggested skills" section in the document, naming which skills the next agent should call the Skill tool for. Name a user-invoked skill as an instruction to tell the user to run `/name` (`$name` in Codex).
 
