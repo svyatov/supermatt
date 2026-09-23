@@ -30,6 +30,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `ask-matt` gives the right reason the prototype detour uses `/handoff`, and lists forking a side task among the mid-phase moves.
 - `prototype` asks its logic-or-UI question through a multiple-choice tool where the harness has one, and `UI.md` has a table of contents.
 - `wayfinder` runs each research subagent in its own git worktree, and keeps out-of-scope tickets out of Decisions so far in the map template.
+- `triage` uses one `.out-of-scope/` file format in its example brief and its reference.
 
 ## [0.2.1]
 
