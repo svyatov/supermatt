@@ -35,7 +35,7 @@ The architectural review is rendered as a single self-contained HTML file in the
 
 ## Header
 
-Repo name, date, and a compact legend: solid box = module, dashed line = seam, red arrow = leakage, thick dark box = deep module. No introduction paragraph. Straight into the candidates.
+Repo name, date, and the verdict from the assessment (`Localized` or `Systemic`). Then a compact legend: solid box = module, dashed line = seam, red arrow = leakage, thick dark box = deep module. No introduction paragraph. Straight into the candidates.
 
 ## Candidate card
 
@@ -47,11 +47,13 @@ Each candidate is one `<article>`:
 - **Badge row**: recommendation strength (`Strong` = emerald, `Worth exploring` = amber, `Speculative` = slate), plus a tag for the dependency category (`in-process`, `local-substitutable`, `ports & adapters`, `mock`).
 - **Files**: monospaced list, `font-mono text-sm`.
 - **Before / After diagram**: the centrepiece. Two columns, side by side. See patterns below.
-- **Problem**: one sentence. What hurts.
+- **Problem**: one sentence. What hurts, and which symptom it causes (change amplification, cognitive load, unknown unknowns).
 - **Solution**: one sentence. What changes.
+- **Responsibility**: one sentence. What the deepened module does.
+- **Stays out**: one line per related concern that stays outside the deepened module, with the reason.
 - **Wins**: bullets, ≤6 words each. e.g. "Tests hit one interface", "Pricing logic stops leaking", "Delete 4 shallow modules".
 - **ADR callout** (if applicable): one line in an amber-tinted box.
-- **Tackle later**: a `<pre class="whitespace-pre-wrap select-all">` holding a prompt the user can paste into a fresh session. It opens with the grilling invocation for the current harness (`/grill-with-docs` in Claude Code, `$grill-with-docs` in Codex), then names the files, the problem, the proposed deepening, and any ADR it touches, and asks for the `/codebase-design` vocabulary. The fresh session has no report and no exploration, so the prompt must stand alone.
+- **Tackle later**: a `<pre class="whitespace-pre-wrap select-all">` holding a prompt the user can paste into a fresh session. It opens with the grilling invocation for the current harness (`/grill-with-docs` in Claude Code, `$grill-with-docs` in Codex), then names the files, the problem, the proposed deepening, what stays out, and any ADR it touches, and asks for the `/codebase-design` vocabulary. The fresh session has no report and no exploration, so the prompt must stand alone.
 
 No paragraphs of explanation. If the diagram needs a paragraph to be understood, redraw the diagram.
 

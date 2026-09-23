@@ -36,7 +36,27 @@ Then spawn a sub-agent to walk the codebase. Don't follow rigid heuristics; expl
 
 Apply the **deletion test** to anything you suspect is shallow: would deleting it concentrate complexity, or just move it? A "yes, concentrates" is the signal you want.
 
-### 2. Present candidates as an HTML report
+Some modules are shallow by design: thin adapters, data classes with no logic, and configuration loaders. Skip them.
+
+### 2. Assess
+
+Tie each finding to the symptom a reader of the code meets:
+
+- **Change amplification**: a simple change touches many places.
+- **Cognitive load**: a reader must hold a lot in mind to change anything safely.
+- **Unknown unknowns**: a reader cannot tell what they need to know. This is the worst of the three.
+
+A finding with none of these symptoms is a preference. Drop it.
+
+Then give a verdict:
+
+- **Healthy**: only minor friction. Tell the user, name the friction, and stop. Write no report.
+- **Localized**: one or two areas have real friction. Report at most two candidates.
+- **Systemic**: friction is widespread. Report the candidates ranked.
+
+If the user gives a reason to go on after a Healthy verdict, scope the report to their request.
+
+### 3. Present candidates as an HTML report
 
 Write a self-contained HTML file to the OS temp directory so nothing lands in the repo. Resolve the temp dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to `<tmpdir>/architecture-review-<timestamp>.html` so each run gets a fresh file. Open it for the user (`xdg-open <path>` on Linux, `open <path>` on macOS, `start <path>` on Windows) and tell them the absolute path.
 
@@ -45,12 +65,16 @@ The report uses **Tailwind via CDN** for layout and styling, and **Mermaid via C
 For each candidate, render a card with:
 
 - **Files**: which files/modules are involved
-- **Problem**: why the current architecture is causing friction
+- **Problem**: why the current architecture is causing friction, and which symptom it causes
 - **Solution**: plain English description of what would change
+- **Responsibility**: one sentence on what the deepened module does
+- **Stays out**: related logic that stays outside the deepened module, and why
 - **Benefits**: explained in terms of locality and leverage, and how tests would improve
 - **Before / After diagram**: side-by-side, custom-drawn, illustrating the shallowness and the deepening
 - **Recommendation strength**: one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
 - **Tackle later**: a self-contained prompt that takes this candidate into `/grill-with-docs` in a fresh session, for the candidates the user doesn't pick now
+
+**Deep is not big.** A deepening gathers one concept that is scattered across modules. Modules that are only called together are not one concept, so keep them apart. If the Responsibility sentence needs "and" more than once, split the candidate or drop it.
 
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
 
@@ -62,7 +86,7 @@ See [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram pattern
 
 Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?"
 
-### 3. Grilling loop
+### 4. Grilling loop
 
 Once the user picks a candidate, call the Skill tool with "grilling" to walk the decision tree with them: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
@@ -73,7 +97,7 @@ Side effects happen inline as decisions crystallize; call the Skill tool with "d
 - **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing; skip ephemeral reasons ("not worth it right now") and self-evident ones.
 - **Want to explore alternative interfaces for the deepened module?** Call the Skill tool with "codebase-design" and use its design-it-twice parallel sub-agent pattern.
 
-### 4. Hand off to the build
+### 5. Hand off to the build
 
 The grilling ends when the shape of the deepened module is settled: its interface, what sits behind the seam, and which tests survive. Stay in this session, since the build needs the grilling as it happened, and tell the user the next step:
 
