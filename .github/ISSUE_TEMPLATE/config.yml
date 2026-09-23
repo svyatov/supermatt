@@ -1,0 +1,4 @@
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/svyatov/supermatt/security/advisories/new
+    about: Report it privately. Do not open a public issue.

@@ -1,0 +1,77 @@
+name: Bug report
+description: A skill did something other than what its SKILL.md says
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A skill's behavior depends on the harness that loaded it and the model that read it, as well as on the skill's own text. Those answers tell a defect in the skill apart from a difference between hosts.
+  - type: input
+    id: skill
+    attributes:
+      label: Skill
+      placeholder: code-review
+    validations:
+      required: true
+  - type: dropdown
+    id: harness
+    attributes:
+      label: Harness
+      description: Where the skill was loaded.
+      options:
+        - Claude Code
+        - Codex
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: harness-version
+    attributes:
+      label: Harness version
+      description: Run `claude --version` or `codex --version`. Name the host here too if you chose Other.
+      placeholder: 2.1.280 (Claude Code)
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: The exact model name.
+      placeholder: claude-opus-5-5
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SuperMatt version
+      description: The version in `.claude-plugin/plugin.json`, or the commit SHA if you linked the skills from a clone.
+      placeholder: 0.3.2
+  - type: dropdown
+    id: install
+    attributes:
+      label: Install method
+      options:
+        - Plugin
+        - scripts/link-skills.sh
+  - type: textarea
+    id: prompt
+    attributes:
+      label: What you asked for
+      description: The prompt that invoked the skill, verbatim.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened
+      description: Quote the sentence in the skill's SKILL.md that says so.
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened instead
+      render: text
+    validations:
+      required: true
