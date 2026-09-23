@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.1]
+
+### Changed
+
+- Every skill declares `license: MIT` in its frontmatter, so a skill directory copied on its own keeps its license.
+- Instructions to run a user-invoked skill also give the Codex form (`$name`), and `ask-matt` notes it once.
+- `resolving-merge-conflicts`, `retro`, `triage` and `teach` hand their heavy reading to a sub-agent.
+- `wizard` declares its bash requirement in `compatibility`, and its template no longer assumes a setup done in a browser.
+
+### Fixed
+
+- `implement` commits before it runs `code-review`, so the review sees the new work.
+- `setup-supermatt-skills` lists external PRs through `gh api`, because `gh pr list` has no `authorAssociation` field, and it maps the `bug` and `enhancement` category labels too.
+- `pr` keeps its credits in flat `metadata` keys, as the spec requires string values.
+- `ask-matt` describes `/compact` as continuing the same conversation.
+- `improve-codebase-architecture` and `to-questionnaire` examples now follow their own rules.
+
 ## [0.2.0]
 
 ### Added
