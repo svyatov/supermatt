@@ -12,7 +12,7 @@ The **phase boundary** is the gap between two phases, and it is the only place t
 | **`/clear`** | Empty the context window and start from nothing.                  |
 | **`/handoff`** | Write a portable markdown file and seed a session anywhere with it. |
 | **Subagent** | Send the task to its own context window and get a report back.     |
-| **`/compact`** | Compress this context and seed a fresh session with the summary.  |
+| **`/compact`** | Replace this context with a summary and continue the same conversation. |
 
 ## The tree
 
@@ -37,7 +37,7 @@ That list is the whole clause. What `/handoff` buys is **portability**: a file t
 
 **5. Otherwise, `/compact`.** Relevant context, same harness, same directory, and you need to stay in the loop: this is where the tree lands, and it lands here often. Pass it an instruction (`/compact we're going to QA this area`) so the summary keeps what the next phase needs.
 
-`/compact` is the **default, not the first reach**. It sits at the bottom because the four questions above it are all cheaper or more precise. The failure mode when people start here is a fresh session that is confidently wrong about a decision the summary flattened.
+`/compact` is the **default, not the first reach**. It sits at the bottom because the four questions above it are all cheaper or more precise. The failure mode when people start here is a compacted conversation that is confidently wrong about a decision the summary flattened.
 
 ## Primary and secondary sources
 
