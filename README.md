@@ -31,7 +31,7 @@ Maintainers working on this repo can instead link every skill into `~/.claude/sk
 - **[setup-supermatt-skills](./skills/setup-supermatt-skills/SKILL.md)**: Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo.
 - **[to-spec](./skills/to-spec/SKILL.md)**: Turn the current conversation into a spec and publish it to the issue tracker.
 - **[to-tickets](./skills/to-tickets/SKILL.md)**: Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, whether as text in a local file or as native blocking links on a real tracker.
-- **[implement](./skills/implement/SKILL.md)**: Build the work described by a spec or set of tickets, driving `/tdd` at pre-agreed seams and closing out with `/code-review` before committing.
+- **[implement](./skills/implement/SKILL.md)**: Build the work described by a spec or set of tickets, driving `/tdd` at pre-agreed seams, then committing and closing out with `/code-review`.
 - **[retro](./skills/retro/SKILL.md)**: Run a retrospective on a coding session and get ranked suggestions for the agent's environment: automated checks, navigation pointers, coding-standards rules, and a leaner `AGENTS.md`.
 - **[wayfinder](./skills/wayfinder/SKILL.md)**: Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear.
 
