@@ -17,7 +17,13 @@ The issue tracker and triage label vocabulary should have been provided to you. 
 
 Check with the user that these seams match their expectations.
 
-3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+3. Write the spec using the template below. Don't publish it yet.
+
+4. Check the draft in a fresh context. This context wrote the spec, so it shares the spec's blind spots. Spawn one sub-agent with the draft and repo access, and this brief: "Report: (a) places where the spec contradicts itself, or a user story conflicts with an implementation decision or Out of Scope; (b) implementation decisions that the current codebase cannot support as written, citing the file; (c) user stories that no implementation or testing decision covers. Quote the spec line for each finding. Under 300 words."
+
+Fix the findings that have one clear fix. A finding that needs a decision goes to the user before you publish.
+
+5. Publish the spec to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
 
 <spec-template>
 
