@@ -45,7 +45,7 @@ This works whether the user is here to push back or not.
 
 ### 2. Generate radically different variants
 
-Draft each variant. Hold each one to:
+Draft each variant, in a separate subagent per variant where the harness supports it, so no draft sees the others. Hold each one to:
 
 - The page's purpose and the data it has access to.
 - The project's component library / styling system (TailwindCSS, shadcn, MUI, plain CSS, whatever).
