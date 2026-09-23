@@ -4,62 +4,37 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.0]
+
 ### Added
 
-- `ideate` skill: generate grounded ideas through six frames, have a fresh subagent try to refute each one, and write the ranked survivors to `docs/ideation/`, each with a prompt that takes it into `/grill-with-docs`. Adapted from Every's `ce-ideate`.
-- `retro` drops a candidate when the code, tests, or existing docs already carry the lesson, amends an existing rule or check instead of adding a duplicate, and says so when nothing qualifies.
-- `retro` has a **Drift** category: a steering file the session read that points at a path, command, or rule the code no longer supports, or two steering files that contradict each other.
-- `retro` removes an instruction as a no-op only when it can quote another file that already states the same rule.
-- `retro` names where Claude Code and Codex keep session logs.
-- `to-spec` checks the draft spec in a fresh-context sub-agent before it publishes: contradictions, decisions the codebase cannot support, and user stories that nothing covers. The coherence and feasibility lenses come from Every's `ce-doc-review`.
-- `architecture-review` report cards carry a **Tackle later** prompt that takes a candidate into `/grill-with-docs` in a fresh session.
-- `architecture-review` assesses the codebase before it writes a report. A finding must cause change amplification, cognitive load, or unknown unknowns. On a healthy codebase, the skill says so and writes no report.
-- `architecture-review` cards state the deepened module's responsibility and what stays out of it, and a candidate whose responsibility needs "and" more than once is split or dropped.
-- `architecture-review` skips modules that are shallow by design: thin adapters, data classes, and configuration loaders.
-- `tdd` has a characterization test reference, to pin the current behavior of untested code before a change.
-- `implement` has rules that keep behavior the same during a refactor, or while fixing what `code-review` found.
-- `code-review` flags a `refactor:` commit that changes a test file beyond a rename or a move.
-- `code-review` has an **Adversarial** axis that looks for the ways a change fails in production. From Claude Code it runs through `codex`, and from Codex through `claude`, read-only and with MCP servers and plugins off. Without the other CLI, it runs as a normal sub-agent. Adapted from Every's `ce-code-review`, credited in `CREDITS.md`.
-- `code-review` findings carry a P0-P3 severity and quote the line they flag, and every axis skips pre-existing code, linter territory, and speculative concerns. The report ends with a verdict: Not ready, Ready with fixes, or Ready.
-- `wayfinder` names the smallest version before it charts a map, and stops if building that version would teach more than planning it.
-- `wayfinder` has a subagent argue for the smallest answer before a ticket is recorded, prunes tickets and fog each answer makes unneeded, and tracks what the decisions add in a new **Added so far** map section.
-- `diagnosing-bugs` asks what the user already tried, rules out the environment and the user's uncommitted work before it forms hypotheses, and audits its assumptions. A prediction must name something not yet looked at.
-- `diagnosing-bugs` fixes nothing until it can state the causal chain with no gaps, treats a bug that vanishes under a probe as a timing clue, and escalates after 2-3 dead hypotheses or 3 failed fixes with a table that names the likely cause. A bug-class checklist seeds its hypotheses. Adapted from Every's `ce-debug`, credited in `CREDITS.md`.
-- `diagnosing-bugs` fixes a bug where the bad value starts, not where the error shows, and applies the fix with no bundled refactor. It compares the broken path with a working sibling in the same codebase, captures a stack trace when the caller is unknown, and checks for test pollution and fixed sleeps in tests. Adapted from Jesse Vincent's Superpowers `systematic-debugging`, credited in `CREDITS.md`.
-- `codebase-design` defines information leakage, back-door leakage included, and the two ways to repair a leak.
-- `codebase-design` has a red flags reference that names signs of shallow and leaky modules. `architecture-review` names the friction it finds with these flags. Adapted from Luke Ramsden's `software-design` skill, credited in `CREDITS.md`.
+- `ideate`: generates grounded ideas through six frames, has a fresh subagent try to refute each one, and writes the ranked survivors to `docs/ideation/`, each with a prompt that takes it into `/grill-with-docs` in the form the session was invoked with. Adapted from Every's `ce-ideate`.
 
 ### Changed
 
-- `improve-codebase-architecture` is now `architecture-review`, because it reviews the codebase and changes no code. Run `/architecture-review` (Codex: `$architecture-review`) instead.
-- `ask-matt` is now `ask-supermatt`, to match the project name. Run `/ask-supermatt` (Codex: `$ask-supermatt`) instead.
-- `architecture-review` finds hot spots by change count over the last year, ranked by complexity, and leaves out bot and bulk reformat commits.
-- `grilling` offers the smallest option first in every question and recommends it unless a concrete case fails. It asks at most four questions a round, and only questions that change what gets built.
-- `tdd` checks that a new test goes red for the reason it names, counts a cycle green only when the full suite passes, and ends with a mutation check. It flags change-detector tests, and `mocking.md` covers asserting on mocks, partial mock data, and test-only methods in production classes. Adapted from obra's Superpowers `test-driven-development`.
-- A `wayfinder` map is done when the first working version can be built, and "not needed" closes a ticket as out of scope.
-
-### Fixed
-
-- `architecture-review` ends by handing the settled refactor to `/to-spec` or `/implement`, where before the grilling had no exit.
-- `ask-supermatt` no longer sends a picked `architecture-review` candidate to `/grill-with-docs`, which the skill already does inline.
-- `code-review` includes uncommitted changes in the diff, so it can review work in progress as its description says.
-- `architecture-review` gives the Codex form of the skills it hands off to, allows a `Healthy` verdict in the report header, and calls the card field **Wins** in both files.
-- `ask-supermatt` gives the right reason the prototype detour uses `/handoff`, and lists forking a side task among the mid-phase moves.
-- `prototype` asks its logic-or-UI question through a multiple-choice tool where the harness has one, and `UI.md` has a table of contents.
-- `wayfinder` runs each research subagent in its own git worktree, and keeps out-of-scope tickets out of Decisions so far in the map template.
-- `triage` uses one `.out-of-scope/` file format in its example brief and its reference.
-- `tdd` shows a valid Jest call in its implementation-detail example, and the README no longer says refactoring is part of its loop.
-- `implement` calls the Skill tool with `tdd` before it writes characterization tests.
-- The `setup-supermatt-skills` tracker templates name the same map sections as `wayfinder`.
-- `diagnosing-bugs` reports a missing regression-test seam to the user in its cleanup checklist, where before it flagged the seam for a phase that did not exist.
-- `implement` fixes a review finding that changes behavior test-first through `tdd`, where before its keep-behavior rules covered every review fix.
-- `triage` puts the AI disclaimer at the top of its needs-info and agent brief templates, as its own rule requires.
-- `ask-supermatt` tells plugin users to type `/supermatt:name`, because a bare `/code-review` runs Claude Code's bundled review.
-- `architecture-review` declares its git and network needs in `compatibility`, asks for the candidate through a multiple-choice tool where the harness has one, and sends the report file to a remote or cloud user.
-- `to-tickets` explores the codebase in a subagent, so the file contents stay out of the context that drafts the tickets.
-- `wizard` lists the GitHub variables it set in its closing summary.
-- `teach` format files use the same names for lessons and reference documents as `SKILL.md`.
-- `writing-for-agents` scopes "zero context load" to Claude Code, and says a shared reference file must sit inside the plugin root to ship.
+- `architecture-review`: renamed from `improve-codebase-architecture`, because it reviews the codebase and changes no code; run `/architecture-review` (Codex: `$architecture-review`). It assesses the codebase first and writes no report when it is healthy. It finds hot spots by change count over the last year, skips modules that are shallow by design, and names friction with the `codebase-design` red flags. Cards state the deepened module's responsibility and what stays out, and carry a **Tackle later** prompt. It ends by handing the settled refactor to `/to-spec` or `/implement`, gives Codex forms, declares its git and network needs, and sends the report file to a remote user.
+- `ask-supermatt`: renamed from `ask-matt`, to match the project name; run `/ask-supermatt` (Codex: `$ask-supermatt`). It tells plugin users to type `/supermatt:name`, keeps a picked `architecture-review` candidate in that skill, and gives the real reason the prototype detour uses `/handoff`.
+- `code-review`: adds an **Adversarial** axis that runs through `codex` from Claude Code and `claude` from Codex (adapted from Every's `ce-code-review`), P0-P3 severities with quoted lines, a verdict, and a refactor check on `refactor:` commits. The diff includes uncommitted changes.
+- `codebase-design`: defines information leakage and adds a red flags reference (adapted from Luke Ramsden's `software-design`). It leaves the codebase survey to `architecture-review`, and deletes superseded tests in their own commit.
+- `diagnosing-bugs`: asks what the user tried, rules out the environment and uncommitted work, fixes nothing until the causal chain has no gaps, and fixes at the source with no bundled refactor. It escalates after 2-3 dead hypotheses or 3 failed fixes, and a bug-class checklist seeds its hypotheses (adapted from Every's `ce-debug` and Superpowers `systematic-debugging`). It writes the regression test through `tdd`, reviews the fix with `code-review`, and sends design findings to `/architecture-review`.
+- `domain-modeling`: each context's ADRs number on their own.
+- `grilling`: offers the smallest option first and asks at most four questions a round, only ones that change what gets built.
+- `handoff`: reports the handoff file's absolute path.
+- `implement`: fetches its issues, references them in commits, passes the spec to `code-review`, and closes each issue once the review is clean. The full suite runs before every commit. Refactors keep behavior: characterization tests through `tdd` in their own `test:` commit, test files untouched in `refactor:` commits, and review fixes that change behavior go test-first.
+- `pr`: reads the glossary from the `docs/agents/domain.md` layout.
+- `prototype`: asks its logic-or-UI question as a choice, indexes `UI.md`, and keeps the prototype on a `prototype/<name>` branch with a pointer even before an issue exists.
+- `research`: writes where its caller asks, and does the work itself when it already runs as a subagent.
+- `retro`: drops candidates the code or docs already cover, adds a **Drift** category, tells duplication from no-ops, names where session logs live, and says "context pointer".
+- `setup-supermatt-skills`: always writes the triage label vocabulary, and records the template operations for an "Other" tracker. The GitHub template creates missing labels and reads the frontier from the sub-issues endpoint. The local tracker gains Close, a `Category:` line, an inbox, and keeps `wayfinder` decisions in `decisions/`.
+- `tdd`: checks that a test goes red for the reason it names, counts a cycle green only on the full suite, ends with a mutation check, and flags change-detector tests (adapted from Superpowers `test-driven-development`). It adds a characterization reference, defines a seam as `codebase-design` does, treats seams in the spec or issue as confirmed, and sends a bug with an unknown cause to `diagnosing-bugs`. `mocking.md` allows in-memory adapters at owned ports.
+- `teach`: format files use the same names as `SKILL.md`.
+- `to-spec`: checks the draft in a fresh-context sub-agent before it publishes (adapted from Every's `ce-doc-review`), takes a `wayfinder` map or issue reference, and records the agreed test seams.
+- `to-tickets`: explores the codebase in a subagent, gives each ticket its seams, and uses the tracker's Blocking operation.
+- `triage`: uses one `.out-of-scope/` format and puts the AI disclaimer at the top of its templates.
+- `wait-what`: uses `TERMS.md` in a `teach` workspace.
+- `wayfinder`: names the smallest version before it charts, has a subagent argue for the smallest answer, and tracks **Added so far**. A map is done when the first working version can be built. Research subagents run in their own worktrees, and their tickets are claimed and resolved.
+- `wizard`: lists the GitHub variables it set.
+- `writing-for-agents`: scopes "zero context load" to Claude Code, and keeps shared reference files inside the plugin root.
 
 ## [0.2.1]
 
