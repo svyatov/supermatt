@@ -14,7 +14,7 @@ When exploring the codebase, read `GLOSSARY.md` (if it exists) so test names and
 
 Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
 
-Read [tests.md](tests.md) for good and bad test examples before writing the first test, and read [mocking.md](mocking.md) before adding any mock or test double.
+Read [tests.md](tests.md) for good and bad test examples before writing the first test, and read [mocking.md](mocking.md) before adding any mock or test double. Before you change code that has no tests, read [characterization.md](characterization.md) and pin what it does now.
 
 ## Seams: where tests go
 
