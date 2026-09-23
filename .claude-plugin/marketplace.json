@@ -4,12 +4,12 @@
   "owner": {
     "name": "Leonid Svyatov"
   },
-  "description": "Agent skills for engineering and productivity workflows.",
+  "description": "SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code.",
   "plugins": [
     {
       "name": "supermatt",
       "source": "./",
-      "description": "Agent skills for engineering and productivity workflows."
+      "description": "SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code."
     }
   ]
 }
