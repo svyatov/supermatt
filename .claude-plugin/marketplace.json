@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "supermatt",
+  "owner": {
+    "name": "Leonid Svyatov"
+  },
+  "description": "Agent skills for engineering and productivity workflows.",
+  "plugins": [
+    {
+      "name": "supermatt",
+      "source": "./",
+      "description": "Agent skills for engineering and productivity workflows."
+    }
+  ]
+}

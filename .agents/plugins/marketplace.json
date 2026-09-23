@@ -1,0 +1,20 @@
+{
+  "name": "supermatt",
+  "interface": {
+    "displayName": "SuperMatt"
+  },
+  "plugins": [
+    {
+      "name": "supermatt",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

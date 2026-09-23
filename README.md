@@ -2,7 +2,23 @@
 
 Agent skills for coding agents, organized into buckets. Run `/setup-supermatt-skills` once per repo before the first engineering flow.
 
-To link every skill into `~/.claude/skills` and `~/.agents/skills`, run `scripts/link-skills.sh`.
+## Install
+
+In Claude Code:
+
+```
+/plugin marketplace add svyatov/supermatt
+/plugin install supermatt@supermatt
+```
+
+In Codex:
+
+```
+codex plugin marketplace add svyatov/supermatt
+codex plugin add supermatt@supermatt
+```
+
+Maintainers working on this repo can instead link every skill into `~/.claude/skills` and `~/.agents/skills` with `scripts/link-skills.sh`.
 
 ## Engineering
 
