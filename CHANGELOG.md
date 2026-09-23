@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- `diagnosing-bugs`: the HITL script runs in POSIX `sh`, so it no longer needs bash on the user's machine.
+
 ## [0.3.3]
 
 ### Changed

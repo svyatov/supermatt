@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Human-in-the-loop reproduction loop.
 # The agent copies this file and edits the steps below; the user runs it in
 # their own terminal (it reads from a TTY, so an agent's shell gets EOF and
 # exits) and pastes the Captured block back.
 #
 # Usage:
-#   bash hitl-loop.template.sh
+#   sh hitl-loop.template.sh
 #
 # Two helpers:
 #   step "<instruction>"          → show instruction, wait for Enter
@@ -16,18 +16,17 @@
 # `capture` prints its value back to the terminal, where the agent reads it,
 # so capture observations, and leave signing in to the user as a `step`.
 
-set -euo pipefail
+set -eu
 
 step() {
-  printf '\n>>> %s\n' "$1"
-  read -r -p "    [Enter when done] " _
+  printf '\n>>> %s\n    [Enter when done] ' "$1"
+  read -r _
 }
 
 capture() {
-  local var="$1" question="$2" answer
-  printf '\n>>> %s\n' "$question"
-  read -r -p "    > " answer
-  printf -v "$var" '%s' "$answer"
+  printf '\n>>> %s\n    > ' "$2"
+  read -r answer
+  eval "$1=\$answer"
 }
 
 # --- edit below ---------------------------------------------------------
