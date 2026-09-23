@@ -12,7 +12,7 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 
 1. Call the Skill tool with `writing-for-agents` for the writing style guide.
 
-2. Read the primary sources for the session the user specifies. This may mean searching through session logs on this machine; hand that search to a sub-agent that returns only the relevant excerpts. If the user doesn't specify a session, default to the current one.
+2. Read the primary sources for the session the user specifies. This may mean searching through session logs on this machine; hand that search to a sub-agent that returns only the relevant excerpts. Claude Code keeps sessions under `~/.claude/projects/` (or `$CLAUDE_CONFIG_DIR/projects/`), Codex under `~/.codex/sessions/` (or `$CODEX_HOME/sessions/`). If the user doesn't specify a session, default to the current one.
 
 3. Look for candidates for improvement in these categories.
 
@@ -21,10 +21,13 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 - **Coding standards**: should the **reviewer agent** be given a new rule to enforce? Should an existing rule be removed or clarified? Classify the violation first: a **mechanical** one (a fixed syntactic pattern, a banned API, an import shape, a file-location rule) gets a deterministic check, full stop: a custom rule in the repo's own linter, a new pre-commit hook, or a new CI job, whichever the repo's language and existing guardrail make cheapest. Default to building the check over writing the rule. Reserve `CODING_STANDARDS.md` for genuine **judgement calls** (cross-file consistency, "matches the surrounding style," anything no guardrail could ever substitute for). _Use when_ the reviewer agent failed to catch a mistake.
 - **Global AGENTS.md**: are there any steering instructions that should be moved to coding standards (or automated checks) instead? _Use when_ the AGENTS.md file is particularly large, in the repo OR the user's global scope.
 - **Tool economy**: did the agent make expensive tool calls that could be streamlined? Is there any custom tooling (CLI's, MCP's) that is particularly token-inefficient? _Use when_ the agent made an expensive tool call.
-- **No-ops**: look for instructions in steering files that don't modify the agent's behavior. _Use when_ the steering files are large and unwieldy.
+- **Drift**: does a steering file the session read name a path, command, or rule the current code no longer supports? Do two steering files contradict each other? A contradiction ranks above plain staleness, because it actively misleads. Check only the steering files the session read; do not sweep the rest. _Use when_ the agent followed a stale pointer or got two conflicting instructions.
+- **No-ops**: look for instructions in steering files that don't modify the agent's behavior. An instruction is a no-op only when a named artifact already states the same rule in its own text (a lint rule, a test, a code comment, another steering file); quote that file and line. A file on a related topic is not coverage. _Use when_ the steering files are large and unwieldy.
 - **Information access**: look for opportunities to increase the agent's access to information. Teeing dev server logs, readonly access to third-party services. _Use when_ a crucial piece of information was not available to the agent.
 
-4. Present these candidates to the user, in order of severity.
+4. Filter the candidates. Keep one only if a future agent would plausibly repeat the mistake without the change, and the lesson is not already recoverable from the code, tests, types, comments, or existing docs. How long the session took or how bad it felt does not qualify a candidate. When a candidate touches an existing rule, doc, or check that was wrong or incomplete, amend that artifact instead of adding a new one.
+
+5. Present the surviving candidates to the user, in order of severity. If none survive, say so and name why each was dropped.
 
 ## Reference
 

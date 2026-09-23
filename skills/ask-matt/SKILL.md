@@ -53,7 +53,7 @@ A starting situation that generates work, then merges onto the main flow.
 
 Not feature work, just upkeep.
 
-- **`/retro`** looks back at a finished session (this one by default) and suggests changes to the agent's **environment**: automated checks, navigation pointers, coding-standards rules, a leaner `AGENTS.md`. Run it after a session that went badly, so the next one doesn't repeat the mistake.
+- **`/retro`** looks back at a finished session (this one by default) and suggests changes to the agent's **environment**: automated checks, navigation pointers, coding-standards rules, stale or contradictory instructions, a leaner `AGENTS.md`. Run it after a session that went badly, so the next one doesn't repeat the mistake.
 
 - **`/architecture-review`** runs whenever you have a spare moment to keep the codebase good for agents to operate in. When the architecture is healthy, it says so and stops. Otherwise it surfaces **deepening opportunities** in an HTML report, then grills you on the one you pick, the same way `/grill-with-docs` would, and merges onto the main flow at step 3 (`/to-spec`, or `/implement` for a small refactor). Each card in the report carries a prompt that takes that candidate into `/grill-with-docs` in a fresh session, for the ones you leave for later. It's the survey that finds the candidates; **`/codebase-design`** (below) is the bench you design the chosen one on.
 

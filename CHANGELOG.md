@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- `retro` drops a candidate when the code, tests, or existing docs already carry the lesson, amends an existing rule or check instead of adding a duplicate, and says so when nothing qualifies.
+- `retro` has a **Drift** category: a steering file the session read that points at a path, command, or rule the code no longer supports, or two steering files that contradict each other.
+- `retro` removes an instruction as a no-op only when it can quote another file that already states the same rule.
+- `retro` names where Claude Code and Codex keep session logs.
 - `architecture-review` report cards carry a **Tackle later** prompt that takes a candidate into `/grill-with-docs` in a fresh session.
 - `architecture-review` assesses the codebase before it writes a report. A finding must cause change amplification, cognitive load, or unknown unknowns. On a healthy codebase, the skill says so and writes no report.
 - `architecture-review` cards state the deepened module's responsibility and what stays out of it, and a candidate whose responsibility needs "and" more than once is split or dropped.
