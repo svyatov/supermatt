@@ -14,6 +14,8 @@ When exploring the codebase, read `GLOSSARY.md` (if it exists) so test names and
 
 Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
 
+Before you write a test, name the **break** it catches: the production change that turns it red. If you cannot name one, the test observes no behavior yet; find the behavior first.
+
 Read [tests.md](tests.md) for good and bad test examples before writing the first test, and read [mocking.md](mocking.md) before adding any mock or test double. Before you change code that has no tests, read [characterization.md](characterization.md) and pin what it does now.
 
 ## Seams: where tests go
@@ -30,10 +32,13 @@ When the shape of that interface is itself in question (how deep the module is, 
 
 - **Implementation-coupled**: mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
 - **Tautological**: the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth: a known-good literal, a worked example, the spec.
+- **Change detector**: the test goes red only on a deliberate decision (a constant's value, the exact wording of a message, the source text of a script or doc) and stays green through real bugs. Assert the behavior that depends on the decision: "a failing call is tried 5 times, then gives up" in place of `expect(MAX_RETRIES).toBe(5)`.
 - **Horizontal slicing**: writing all tests first, then all implementation. Bulk tests verify _imagined_ behavior: you test the _shape_ of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead: one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
 
 ## Rules of the loop
 
-- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
+- **Red before green.** Write the test first and run it. It is red when the assertion fails for the break you named. An error, a typo, or a failed import is not red yet: fix it and run again. A test that passes at once pins behavior that already exists: rewrite it. Then write only enough code to pass it. Don't anticipate future tests or add speculative features.
+- **Green is the whole suite.** A cycle is green when the project's full test command passes, not only the new test. Report every failure by name, including failures you did not cause.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
+- **Mutate before you finish.** Break the code under test in small, realistic ways, one at a time: a wrong constant or argument, the wrong branch, a missing side effect, an empty return, a missing check for empty, zero, null, or bad input. Run the tests for that seam, then undo the change. Each mutation must turn at least one test red; one that stays green marks behavior no test protects.
 - **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.

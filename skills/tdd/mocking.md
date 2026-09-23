@@ -57,3 +57,20 @@ The SDK approach means:
 - No conditional logic in test setup
 - Easier to see which endpoints a test exercises
 - Type safety per endpoint
+
+## Keeping Mocks Honest
+
+- **Assert on the real code.** An assertion on the mock itself passes whenever the mock exists. Assert on what the real code does.
+
+  ```typescript
+  // BAD: passes as long as the mock renders
+  expect(screen.getByTestId("sidebar-mock")).toBeInTheDocument();
+
+  // GOOD: checks what the real page renders
+  expect(screen.getByRole("navigation")).toBeInTheDocument();
+  ```
+
+- **Learn the side effects first.** Before you replace a method, list what it does. Keep real the effects the test depends on, and mock the slow or external call below them.
+- **Mirror the full shape.** A mock response carries every field the real one has, not only the fields this test reads. Code that reads a missing field passes the test and breaks in production.
+- **Keep test-only code in test utilities.** A cleanup or reset method that only tests call belongs in a test helper, and the production class keeps only production methods.
+- **Big setup means real components.** When mock setup outgrows the test, use the real components and test at a higher seam.

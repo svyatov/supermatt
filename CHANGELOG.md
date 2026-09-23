@@ -33,6 +33,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `improve-codebase-architecture` is now `architecture-review`, because it reviews the codebase and changes no code. Run `/architecture-review` (Codex: `$architecture-review`) instead.
 - `architecture-review` finds hot spots by change count over the last year, ranked by complexity, and leaves out bot and bulk reformat commits.
 - `grilling` offers the smallest option first in every question and recommends it unless a concrete case fails. It asks at most four questions a round, and only questions that change what gets built.
+- `tdd` checks that a new test goes red for the reason it names, counts a cycle green only when the full suite passes, and ends with a mutation check. It flags change-detector tests, and `mocking.md` covers asserting on mocks, partial mock data, and test-only methods in production classes. Adapted from obra's Superpowers `test-driven-development`.
 - A `wayfinder` map is done when the first working version can be built, and "not needed" closes a ticket as out of scope.
 
 ### Fixed
