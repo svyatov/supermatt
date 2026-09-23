@@ -21,6 +21,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - `code-review` findings carry a P0-P3 severity and quote the line they flag, and every axis skips pre-existing code, linter territory, and speculative concerns. The report ends with a verdict: Not ready, Ready with fixes, or Ready.
 - `wayfinder` names the smallest version before it charts a map, and stops if building that version would teach more than planning it.
 - `wayfinder` has a subagent argue for the smallest answer before a ticket is recorded, prunes tickets and fog each answer makes unneeded, and tracks what the decisions add in a new **Added so far** map section.
+- `diagnosing-bugs` asks what the user already tried, rules out the environment and the user's uncommitted work before it forms hypotheses, and audits its assumptions. A prediction must name something not yet looked at.
+- `diagnosing-bugs` fixes nothing until it can state the causal chain with no gaps, treats a bug that vanishes under a probe as a timing clue, and escalates after 2-3 dead hypotheses or 3 failed fixes with a table that names the likely cause. A bug-class checklist seeds its hypotheses. Adapted from Every's `ce-debug`, credited in `CREDITS.md`.
 - `codebase-design` defines information leakage, back-door leakage included, and the two ways to repair a leak.
 - `codebase-design` has a red flags reference that names signs of shallow and leaky modules. `architecture-review` names the friction it finds with these flags. Adapted from Luke Ramsden's `software-design` skill, credited in `CREDITS.md`.
 
@@ -44,6 +46,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `tdd` shows a valid Jest call in its implementation-detail example, and the README no longer says refactoring is part of its loop.
 - `implement` calls the Skill tool with `tdd` before it writes characterization tests.
 - The `setup-supermatt-skills` tracker templates name the same map sections as `wayfinder`.
+- `diagnosing-bugs` reports a missing regression-test seam to the user in its cleanup checklist, where before it flagged the seam for a phase that did not exist.
 
 ## [0.2.1]
 
