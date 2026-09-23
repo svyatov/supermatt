@@ -26,6 +26,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `architecture-review` ends by handing the settled refactor to `/to-spec` or `/implement`, where before the grilling had no exit.
 - `ask-matt` no longer sends a picked `architecture-review` candidate to `/grill-with-docs`, which the skill already does inline.
 - `code-review` includes uncommitted changes in the diff, so it can review work in progress as its description says.
+- `architecture-review` gives the Codex form of the skills it hands off to, allows a `Healthy` verdict in the report header, and calls the card field **Wins** in both files.
 
 ## [0.2.1]
 

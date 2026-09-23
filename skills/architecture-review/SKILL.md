@@ -69,7 +69,7 @@ For each candidate, render a card with:
 - **Solution**: plain English description of what would change
 - **Responsibility**: one sentence on what the deepened module does
 - **Stays out**: related logic that stays outside the deepened module, and why
-- **Benefits**: explained in terms of locality and leverage, and how tests would improve
+- **Wins**: explained in terms of locality and leverage, and how tests would improve
 - **Before / After diagram**: side-by-side, custom-drawn, illustrating the shallowness and the deepening
 - **Recommendation strength**: one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
 - **Tackle later**: a self-contained prompt that takes this candidate into `/grill-with-docs` in a fresh session, for the candidates the user doesn't pick now
@@ -101,7 +101,7 @@ Side effects happen inline as decisions crystallize; call the Skill tool with "d
 
 The grilling ends when the shape of the deepened module is settled: its interface, what sits behind the seam, and which tests survive. Stay in this session, since the build needs the grilling as it happened, and tell the user the next step:
 
-- **The refactor takes more than one session**: `/to-spec`, then `/to-tickets`, then `/implement` per ticket.
-- **It fits in this session**: `/implement` right here.
+- **The refactor takes more than one session**: `/to-spec`, then `/to-tickets`, then `/implement` per ticket (`$to-spec`, `$to-tickets`, `$implement` in Codex).
+- **It fits in this session**: `/implement` right here (`$implement` in Codex).
 
 To tackle another candidate later, the user pastes its **Tackle later** prompt from the report into a fresh session.
