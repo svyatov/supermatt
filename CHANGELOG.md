@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.1]
+
 ### Fixed
 
 - `code-review`: no longer claims the `claude` peer runs on the default model; `--safe-mode` keeps the user's model selection.
