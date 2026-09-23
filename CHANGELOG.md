@@ -7,6 +7,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Added
 
 - `architecture-review` report cards carry a **Tackle later** prompt that takes a candidate into `/grill-with-docs` in a fresh session.
+- `architecture-review` assesses the codebase before it writes a report. A finding must cause change amplification, cognitive load, or unknown unknowns. On a healthy codebase, the skill says so and writes no report.
+- `architecture-review` cards state the deepened module's responsibility and what stays out of it, and a candidate whose responsibility needs "and" more than once is split or dropped.
+- `architecture-review` skips modules that are shallow by design: thin adapters, data classes, and configuration loaders.
 
 ### Changed
 
