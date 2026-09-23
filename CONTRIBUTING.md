@@ -19,14 +19,15 @@ codex plugin add supermatt@supermatt
 
 ## Check your change
 
-Run the same validation that CI runs:
+Run these checks before you open a pull request. CI runs them too:
 
 ```
 claude plugin validate --strict .
 claude plugin validate --strict ./skills
+sh tests/link-skills.test.sh
 ```
 
-The repository has no automated tests for skill behavior yet. CI runs only the validation above. Until tests exist, describe in the pull request how you ran the changed skill and what it did.
+`tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
 
 ## Rules for a change
 
