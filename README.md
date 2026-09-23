@@ -32,6 +32,57 @@ codex plugin add supermatt@supermatt
 
 Maintainers working on this repo can instead link every skill into `~/.claude/skills` and `~/.agents/skills` with `scripts/link-skills.sh`. Linked skills are not namespaced, so in Claude Code a linked `code-review` replaces the bundled `/code-review`.
 
+## How it differs from mattpocock/skills
+
+SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) at commit `c55ee46` and keeps its idea: small, composable skills that stay under your control. The main change is that each skill checks its own work and hands the result to the next skill, so the set runs as one flow from an idea to a reviewed, closed issue.
+
+### Skills check their own work
+
+- `code-review` adds a third axis, **Adversarial**: how does the change fail in production? Claude Code sends this axis to `codex`, and Codex sends it to `claude`, so a second model reviews every change. Findings carry P0-P3 severities and quote the lines they cite, and the review ends with a verdict. Upstream reviews on two axes, Standards and Spec.
+- `to-spec` checks the draft spec in a fresh-context sub-agent before it publishes it.
+- `tdd` checks that each test goes red for the reason it names, counts a cycle green only when the full suite passes, ends with a mutation check, and flags change-detector tests.
+- `diagnosing-bugs` asks what you already tried, rules out the environment and uncommitted work, and fixes nothing until the causal chain has no gaps. It escalates to you after 2-3 dead hypotheses or 3 failed fixes.
+- `architecture-review` assesses the codebase first and writes no report when the codebase is healthy. It finds hot spots by change count over the last year and skips modules that are shallow by design.
+- `ideate`, new in SuperMatt, has a fresh sub-agent try to refute each idea before it ranks the survivors.
+
+### Skills hand off to each other
+
+- `implement` runs the full suite before every commit, passes the spec to `code-review`, fixes the verified P0 and P1 findings, and closes each issue once the review is clean.
+- `diagnosing-bugs` writes the regression test through `tdd` and reviews the fix with `code-review`, using the bug report as the spec.
+- Test seams agreed in `to-spec` or `triage` travel through `to-tickets` into `implement` and `tdd`, so no skill asks about them twice.
+- Each planning skill ends by pointing to the next step: `ideate` to `/grill-with-docs`, `architecture-review` to `/to-spec` or `/implement`, and `wayfinder` to `/to-spec`.
+- `ask-supermatt` routes across all of these flows and is kept in sync with every skill change.
+
+### Refactors keep behavior
+
+- `implement` pins current behavior with characterization tests, written through `tdd` in their own `test:` commit.
+- `refactor:` commits never touch test files, and `code-review` runs a refactor check on them.
+- A review fix that changes behavior goes test-first.
+
+### Smallest version first
+
+- `grilling` offers the smallest option first and asks at most four questions a round, only ones that change what gets built.
+- `wayfinder` names the smallest version before it charts the work, has a sub-agent argue for the smallest answer, and counts a map as done when the first working version can be built.
+
+### Codex is a first-class host
+
+- SuperMatt ships a native Codex plugin marketplace next to the Claude Code one. Upstream installs into Codex through `npx skills`, and lists a native Codex plugin on its roadmap.
+- Skills live in a flat `skills/` directory, because Codex rejects nested skills.
+- Wherever a skill tells you to run another user-invoked skill, it gives the Codex form (`$name`) next to the Claude Code form (`/name`).
+
+### Scope and names
+
+- **Kept**: the engineering and productivity skills, plus `retro` and `pr` from upstream's in-progress set.
+- **Dropped**: upstream's `misc` skills and the rest of its in-progress set.
+- **Added**: `ideate`.
+- **Renamed**: `ask-matt` is `ask-supermatt`, `improve-codebase-architecture` is `architecture-review`, `setup-matt-pocock-skills` is `setup-supermatt-skills`, and `CONTEXT.md` is `GLOSSARY.md`.
+
+### Borrowed ideas
+
+Some of the checks above are adapted from other skill sets, and each skill credits its source: [Every's compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin) (`code-review`, `diagnosing-bugs`, `to-spec`, `ideate`), [Superpowers](https://github.com/obra/superpowers) (`tdd`, `diagnosing-bugs`), and Luke Ramsden's [software-design](https://github.com/lukeramsden/software-design-agent-skill) (`codebase-design`).
+
+The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Engineering
 
 ### User-invoked
