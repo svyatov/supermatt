@@ -39,7 +39,7 @@ Deadline and rough effort. Partial answers and "I don't know" are useful: flag a
 
 ## <Theme heading>
 
-One `##` section per theme. Under each, its questions, most-important-first. Every question is one idea, never compound, with an answer stub directly beneath, and a one-line _why this matters_ only where the question could be misread or invite a throwaway answer.
+One `##` section per theme. Under each, its questions, most-important-first. Every question is one idea, never compound, with an answer stub beneath it, and a one-line _why this matters_ between the two only where the question could be misread or invite a throwaway answer.
 
 <question-example>
 ### What load is the system expected to handle at launch?
