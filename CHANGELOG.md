@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 
 - `to-spec`: a wayfinder map whose destination is already written is read from that destination, with a linked ticket fetched only where it is silent, and the template names the durable paths a spec may cite (a document it builds on, prior-art tests) in place of banning every path.
+- `to-tickets`: a ticket lists only its direct blockers, dropping an edge another blocker already implies.
 - `wayfinder`: a Decisions-so-far entry is one sentence of at most 30 words, stated in the template and at the step that writes it, so the map stays a low-resolution index as it grows, and a Notes skill tied to a condition is called when the work meets it.
 
 ## [0.3.4] - 2026-09-24
