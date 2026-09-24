@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 
 - `code-review`: the adversarial prompt carries the test command the session ran and its result, since the read-only peer often cannot build, and the aggregate is printed as its own message with every finding under its axis, also when another skill loaded the review.
+- `setup-supermatt-skills`: the GitHub tracker template reads an issue or a pull request through `--json`, because a piped `--comments` prints the comments alone without the body, and it adds a **List children** operation for the issues whose `## Parent` section names a parent.
 
 ## [0.3.6] - 2026-09-24
 
