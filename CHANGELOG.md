@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-09-24
+
+### Fixed
+
+- `code-review`: the peer runs as its own background shell call with no trailing `&`, so the call's completion notice says when `out.md` is ready.
+- `implement`: the repo's lint runs with the full test suite before every commit, and the commit is chained on each check's own exit status, unpiped or under `pipefail`, so a red check stops it.
+- `retro`: step 2 names what the agent's own context cannot hold, the thread before the last compaction and the sub-agent transcripts in `<session-id>/subagents/`, as the sources left to search.
+- `tdd`: code written ahead of its test counts only once a mutation turns that test red, each branch waits for a failing case that runs it, and a mutation that only panics or fails to compile does not count as killed.
+
 ## [0.3.7] - 2026-09-24
 
 ### Fixed
@@ -142,7 +151,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.7...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.8...HEAD
+[0.3.8]: https://github.com/svyatov/supermatt/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/svyatov/supermatt/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/svyatov/supermatt/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/svyatov/supermatt/compare/v0.3.4...v0.3.5
