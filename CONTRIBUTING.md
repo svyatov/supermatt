@@ -26,9 +26,10 @@ claude plugin validate --strict .
 claude plugin validate --strict ./skills
 sh tests/link-skills.test.sh
 sh tests/mutate.test.sh
+sh tests/release.test.sh
 ```
 
-`tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`, and `tests/mutate.test.sh` tests the `tdd` skill's mutation runner. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
+`tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. `tests/mutate.test.sh` tests the `tdd` skill's mutation runner, and `tests/release.test.sh` tests the maintainer's `scripts/release.sh`. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
 
 ## Rules for a change
 
