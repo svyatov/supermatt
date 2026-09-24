@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-09-24
+
 ### Fixed
 
 - `code-review`: the adversarial prompt carries the test command the session ran and its result, since the read-only peer often cannot build, and the aggregate is printed as its own message with every finding under its axis, also when another skill loaded the review.
@@ -140,7 +142,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.6...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.7...HEAD
+[0.3.7]: https://github.com/svyatov/supermatt/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/svyatov/supermatt/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/svyatov/supermatt/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/svyatov/supermatt/compare/v0.3.3...v0.3.4
