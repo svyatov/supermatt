@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-09-24
+
+### Fixed
+
+- `tdd`: the skill gives the command that runs `scripts/mutate.sh`, through `sh`, and the script is executable, so a direct call no longer fails with "permission denied".
+
 ## [0.4.1] - 2026-09-24
 
 ### Fixed
@@ -170,7 +176,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/svyatov/supermatt/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/svyatov/supermatt/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/svyatov/supermatt/compare/v0.3.8...v0.4.0
 [0.3.8]: https://github.com/svyatov/supermatt/compare/v0.3.7...v0.3.8
