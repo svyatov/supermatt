@@ -8,6 +8,8 @@ Every `SKILL.md` is either user-invoked (`disable-model-invocation: true` plus `
 
 Any change to a shipped skill must bump `version` in `.claude-plugin/plugin.json` (semver: PATCH for fixes, MINOR for new skills or features, MAJOR for removals or renames; before 1.0.0, a removal or rename bumps MINOR) and add a `CHANGELOG.md` entry. Plugin users get updates only on a version bump; commits without one never reach them. `plugin.json` holds the only `version`: the Claude Code catalog (`.claude-plugin/marketplace.json`) and the Codex catalog (`.agents/plugins/marketplace.json`) must not set one, and both must list the same plugins.
 
+A version bump reaches `main` through a pull request. Once it merges, run `scripts/release.sh` on an up-to-date `main`. It creates the signed `v<version>` tag, pushes it, and opens a GitHub Release from that version's `CHANGELOG.md` section. Only the maintainer's account can create `v*` tags, so an agent without that account stops at the merge.
+
 Deprecate a user-reachable skill before you remove or rename it. Ship one release where the old name still works as a stub `SKILL.md` that names the replacement and the version that removes the stub, and list it under **Deprecated** in `CHANGELOG.md`. Remove the stub in a later release and list it under **Removed**.
 
 The `CHANGELOG.md` Unreleased section keeps one entry per skill: fold a new change to a skill into that skill's existing entry instead of adding another line, so the changelog stays compact.
