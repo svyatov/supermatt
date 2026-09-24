@@ -2,6 +2,8 @@
 
 How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
+This repo is **[single-context | multi-context]**: [one `GLOSSARY.md` and one `docs/adr/` at the root | a root `GLOSSARY-MAP.md` pointing at one `GLOSSARY.md` per context].
+
 ## Before exploring, read these
 
 - **`GLOSSARY.md`** at the repo root, or

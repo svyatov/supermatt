@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 
 - `implement`: asked for the next ticket under a parent spec, it takes the first frontier ticket (an open child whose blockers are all closed) and names it, and it closes an issue only once its commits are merged into the default branch.
+- `setup-supermatt-skills`: a repo whose glossary is still `CONTEXT.md` keeps that name by default, with a rename offered second and preceded by a reference search; an existing `docs/agents/` file is diffed against its template and its repo-specific lines carried over; and the `domain.md` template states which layout the repo uses.
 
 ## [0.3.5] - 2026-09-24
 
