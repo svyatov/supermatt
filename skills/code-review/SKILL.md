@@ -94,7 +94,7 @@ Every sub-agent prompt includes the **finding rules** (see _Finding rules_) past
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
 
-**Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff command and commit list, then "Under 400 words." The fallback sub-agent gets this same prompt.
+**Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff command and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then "Under 400 words." The fallback sub-agent gets this same prompt.
 
 For the peer, write the prompt to `prompt.md` in a fresh `mktemp -d` directory, then start the peer's command in the background from the repo root, alongside the other sub-agents:
 
