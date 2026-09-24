@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-24
+
+### Added
+
+- `tdd`: `scripts/mutate.sh` runs the mutation pass. It applies each mutation alone, restores the file, and reports it red, GREEN, broken (the build step failed) or missing (its text was not found), so a session stops hand-writing that harness.
+
+### Fixed
+
+- `code-review`: the adversarial peer gets the path of a program built from `HEAD` in its temp directory, since a read-only peer cannot build and a binary already in the checkout may predate the change.
+
 ## [0.3.8] - 2026-09-24
 
 ### Fixed
@@ -151,7 +161,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.8...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/svyatov/supermatt/compare/v0.3.8...v0.4.0
 [0.3.8]: https://github.com/svyatov/supermatt/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/svyatov/supermatt/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/svyatov/supermatt/compare/v0.3.5...v0.3.6
