@@ -4,17 +4,19 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-09-24
+
 ### Fixed
 
 - `diagnosing-bugs`: the HITL script runs in POSIX `sh`, so it no longer needs bash on the user's machine.
 
-## [0.3.3]
+## [0.3.3] - 2026-09-23
 
 ### Changed
 
 - The plugin description in the Claude Code catalog now matches the README opening sentence.
 
-## [0.3.2]
+## [0.3.2] - 2026-09-23
 
 ### Fixed
 
@@ -35,7 +37,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `triage`: reads the tracker and label files by path, and agrees the seams before every move to `ready-for-agent`, including a quick override, so agent briefs record them. Its queue leaves out specs, tickets, and `wayfinder` issues, and briefs no longer assume GitHub.
 - `wayfinder`: reads the tracker file by path, works each ticket by its type, and claims and resolves through the tracker's operations. It builds non-code prototypes itself, sizes tickets to the smart zone, and hands a finished map to `/to-spec`.
 
-## [0.3.1]
+## [0.3.1] - 2026-09-23
 
 ### Fixed
 
@@ -48,7 +50,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `writing-for-agents`: says hosts shorten or drop descriptions when the skill listing overflows, instead of claiming they always stay loaded.
 - `grilling`: a round whose questions all have short options goes through the harness's multiple-choice tool when it has one.
 
-## [0.3.0]
+## [0.3.0] - 2026-09-23
 
 ### Added
 
@@ -80,7 +82,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `wizard`: lists the GitHub variables it set.
 - `writing-for-agents`: scopes "zero context load" to Claude Code, and keeps shared reference files inside the plugin root.
 
-## [0.2.1]
+## [0.2.1] - 2026-09-23
 
 ### Changed
 
@@ -97,7 +99,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `ask-matt` describes `/compact` as continuing the same conversation.
 - `improve-codebase-architecture` and `to-questionnaire` examples now follow their own rules.
 
-## [0.2.0]
+## [0.2.0] - 2026-09-23
 
 ### Added
 
@@ -109,8 +111,18 @@ All notable changes to this project are documented here. The format follows [Kee
 - `ask-matt` no longer says the `diagnosing-bugs` post-mortem hands off to `improve-codebase-architecture`.
 - `domain-modeling`: the `GLOSSARY-MAP.md` example now opens with a `# Glossary Map` heading.
 
-## [0.1.0]
+## [0.1.0] - 2026-09-23
 
 ### Added
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
+
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/svyatov/supermatt/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/svyatov/supermatt/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/svyatov/supermatt/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/svyatov/supermatt/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/svyatov/supermatt/compare/v0.2.1...v0.3.0
+[0.2.1]: https://github.com/svyatov/supermatt/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/svyatov/supermatt/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/svyatov/supermatt/releases/tag/v0.1.0
