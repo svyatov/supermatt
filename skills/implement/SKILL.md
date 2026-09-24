@@ -16,7 +16,7 @@ Where possible, at pre-agreed seams, call the Skill tool with "tdd". Seams that 
 
 Run typechecking regularly, and the full test suite before every commit.
 
-Once done, commit your work to the current branch. Reference each issue it implements in the commit message (`#<n>`, or the file path on a local tracker).
+Once done, commit your work to the current branch; on the default branch, create a branch first, named by the repo's convention. Reference each issue it implements in the commit message (`#<n>`, or the file path on a local tracker).
 
 Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec.
 
