@@ -8,6 +8,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - `code-review`: the adversarial prompt carries the test command the session ran and its result, since the read-only peer often cannot build, and the aggregate is printed as its own message with every finding under its axis, also when another skill loaded the review.
 - `implement`: on the default branch it creates a branch before it commits, and asked for a parent's next ticket it lists the children through the tracker's **List children** operation and reads the picked ticket in full, opening the parent only where the ticket points to it.
+- `retro`: a candidate passes the filter only when it is grounded, naming the moment in the session where the friction showed, with any steering file it cites governing the path the session took.
 - `setup-supermatt-skills`: the GitHub tracker template reads an issue or a pull request through `--json`, because a piped `--comments` prints the comments alone without the body, and it adds a **List children** operation for the issues whose `## Parent` section names a parent.
 
 ## [0.3.6] - 2026-09-24
