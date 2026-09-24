@@ -1,6 +1,6 @@
 # Characterization Tests
 
-A characterization test records what code does now, right or wrong. Write them before you change code that has no tests. A change that alters behavior then fails loudly.
+A characterization test records what code does now, right or wrong. Write them before you change code that has no tests. A change that alters behavior then fails loudly. When tests already cover the code, they are the characterization tests: go straight to "When you have enough".
 
 ## Find the expected value
 
@@ -18,6 +18,6 @@ Keep it pinned. Add a comment that says it is wrong. Fix it in a separate change
 
 ## When you have enough
 
-Break the code you are about to change, on purpose. At least one test must go red. Undo the break. If nothing went red, the tests do not cover the change yet.
+Break the code you are about to change, on purpose, once for each refactor step. At least one test must go red. Undo the break. If nothing went red, the tests do not cover the change yet. A pure move of code is checked by diffing the moved lines instead.
 
 Fix or quarantine a flaky test before you start. A red run you have learned to ignore tells you nothing.
