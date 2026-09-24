@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- `implement`: asked for the next ticket under a parent spec, it takes the first frontier ticket (an open child whose blockers are all closed) and names it, and it closes an issue only once its commits are merged into the default branch.
+
 ## [0.3.5] - 2026-09-24
 
 ### Fixed
