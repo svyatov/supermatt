@@ -8,7 +8,7 @@ license: MIT
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Synthesize what you already know instead of re-grilling the idea: you ask the user only the seam check in step 2 and any step 4 finding that needs a decision.
 
-If the user passes a reference, fetch it through the issue tracker first. For a `wayfinder` map, also fetch every ticket its **Decisions so far** section links: those tickets hold the decisions the spec collapses into a plan.
+If the user passes a reference, fetch it through the issue tracker first. For a `wayfinder` map, the decisions live in one of two places. When the map names a written destination (a spec or ADRs a ticket already assembled), read that destination: it is the decision record, and you fetch a linked ticket only where the destination is silent. Otherwise fetch every ticket its **Decisions so far** section links: those tickets hold the decisions the spec collapses into a plan.
 
 Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If either is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
 
@@ -62,7 +62,7 @@ A list of implementation decisions that were made. This can include:
 - API contracts
 - Specific interactions
 
-Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
+Name modules and their interfaces, not source file paths or code snippets: those go stale fast. Two kinds of path are durable and belong in the spec: a document the spec builds on (a behavioural spec, an ADR), and the existing tests named as prior art.
 
 Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype, citing its `prototype/<name>` branch. Trim to the decision-rich parts, not a working demo, just the important bits.
 
