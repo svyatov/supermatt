@@ -29,4 +29,4 @@ When the work is a refactor, or when a review fix only restructures code, keep b
 - Tests that the design agreed are superseded by tests at a deepened interface are deleted in their own commit, not a `refactor:` one, once the new tests are green.
 - When a step goes red, revert it and take a smaller step.
 
-A review fix that has to change behavior (a bug or a spec gap) goes test-first: call the Skill tool with "tdd". Commit it separately from structural changes.
+A review fix that has to change behavior (a bug or a spec gap) goes test-first: call the Skill tool with "tdd". When the review asks for both kinds, fix the structural findings first and commit them as `refactor:`, then make the behavior fixes on top of that commit.
