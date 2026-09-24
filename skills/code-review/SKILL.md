@@ -96,7 +96,7 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 
 **Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff command and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then "Under 400 words." The fallback sub-agent gets this same prompt.
 
-For the peer, write the prompt to `prompt.md` in a fresh `mktemp -d` directory, then start the peer's command in the background from the repo root, alongside the other sub-agents:
+For the peer, write the prompt to `prompt.md` in a fresh `mktemp -d` directory, then start the peer's command from the repo root, alongside the other sub-agents, as its own background shell call (Claude Code: `run_in_background: true`, with no trailing `&`), so the call's completion notice is the signal that `out.md` is ready:
 
 - `codex`: `codex exec - --ignore-user-config --disable apps --disable plugins -C "$(git rev-parse --show-toplevel)" -s read-only -c 'approval_policy="never"' --ephemeral -o "$DIR/out.md" < "$DIR/prompt.md"`
 - `claude`: it has no shell, so first append the diff to `prompt.md` between `=== BEGIN DIFF ===` and `=== END DIFF ===` lines. Then run `claude -p --safe-mode --strict-mcp-config --tools Read Grep Glob --permission-mode dontAsk --no-session-persistence < "$DIR/prompt.md" > "$DIR/out.md"`. When the Codex sandbox blocks its network access, request escalated permissions for this one command.
