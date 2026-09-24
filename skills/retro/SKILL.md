@@ -12,7 +12,7 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 
 1. Call the Skill tool with "writing-for-agents" for the writing style guide.
 
-2. Read the primary sources for the session the user specifies. This may mean searching through session logs on this machine; hand that search to a sub-agent that returns only the relevant excerpts. Claude Code keeps sessions under `~/.claude/projects/` (or `$CLAUDE_CONFIG_DIR/projects/`), Codex under `~/.codex/sessions/` (or `$CODEX_HOME/sessions/`). If the user doesn't specify a session, default to the current one. Your context already holds its main thread up to the last compaction; the sources left to search are anything before that compaction and the sub-agent transcripts, which Claude Code keeps in `<session-id>/subagents/` beside the session file.
+2. Read the primary sources for the session the user specifies, defaulting to the current one. Your context holds at most the current session's main thread since its last compaction; everything else is on disk. Claude Code keeps sessions under `~/.claude/projects/` (or `$CLAUDE_CONFIG_DIR/projects/`), with sub-agent transcripts in `<session-id>/subagents/` beside the session file; Codex keeps them under `~/.codex/sessions/` (or `$CODEX_HOME/sessions/`). Dispatch one sub-agent to search what your context lacks (the part before any compaction, and every sub-agent transcript) and return only the friction excerpts: errors, denials, retries, corrections, each with its file and line. Count a repeated mistake across all of them before step 4 judges whether it recurs. Done when every source outside your context has been searched, or the session has no compaction and no sub-agents.
 
 3. Look for candidates for improvement in these categories.
 

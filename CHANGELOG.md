@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-24
+
+### Fixed
+
+- `code-review`: the peer runs read-only, so the run creates any fixture or setup a trigger needs beside the built program before the peer starts, and names it in the prompt.
+- `implement`: the full suite and lint run with the tool's longest timeout, since together they can outlast the default and move to the background.
+- `retro`: step 2 dispatches a sub-agent to search every source outside the agent's context (the thread before a compaction and each sub-agent transcript), counts a repeated mistake across all of them, and ends on a completion criterion.
+- `tdd`: a mutation keeps every import and variable in use, so a compiler that rejects unused names does not report it broken, and a green mutation gets a test that turns it red or its unreachable code is deleted. The check is done when every mutation is red.
+
 ## [0.4.0] - 2026-09-24
 
 ### Added
@@ -161,7 +170,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/svyatov/supermatt/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/svyatov/supermatt/compare/v0.3.8...v0.4.0
 [0.3.8]: https://github.com/svyatov/supermatt/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/svyatov/supermatt/compare/v0.3.6...v0.3.7
