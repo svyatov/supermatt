@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- `wayfinder`: a Decisions-so-far entry is one sentence of at most 30 words, stated in the template and at the step that writes it, so the map stays a low-resolution index as it grows, and a Notes skill tied to a condition is called when the work meets it.
+
 ## [0.3.4] - 2026-09-24
 
 ### Fixed

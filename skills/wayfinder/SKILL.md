@@ -41,9 +41,9 @@ The whole map at low resolution, loaded once per session. Open tickets are **not
 
 ## Decisions so far
 
-<!-- the index: one line per ticket resolved on the route (out-of-scope closures go under Out of scope), enough to judge relevance, then zoom the link for the detail the ticket holds -->
+<!-- the index: one sentence per ticket resolved on the route, at most 30 words (out-of-scope closures go under Out of scope): the decision alone, enough to judge relevance; its reasons and detail stay in the ticket -->
 
-- [<closed ticket title>](link): <one-line gist of the answer>
+- [<closed ticket title>](link): <the answer's gist: one sentence, at most 30 words>
 
 ## Added so far
 
@@ -130,9 +130,9 @@ User invokes with a map (URL or number). A ticket is **optional**: without one, 
 
 1. Load the **map**: the low-res view, not every ticket body.
 2. Choose the ticket. If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it** through the tracker's Claim operation before any work.
-3. Resolve it the way its type says (the `wayfinder:<type>` label, or the `Type:` line on a local tracker) ([Ticket Types](#ticket-types)), and also call the Skill tool for whichever skills the `## Notes` block names. **Zoom as needed**: fetch the full body of any related or closed ticket on demand.
+3. Resolve it the way its type says (the `wayfinder:<type>` label, or the `Type:` line on a local tracker) ([Ticket Types](#ticket-types)), and also call the Skill tool for whichever skills the `## Notes` block names. A Notes skill tied to a condition (a file area, a kind of change) is called the moment the work meets that condition, even mid-resolution. **Zoom as needed**: fetch the full body of any related or closed ticket on demand.
 4. **Challenge the answer.** Before recording it, dispatch a subagent with the drafted answer and the map's Destination, told to argue for the smallest answer that still reaches the destination. Put any smaller answer it finds to the user, who picks.
-5. Record the resolution: run the tracker's **Resolve** operation (it records the answer, takes the ticket off the frontier, and appends a context pointer to the map's Decisions-so-far), then add what the answer adds to **Added so far**.
+5. Record the resolution: run the tracker's **Resolve** operation (it records the answer, takes the ticket off the frontier, and appends a context pointer to the map's Decisions-so-far), then add what the answer adds to **Added so far**. The pointer is one sentence of at most 30 words after the link: the decision alone. Reasons, rejected options and the text changed go in the ticket's answer, never in the map.
 6. **Prune.** Close every open ticket and clear every **Not yet specified** patch this answer made unneeded, each with an **Out of scope** line saying why.
 7. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals that a ticket (this one or another) sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
 8. **Hand off when the way is clear.** When no open tickets remain and **Not yet specified** is empty, the map is done. When the destination is something to build, tell the user to run `/to-spec <map>` (`$to-spec <map>` in Codex), which collapses its decisions into a buildable plan; otherwise tell them the destination is reached.
