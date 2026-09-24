@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-09-24
+
+### Fixed
+
+- `code-review`: a peer that already failed in this session on a usage limit that has not reset goes straight to the fallback, instead of being launched again to fail the same way.
+- `implement`: when a review asks for structural and behavior fixes, the structural ones are made and committed as `refactor:` first, so the two commits need no untangling afterwards.
+- `tdd`: a cycle adds one case, not one test file, so each new case in a table or a script is seen red, since a runner that stops at its first failure hides every case after the first. A case the spec asks for over existing behavior is a characterization test, and counts once the code it covers is broken and it goes red.
+
 ## [0.4.2] - 2026-09-24
 
 ### Fixed
@@ -176,7 +184,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.2...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/svyatov/supermatt/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/svyatov/supermatt/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/svyatov/supermatt/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/svyatov/supermatt/compare/v0.3.8...v0.4.0

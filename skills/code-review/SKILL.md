@@ -72,7 +72,7 @@ The peer is the other model's CLI:
 - `CLAUDECODE=1` is set: the host is Claude Code, so the peer is `codex`.
 - Any of `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID` is set: the host is Codex, so the peer is `claude`.
 
-Confirm the peer is installed with `command -v <peer>`. When the host is unknown or the peer is missing, the Adversarial axis runs as a normal sub-agent instead (the **fallback**); note the reason for the report.
+Confirm the peer is installed with `command -v <peer>`. When the host is unknown, the peer is missing, or the peer already failed in this session on a usage limit whose reset time has not passed, the Adversarial axis runs as a normal sub-agent instead (the **fallback**); note the reason for the report.
 
 Before the peer starts, tell the user one line: "Adversarial axis: sending the diff to <peer>." This is a notice, so carry on without waiting for a reply.
 
