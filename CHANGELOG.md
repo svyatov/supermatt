@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-09-24
+
 ### Fixed
 
 - `to-spec`: a wayfinder map whose destination is already written is read from that destination, with a linked ticket fetched only where it is silent, and the template names the durable paths a spec may cite (a document it builds on, prior-art tests) in place of banning every path.
@@ -123,7 +125,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.4...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.5...HEAD
+[0.3.5]: https://github.com/svyatov/supermatt/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/svyatov/supermatt/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/svyatov/supermatt/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/svyatov/supermatt/compare/v0.3.1...v0.3.2
