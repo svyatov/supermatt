@@ -23,7 +23,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 - `git remote -v` and `.git/config`: is this a GitHub repo? Which one?
 - `AGENTS.md` and `CLAUDE.md` at the repo root: does either exist? Is there already an `## Agent skills` section in either?
-- `GLOSSARY.md` and `GLOSSARY-MAP.md` at the repo root
+- `GLOSSARY.md` and `GLOSSARY-MAP.md` at the repo root. `CONTEXT.md` or `CONTEXT-MAP.md` is the same file under its older name: in Section C, recommend keeping that name and pointing `domain.md` at it. Offer a rename only as the second option, and before any rename, `git grep` for its references and update them.
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/`: does this skill's prior output already exist?
 - `.scratch/`: a sign that a local-markdown issue tracker convention is already in use
@@ -104,6 +104,8 @@ Then write the docs files using the seed templates in this skill folder as a sta
 - [issue-tracker-local.md](./issue-tracker-local.md): local-markdown issue tracker
 - [triage-labels.md](./triage-labels.md): label mapping
 - [domain.md](./domain.md): domain doc consumer rules + layout
+
+When a `docs/agents/` file already exists, diff it against its template. Take the template's text, carry over the repo-specific lines (the repo slug, label overrides, the layout line), and show the diff as the Step 3 draft.
 
 For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch using the user's answers, under the same headings as the GitHub template.
 

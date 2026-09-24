@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.6] - 2026-09-24
+
+### Fixed
+
+- `implement`: asked for the next ticket under a parent spec, it takes the first frontier ticket (an open child whose blockers are all closed) and names it, and it closes an issue only once its commits are merged into the default branch.
+- `setup-supermatt-skills`: a repo whose glossary is still `CONTEXT.md` keeps that name by default, with a rename offered second and preceded by a reference search; an existing `docs/agents/` file is diffed against its template and its repo-specific lines carried over; and the `domain.md` template states which layout the repo uses.
+
 ## [0.3.5] - 2026-09-24
 
 ### Fixed
@@ -125,7 +132,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.5...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.3.6...HEAD
+[0.3.6]: https://github.com/svyatov/supermatt/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/svyatov/supermatt/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/svyatov/supermatt/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/svyatov/supermatt/compare/v0.3.2...v0.3.3
