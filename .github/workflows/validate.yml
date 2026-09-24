@@ -33,6 +33,7 @@ jobs:
           persist-credentials: false
       - run: sh tests/link-skills.test.sh
       - run: sh tests/mutate.test.sh
+      - run: sh tests/release.test.sh
 
   skills:
     runs-on: ubuntu-latest
