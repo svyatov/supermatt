@@ -146,7 +146,7 @@ The verdict is a rule over severities. Don't pick a single worst finding across 
 
   Baseline smells are P2 or P3. A refactor check hit is P1. A test check hit is P2.
 - **Quote the line.** Every finding cites `file:line` and quotes the line it flags. A claim that something is missing quotes where it would be defined, and a race quotes both sides. A claim that nothing else calls or uses a symbol rests on a symbol-aware search (LSP, CodeGraph) when one is available, and otherwise says "grep-only". Label a finding without a quote `unverified`; it does not move the verdict.
-- **Lead with the effect.** Open each finding with what a user or caller sees, then give the fix. When the right fix depends on something you can't see, propose the most likely default and name the assumption.
+- **Lead with the effect.** Open each finding with what a user or caller sees, then give one fix. When more than one fits, recommend one and name the trade-off. When the right fix depends on something you can't see, propose the most likely default and name the assumption.
 - **Skip:**
   - Code the diff didn't change, unless the diff makes it newly relevant (a new caller of an existing bug). Test: would you flag it on the same diff without the surrounding file?
   - A problem a caller, guard, or framework default already handles. Check them before you flag it.
