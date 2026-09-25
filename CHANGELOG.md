@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-09-24
+
+### Fixed
+
+- `code-review`: the refactor check flags a changed expected value for a behavior the commit still exposes, so a refactor that deletes tests of a removed or now-private subject, or moves them into boundary tests, passes. The temp directory is deleted once the Adversarial axis has a report, so a fallback after a failed peer still has its prompt. The fallback is told to read that `prompt.md`, and is no longer handed a prompt rebuilt by hand.
+
 ## [0.4.3] - 2026-09-24
 
 ### Fixed
@@ -185,6 +191,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
 [unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.3...HEAD
+[0.4.4]: https://github.com/svyatov/supermatt/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/svyatov/supermatt/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/svyatov/supermatt/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/svyatov/supermatt/compare/v0.4.0...v0.4.1
