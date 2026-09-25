@@ -8,9 +8,9 @@ license: MIT
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Synthesize what you already know instead of re-grilling the idea: you ask the user only the seam check in step 2 and any step 4 finding that needs a decision.
 
-If the user passes a reference, fetch it through the issue tracker first. For a `wayfinder` map, the decisions live in one of two places. When the map names a written destination (a spec or ADRs a ticket already assembled), read that destination: it is the decision record, and you fetch a linked ticket only where the destination is silent. Otherwise fetch every ticket its **Decisions so far** section links: those tickets hold the decisions the spec collapses into a plan.
+Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md` first. If either is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
 
-Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If either is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
+If the user passes a reference, fetch it with the tracker doc's **Read an issue** command. For a `wayfinder` map, the decisions live in one of two places. When the map names a written destination (a spec or ADRs a ticket already assembled), read that destination: it is the decision record, and you fetch a linked ticket only where the destination is silent. Otherwise fetch every ticket its **Decisions so far** section links: those tickets hold the decisions the spec collapses into a plan.
 
 ## Process
 
@@ -22,11 +22,13 @@ Check with the user that these seams match their expectations.
 
 3. Write the spec using the template below. Don't publish it yet.
 
-4. Check the draft in a fresh context. This context wrote the spec, so it shares the spec's blind spots. Spawn one sub-agent with the draft and repo access, and this brief: "Report: (a) places where the spec contradicts itself, or a user story conflicts with an implementation decision or Out of Scope; (b) implementation decisions that the current codebase cannot support as written, citing the file; (c) user stories that no implementation or testing decision covers. Quote the spec line for each finding. Under 300 words."
+4. Check the draft in a fresh context. This context wrote the spec, so it shares the spec's blind spots. Spawn one sub-agent with the draft and repo access, and this brief: "Report: (a) places where the spec contradicts itself, or a user story conflicts with an implementation decision or Out of Scope; (b) implementation decisions that the current codebase cannot support as written, citing the file; (c) user stories that no implementation or testing decision covers; (d) when the spec came from a decision record (a map's destination or tickets), decisions that contradict it or settle what it never settled. Quote the spec line for each finding. Under 300 words."
 
 Fix the findings that have one clear fix. A finding that needs a decision goes to the user before you publish.
 
 5. Publish the spec to the project issue tracker. Apply the `ready-for-agent` triage label: it needs no further triage.
+
+When the spec came from a `wayfinder` map, start its body with `## Parent` and `#<map>`. After publishing, comment the spec's link on the map and close the map: the spec is its destination.
 
 <spec-template>
 
