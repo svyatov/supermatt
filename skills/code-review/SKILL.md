@@ -63,7 +63,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
-The Standards axis also carries one **refactor check**, a hard finding. A commit that its message marks as a refactor (`refactor:` in Conventional Commits) must not change a test file beyond a rename or a move. Such a change altered behavior under a refactor label, or rewrote a test to match the new code.
+The Standards axis also carries one **refactor check**, a hard finding. A commit that its message marks as a refactor (`refactor:` in Conventional Commits) must not change an assertion's expected value for a behavior the commit still exposes. Such a change altered behavior under a refactor label, or rewrote a test to match the new code. A test deleted because the commit removed its subject or made it private passes, and so does one moved into boundary tests of the new interface.
 
 ### 4. Pick the Adversarial reviewer
 
@@ -103,7 +103,7 @@ For the peer, write the prompt to `prompt.md` in a fresh `mktemp -d` directory, 
 
 Each flag set keeps the peer read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. The `codex` flags also skip the user's `config.toml`, so that peer runs on the CLI's default model; `claude --safe-mode` keeps the user's model selection.
 
-Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. When the fallback fails too, the Adversarial axis is **incomplete**. Delete the temp directory once you have the peer's output.
+Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is one line telling it to read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt. When the fallback fails too, the Adversarial axis is **incomplete**. Delete the temp directory once the Adversarial axis has a report, from the peer or the fallback.
 
 ### 6. Aggregate
 
