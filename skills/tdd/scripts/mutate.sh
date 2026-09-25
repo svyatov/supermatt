@@ -9,7 +9,8 @@
 # Prints one line per mutation file: red (TEST failed), GREEN (TEST passed: no
 # test protects that behavior), broken (BUILD failed, which proves nothing),
 # or missing (the text to find is not in the file). Exits 1 unless every
-# mutation is red.
+# mutation is red. Exits 2 before any mutation when BUILD or TEST already
+# fails on the unchanged code, since every mutation would then read red.
 set -u
 
 build=
@@ -23,6 +24,11 @@ if [ $# -lt 2 ]; then
 fi
 test=$1
 shift
+
+if ! { [ -z "$build" ] || sh -c "$build"; } > /dev/null 2>&1 || ! sh -c "$test" > /dev/null 2>&1; then
+  echo "mutate.sh: BUILD or TEST fails with no mutation applied, so no red would mean anything: $test" >&2
+  exit 2
+fi
 
 backup=$(mktemp)
 target=

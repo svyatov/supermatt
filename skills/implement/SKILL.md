@@ -6,7 +6,7 @@ disable-model-invocation: true
 license: MIT
 ---
 
-Implement the work described by the user in the spec or tickets. Read `docs/agents/issue-tracker.md` first, then fetch each ticket you are given with its **Read an issue** operation and read it in full. A parent you are asked to pick from is not such a ticket: see below. If that file is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex). When the user names a parent spec and asks for its next ticket, take the first **frontier** ticket: an open child of that parent (a sub-issue, or an issue whose `## Parent` section names it; the tracker's **List children** operation lists them, with each child's count of open blockers, where it has one) whose open-blocker count is 0, lowest number first. Read that ticket in full, and open the parent only for what the ticket points to in it. Name the ticket you picked before you start. With no spec or issue, the decisions settled in this conversation are the spec: write them to a file in the OS temporary directory, so the review can check against them.
+Implement the work described by the user in the spec or tickets. Read `docs/agents/issue-tracker.md` first, then fetch each ticket you are given with its **Read an issue** operation and read it in full. A parent you are asked to pick from is not such a ticket: see below. If that file is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex). When the user names a parent spec and asks for its next ticket, take the first **frontier** ticket: an open child of that parent (a sub-issue, or an issue whose `## Parent` section names it; the tracker's **List children** operation lists them, with each child's count of open blockers, where it has one) whose open-blocker count is 0, lowest number first. Name the ticket you picked before you start. When a ticket names a parent, read only the parent's sections the ticket points to or the work needs, with the tracker's **Read a section** operation where it has one. With no spec or issue, the decisions settled in this conversation are the spec: write them to a file in the OS temporary directory, so the review can check against them.
 
 When the issue is a pull request, check out its head branch first, and push your commits back to it. If the push is refused (a fork that does not allow maintainer edits), stop and tell the user.
 
@@ -19,6 +19,8 @@ Run typechecking regularly, and the full test suite and the repo's lint before e
 Once done, commit your work to the current branch; on the default branch, create a branch first, named by the repo's convention. Reference each issue it implements in the commit message (`#<n>`, or the file path on a local tracker).
 
 Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec.
+
+Fix every verified finding the review reports on this branch, at every severity, and commit the fixes the same way as the work. A finding whose fix would reverse something the spec asked for goes to the user as a question instead.
 
 When the review is clean (verdict **Ready**, or every axis completed and every verified P0 and P1 finding is fixed), close each issue you implemented through the tracker's Close operation. A pull request stays open for a human to merge. A closed issue is what unblocks the tickets that wait on it, so close it only once its commits are merged into the default branch. Until then, leave the issue open and tell the user the close waits on the merge.
 
