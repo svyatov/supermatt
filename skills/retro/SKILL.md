@@ -47,3 +47,4 @@ You have access to several files in the repo:
 - `CODING_STANDARDS.md`: this file is read during review, not implementation. Add **context pointers** to docs folders if the standards file gets more than 1,000 lines long.
 - Docs: use docs as references files, pointed to by other files. Look for existing docs before writing new ones.
 - Skills: use skills for docs (since their description goes into the agent's context window), or for user-invoked commands. Follow the advice in the `writing-for-agents` skill.
+- Outside the repo: user-global steering (`~/.claude/CLAUDE.md`), hook rules, and installed skills are environment too. A skill under `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` is a copy the next update overwrites: name its source checkout (look `<marketplace>` up in `~/.claude/plugins/known_marketplaces.json`), or mark the candidate upstream when the user does not maintain it.
