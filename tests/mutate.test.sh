@@ -30,4 +30,19 @@ cmp -s add.sh add.orig || fail "add.sh was not restored"
 
 sh "$REPO/skills/tdd/scripts/mutate.sh" '[ "$(sh add.sh)" = 2 ]' red.m >/dev/null || fail "an all-red run exited nonzero"
 
+# A TEST already red with no mutation, as `-run A|B` is once sh reads the | as
+# a pipe, would report every mutation red. The run stops before any.
+code=0
+out="$(sh "$REPO/skills/tdd/scripts/mutate.sh" '[ "$(sh add.sh)" = 2 ] | no-such-command' red.m 2>&1)" || code=$?
+[ "$code" = 2 ] || fail "a red baseline exited $code, want 2"
+case "$out" in
+*"fails with no mutation"*) ;;
+*) fail "a red baseline reported: $out" ;;
+esac
+cmp -s add.sh add.orig || fail "add.sh changed on a red baseline"
+
+code=0
+sh "$REPO/skills/tdd/scripts/mutate.sh" -b false '[ "$(sh add.sh)" = 2 ]' red.m >/dev/null 2>&1 || code=$?
+[ "$code" = 2 ] || fail "a broken baseline BUILD exited $code, want 2"
+
 echo "ok"

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-09-26
+
+### Fixed
+
+- `code-review`: the peer's program is built before its prompt is written, so the prompt carries the binary's path from the start and is written with the file-writing tool. The aggregate keeps each finding's severity, `file:line`, and quoted line.
+- `implement`: every verified review finding is fixed on the branch, at every severity, unless its fix would reverse the spec. A ticket's parent is read only in the sections the ticket points to or the work needs, on every path, not only the frontier one.
+- `retro`: the current session's transcript is the newest `.jsonl` in the project's directory, whose name differs from the session ID after a resume.
+- `tdd`: the mutation runner first runs BUILD and TEST on the unchanged code and stops with exit 2 when either fails. A TEST that was already red, such as `go test -run A|B` once `sh` reads the `|` as a pipe, no longer reports every mutation red. A build failure or a panic is not red, and a test calling a name that does not exist yet gets a stub that returns the zero value until its assertion fails.
+
 ## [0.5.2] - 2026-09-25
 
 ### Fixed
@@ -217,7 +226,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.2...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/svyatov/supermatt/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/svyatov/supermatt/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/svyatov/supermatt/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/svyatov/supermatt/compare/v0.4.5...v0.5.0
