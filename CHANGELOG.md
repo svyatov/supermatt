@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-25
+
+### Added
+
+- `code-review`: a validator sub-agent checks every P0 and P1 before the verdict. It confirms, rejects, or leaves each finding unresolved, and rejects a security, data-loss, or concurrency finding only with a refuting line or test result. A rejected finding moves to its axis's "Dropped by verification" line, so one false P0 no longer blocks a change. The Standards axis gains a test check for behavior no test exercises and for tests that pass with the code broken. The finding rules skip problems a guard already handles and code under a lint-ignore, count a newly relevant unchanged line, and ask each finding to lead with its effect. The Adversarial brief looks for masked failures: a reused sentinel, a swallowed error, a flag the error path never clears (adapted from Every's `ce-code-review`).
+
 ## [0.4.5] - 2026-09-25
 
 ### Fixed
@@ -199,7 +205,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.5...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/svyatov/supermatt/compare/v0.4.5...v0.5.0
 [0.4.5]: https://github.com/svyatov/supermatt/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/svyatov/supermatt/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/svyatov/supermatt/compare/v0.4.2...v0.4.3
