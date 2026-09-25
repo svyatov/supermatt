@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-09-25
+
+### Fixed
+
+- `implement`: the run reads the tracker doc first and fetches each ticket through its **Read an issue** operation. A parent it picks from is not read in full. The frontier is the children with an open-blocker count of 0, which **List children** now returns in one call.
+- `setup-supermatt-skills`: the GitHub tracker's **List children** returns each child's count of open blockers in one paginated call.
+- `retro`: user-global steering, hook rules, and installed skills count as environment. A candidate for a plugin-cache skill names its source checkout, or is marked upstream.
+- `tdd`: an equivalent mutation is deleted like unreachable code. Rewriting code so a mutation no longer applies needs its own red case and a new mutation pass. The skill states the mutation file format and puts the files in a `mktemp -d` directory.
+
 ## [0.4.4] - 2026-09-24
 
 ### Fixed
@@ -190,7 +199,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.3...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.4.5...HEAD
+[0.4.5]: https://github.com/svyatov/supermatt/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/svyatov/supermatt/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/svyatov/supermatt/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/svyatov/supermatt/compare/v0.4.1...v0.4.2
