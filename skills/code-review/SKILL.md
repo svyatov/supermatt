@@ -16,7 +16,7 @@ Three-axis review of the diff between `HEAD` and a fixed point the user supplies
 - **Spec**: does the code faithfully implement the originating issue / spec?
 - **Adversarial**: how does the change fail in production? A different model runs this axis when one is installed, because sub-agents of one model agreeing is one reading repeated.
 
-All axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+All axes run as **parallel sub-agents** so they don't pollute each other's context. A validator sub-agent then checks every P0 and P1 with fresh eyes, and this skill aggregates what survives.
 
 The issue tracker should have been provided to you. If `docs/agents/issue-tracker.md` is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
 
@@ -65,6 +65,13 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 The Standards axis also carries one **refactor check**, a hard finding. A commit that its message marks as a refactor (`refactor:` in Conventional Commits) must not change an assertion's expected value for a behavior the commit still exposes. Such a change altered behavior under a refactor label, or rewrote a test to match the new code. A test deleted because the commit removed its subject or made it private passes, and so does one moved into boundary tests of the new interface.
 
+It also carries a **test check**, a judgement call:
+
+- **Untested behavior**: the diff changes runtime behavior (a new branch, a state change, an error path, a changed contract) and no test in the diff exercises it.
+- **Vacuous test**: a new or changed test would still pass with the code under test broken. It asserts only that nothing throws or that a value is truthy, computes its expected value with the code under test, or has a mock supply the result the code should produce.
+
+Trivial accessors and edits that change no behavior pass.
+
 ### 4. Pick the Adversarial reviewer
 
 The peer is the other model's CLI:
@@ -83,8 +90,8 @@ Every sub-agent prompt includes the **finding rules** (see _Finding rules_) past
 **Standards sub-agent prompt** should include:
 
 - The full diff command and commit list.
-- The list of standards-source files you found in step 3, **plus the smell baseline and the refactor check from step 3** pasted in full (the sub-agent has no other access to it).
-- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); (b) any baseline smell you spot: name it and quote the hunk; and (c) any refactor check hit: name the commit and the test file. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, refactor check hits are hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Under 400 words."
+- The list of standards-source files you found in step 3, **plus the smell baseline, the refactor check, and the test check from step 3** pasted in full (the sub-agent has no other access to them).
+- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); (b) any baseline smell you spot: name it and quote the hunk; (c) any refactor check hit: name the commit and the test file; and (d) any test check hit: quote the untested behavior or the vacuous assertion. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, refactor check hits are hard, but baseline smells and test check hits are judgement calls, and a documented repo standard overrides the baseline. Under 400 words."
 
 **Spec sub-agent prompt** should include:
 
@@ -105,11 +112,23 @@ Each flag set keeps the peer read-only, with no MCP servers, plugins, or approva
 
 Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is one line telling it to read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt. When the fallback fails too, the Adversarial axis is **incomplete**. Delete the temp directory once the Adversarial axis has a report, from the peer or the fallback.
 
-### 6. Aggregate
+### 6. Verify P0 and P1 findings
 
-Present the reports under `## Standards`, `## Spec`, and `## Adversarial (<peer>)` headings, verbatim or lightly cleaned. When the fallback ran, the last heading is `## Adversarial (same model: <reason>)`. Do **not** merge or rerank findings, because the axes are deliberately separate (see _Why separate axes_). Print this aggregate as its own message before anything else continues, also when another skill loaded this one. Done when every finding from every axis appears under its heading.
+Number every quoted P0 and P1 finding from every axis. When there are none, skip to step 7. Otherwise spawn one validator sub-agent whose prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then the numbered findings with their axis, quote, and reasoning, then the diff command and commit list.
 
-End with a one-line summary: findings per axis by severity, then the verdict:
+Apply its verdicts to each finding on its own axis:
+
+- **confirmed**: the finding stays as written.
+- **rejected**: the finding leaves its axis and goes on that axis's "Dropped by verification" line with the validator's reason.
+- **unresolved**: the finding stays with its severity, labelled `unresolved: <evidence still needed>`.
+
+When the validator fails or leaves a finding without a verdict, that finding stays and is labelled `not validated`.
+
+### 7. Aggregate
+
+Present the reports under `## Standards`, `## Spec`, and `## Adversarial (<peer>)` headings, verbatim or lightly cleaned, each ending with its "Dropped by verification" line when step 6 dropped anything. When the fallback ran, the last heading is `## Adversarial (same model: <reason>)`. Do **not** merge or rerank findings, because the axes are deliberately separate (see _Why separate axes_). Print this aggregate as its own message before anything else continues, also when another skill loaded this one. Done when every finding from every axis appears under its heading or on its dropped line.
+
+A **verified** finding quotes its line and was not rejected in step 6. End with a one-line summary: findings per axis by severity, then the verdict:
 
 - Any verified P0 on any axis: **Not ready**.
 - Otherwise, any verified P1 or an incomplete axis: **Ready with fixes**.
@@ -125,12 +144,14 @@ The verdict is a rule over severities. Don't pick a single worst finding across 
   - **P2**: a real problem with limited reach.
   - **P3**: minor.
 
-  Baseline smells are P2 or P3. A refactor check hit is P1.
-- **Quote the line.** Every finding cites `file:line` and quotes the line it flags. Label a finding without a quote `unverified`; it does not move the verdict.
+  Baseline smells are P2 or P3. A refactor check hit is P1. A test check hit is P2.
+- **Quote the line.** Every finding cites `file:line` and quotes the line it flags. A claim that something is missing quotes where it would be defined, and a race quotes both sides. A claim that nothing else calls or uses a symbol rests on a symbol-aware search (LSP, CodeGraph) when one is available, and otherwise says "grep-only". Label a finding without a quote `unverified`; it does not move the verdict.
+- **Lead with the effect.** Open each finding with what a user or caller sees, then give the fix. When the right fix depends on something you can't see, propose the most likely default and name the assumption.
 - **Skip:**
-  - Code the diff didn't change. Test: would you flag it on the same diff without the surrounding file?
-  - Anything a linter, formatter, or type checker enforces.
-  - "Consider adding X" with no failure it prevents.
+  - Code the diff didn't change, unless the diff makes it newly relevant (a new caller of an existing bug). Test: would you flag it on the same diff without the surrounding file?
+  - A problem a caller, guard, or framework default already handles. Check them before you flag it.
+  - Anything a linter, formatter, or type checker enforces, and code under a lint-ignore comment for that rule.
+  - "Consider adding X" or "might break under load" with no concrete failure the diff makes reachable.
   - Needs the spec doesn't have yet.
   - Choices the code or spec marks as intentional.
 - **Zero findings is a valid report.** Say so in one line.

@@ -67,7 +67,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Skills check their own work
 
-- `code-review` adds a third axis, **Adversarial**: how does the change fail in production? Claude Code sends this axis to `codex`, and Codex sends it to `claude`, so a second model reviews every change. Findings carry P0-P3 severities and quote the lines they cite, and the review ends with a verdict. Upstream reviews on two axes, Standards and Spec.
+- `code-review` adds a third axis, **Adversarial**: how does the change fail in production? Claude Code sends this axis to `codex`, and Codex sends it to `claude`, so a second model reviews every change. Findings carry P0-P3 severities and quote the lines they cite. A validator sub-agent checks every P0 and P1 before the review ends with a verdict, and the Standards axis also checks that tests exercise the changed behavior. Upstream reviews on two axes, Standards and Spec.
 - `to-spec` checks the draft spec in a fresh-context sub-agent before it publishes it.
 - `tdd` checks that each test goes red for the reason it names, counts a cycle green only when the full suite passes, ends with a mutation check, and flags change-detector tests.
 - `diagnosing-bugs` asks what you already tried, rules out the environment and uncommitted work, and fixes nothing until the causal chain has no gaps. It escalates to you after 2-3 dead hypotheses or 3 failed fixes.

@@ -21,8 +21,10 @@ A change to a check that can pass while the real thing fails always gets the sil
    - timing: finishes before a timeout, a resource exists when it is read
    - ordering: init runs before the first call, events arrive in order
    - value range: IDs are positive, strings are non-empty
-2. **Composition failures.** Two parts are each correct but fail together: a caller passes a value the callee does not expect, or reads its return value in a different way.
-3. **Cascades.** A small first failure leads to a larger one: a retry storm, a partial write left behind, a cache filled with a bad value.
+2. **Composition failures.** Two parts are each correct but fail together: a caller passes a value the callee does not expect, or reads its return value in a different way. Look hardest where a failure is masked:
+   - a new return path reuses a sentinel (null, an empty list, a fallback value), so the caller reads "failed" as "no result"
+   - an error is caught and replaced with a default, so the caller never learns it failed
+3. **Cascades.** A small first failure leads to a larger one: a retry storm, a partial write left behind, a cache filled with a bad value, a flag set on the success path that the error path never clears.
 4. **Abuse cases.** Hostile or careless use: huge input, repeated calls, concurrent calls, a path or string that the input controls.
 5. **Silent pass.** The check goes green while the real thing is red. Examples: a mock that hides the real behavior, a gate that skips on error, an assertion that cannot fail.
 
