@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-09-25
+
+### Fixed
+
+- `to-spec`: the run reads the tracker doc first and fetches the reference through its **Read an issue** command. The fresh-context check also flags decisions that contradict the map's decision record or settle what it never settled. A spec from a `wayfinder` map names the map as its parent, and publishing it links the spec on the map and closes the map.
+
 ## [0.5.0] - 2026-09-25
 
 ### Added
@@ -205,7 +211,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/svyatov/supermatt/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/svyatov/supermatt/compare/v0.4.5...v0.5.0
 [0.4.5]: https://github.com/svyatov/supermatt/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/svyatov/supermatt/compare/v0.4.3...v0.4.4
