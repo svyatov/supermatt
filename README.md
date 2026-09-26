@@ -158,7 +158,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Help and status
 
-Ask questions and report bugs in [GitHub issues](https://github.com/svyatov/supermatt/issues). Report a security vulnerability privately, as [SECURITY.md](./SECURITY.md) describes. To send a change, read [CONTRIBUTING.md](./CONTRIBUTING.md).
+Ask questions and report bugs in [GitHub issues](https://github.com/svyatov/supermatt/issues). Report a security vulnerability privately, as [SECURITY.md](./SECURITY.md) describes. [PRIVACY.md](./PRIVACY.md) lists where each skill sends your data. To send a change, read [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 SuperMatt is maintained by Leonid Svyatov. Fixes go to the latest release only.
 
