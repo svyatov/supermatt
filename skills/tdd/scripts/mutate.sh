@@ -10,7 +10,8 @@
 # test protects that behavior), broken (BUILD failed, which proves nothing),
 # or missing (the text to find is not in the file). Exits 1 unless every
 # mutation is red. Exits 2 before any mutation when BUILD or TEST already
-# fails on the unchanged code, since every mutation would then read red.
+# fails on the unchanged code, since every mutation would then read red. After
+# a broken mutation, a hint on stderr names its usual cause, an unused name.
 set -u
 
 build=
@@ -65,5 +66,9 @@ for m in "$@"; do
   target=
   echo "$m $result"
   [ "$result" = red ] || status=1
+  [ "$result" = broken ] && broken=1
 done
+if [ -n "${broken-}" ]; then
+  echo "mutate.sh: a broken mutation proves nothing. When the build rejects a name the mutation left unused, keep it in use: false && cond in place of a deleted cond." >&2
+fi
 exit $status

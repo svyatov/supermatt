@@ -30,6 +30,16 @@ cmp -s add.sh add.orig || fail "add.sh was not restored"
 
 sh "$REPO/skills/tdd/scripts/mutate.sh" '[ "$(sh add.sh)" = 2 ]' red.m >/dev/null || fail "an all-red run exited nonzero"
 
+# A broken mutation, as a deleted name is in Go, gets a hint on stderr to keep
+# the name in use. A run with none broken prints no hint.
+hint="$(sh "$REPO/skills/tdd/scripts/mutate.sh" -b 'sh -n add.sh' '[ "$(sh add.sh)" = 2 ]' broken.m 2>&1 >/dev/null)" || true
+case "$hint" in
+*"false && cond"*) ;;
+*) fail "a broken mutation printed no hint: $hint" ;;
+esac
+hint="$(sh "$REPO/skills/tdd/scripts/mutate.sh" -b 'sh -n add.sh' '[ "$(sh add.sh)" = 2 ]' red.m 2>&1 >/dev/null)"
+[ -z "$hint" ] || fail "a run with no broken mutation printed: $hint"
+
 # A TEST already red with no mutation, as `-run A|B` is once sh reads the | as
 # a pipe, would report every mutation red. The run stops before any.
 code=0

@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-09-26
+
+### Fixed
+
+- `tdd`: after a `broken` mutation, the mutation runner prints a hint on stderr: when the build rejects a name the mutation left unused, keep it in use with `false && cond`.
+
 ## [0.5.3] - 2026-09-26
 
 ### Fixed
@@ -226,7 +232,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.3...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.4...HEAD
+[0.5.4]: https://github.com/svyatov/supermatt/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/svyatov/supermatt/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/svyatov/supermatt/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/svyatov/supermatt/compare/v0.5.0...v0.5.1
