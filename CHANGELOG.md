@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.11] - 2026-09-26
+
+### Fixed
+
+- `diagnosing-bugs`: the human-in-the-loop template reads each answer straight into its variable with `read`, without `eval`, which the Claude plugin directory flagged as a download-and-run pattern.
+- The plugin ships its logo as `.claude-plugin/icon.png`, so the Claude plugin directory shows it as the plugin's icon.
+
 ## [0.5.10] - 2026-09-26
 
 ### Fixed
@@ -275,7 +282,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.10...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.11...HEAD
+[0.5.11]: https://github.com/svyatov/supermatt/compare/v0.5.10...v0.5.11
 [0.5.10]: https://github.com/svyatov/supermatt/compare/v0.5.9...v0.5.10
 [0.5.9]: https://github.com/svyatov/supermatt/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/svyatov/supermatt/compare/v0.5.7...v0.5.8

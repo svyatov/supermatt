@@ -12,16 +12,18 @@ set -euo pipefail
 # Each entry is a symlink into this repo, so a `git pull` is all that's needed
 # to keep installed skills up to date.
 
-SKILLS="$(cd "$(dirname "$0")/../skills" && pwd)"
-REPO="$(dirname "$SKILLS")"
-DESTS=(~/.claude/skills ~/.agents/skills)
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+DESTS=("$HOME/.claude/skills" "$HOME/.agents/skills")
 
 # Collect the repo's skills once (each is a directory directly under skills/),
 # link into every destination.
+names=()
 srcs=()
 while IFS= read -r -d '' skill_md; do
-  srcs+=("$(dirname "$skill_md")")
-done < <(find "$SKILLS" -mindepth 2 -maxdepth 2 -name SKILL.md -print0)
+  src="$(dirname "$skill_md")"
+  names+=("$(basename "$src")")
+  srcs+=("$src")
+done < <(find "$REPO/skills" -mindepth 2 -maxdepth 2 -name SKILL.md -print0)
 
 for DEST in "${DESTS[@]}"; do
   # If $DEST is a symlink that resolves into this repo, we'd end up writing the
@@ -40,8 +42,9 @@ for DEST in "${DESTS[@]}"; do
 
   mkdir -p "$DEST"
 
-  for src in "${srcs[@]}"; do
-    name="$(basename "$src")"
+  for i in "${!names[@]}"; do
+    name="${names[$i]}"
+    src="${srcs[$i]}"
     target="$DEST/$name"
 
     if [ -e "$target" ] && [ ! -L "$target" ]; then
