@@ -77,7 +77,7 @@ Blocked by: <NN, NN> (omit this line when nothing blocks it)
 
 **What to build:** the end-to-end behaviour this ticket makes work, from the user's perspective, not a layer-by-layer implementation list.
 
-**Seams:** the seams under test for this ticket, taken from the spec's Testing Decisions (omit when there is no spec).
+**Seams:** the seams under test for this ticket: every seam from the spec's Testing Decisions that one of its acceptance criteria crosses (omit when there is no spec).
 
 - [ ] Acceptance criterion 1
 - [ ] Acceptance criterion 2
@@ -103,7 +103,7 @@ The end-to-end behaviour this ticket makes work, from the user's perspective, no
 
 ## Seams
 
-The seams under test for this ticket, taken from the parent spec's Testing Decisions (omit this section when there is no spec).
+The seams under test for this ticket: every seam from the parent spec's Testing Decisions that one of its acceptance criteria crosses (omit this section when there is no spec).
 
 </issue-template>
 
