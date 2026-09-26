@@ -8,8 +8,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 
-- `diagnosing-bugs`: the human-in-the-loop template reads each answer straight into its variable with `read`, without `eval`, which the Claude plugin directory flagged as a download-and-run pattern.
-- The plugin ships its logo as `.claude-plugin/icon.png` and sets `displayName` and `keywords` in `plugin.json`, so the Claude plugin directory lists it as SuperMatt with its own icon.
+- `diagnosing-bugs`: the human-in-the-loop template reads each answer straight into its variable, so it no longer builds a shell command from the user's answer.
+- The plugin ships its logo as its icon and sets `displayName` and `keywords` in `plugin.json`, so the Claude plugin directory lists it as SuperMatt with its own icon.
 
 ## [0.5.10] - 2026-09-26
 
