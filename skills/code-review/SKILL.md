@@ -110,7 +110,7 @@ For the peer, first build the program in `$DIR` with the repo's own build comman
 
 Each flag set keeps the peer read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. The `codex` flags also skip the user's `config.toml`, so that peer runs on the CLI's default model; `claude --safe-mode` keeps the user's model selection.
 
-Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is two lines: read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt; and, unlike the peer, it may write scratch state under `$DIR` to run triggers, and it leaves the repository unedited. When the fallback fails too, the Adversarial axis is **incomplete**.
+Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is two lines: read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt; and, unlike the peer, it may write scratch state under `$DIR` to run triggers and leaves it there for step 7 to delete, and it leaves the repository unedited. When the fallback fails too, the Adversarial axis is **incomplete**.
 
 ### 6. Verify P0 and P1 findings
 

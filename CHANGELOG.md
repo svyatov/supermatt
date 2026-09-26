@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.6] - 2026-09-26
+
+### Fixed
+
+- `code-review`: the same-model fallback for the Adversarial axis leaves its scratch state under the review's temp directory for the final step to delete. A cleanup `rm` can stop on a permission prompt, and the validator needs that state to rerun a trigger.
+
 ## [0.5.5] - 2026-09-26
 
 ### Fixed
@@ -241,7 +247,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.5...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.6...HEAD
+[0.5.6]: https://github.com/svyatov/supermatt/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/svyatov/supermatt/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/svyatov/supermatt/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/svyatov/supermatt/compare/v0.5.2...v0.5.3
