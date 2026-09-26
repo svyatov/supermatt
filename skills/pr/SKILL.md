@@ -21,13 +21,13 @@ Use this template for writing the PR body:
 - **Before:** <screenshot/output/failing test run>
   **After:** <screenshot/output/passing test run>
 
-## Merge Danger
+## Merge danger
 
 **Door:** <one-way or two-way>
 
 <optional: description>
 
-**Blast Radius:** <one-word description>
+**Blast radius:** <one-word description>
 
 <optional: potential ramifications of merge>
 ```
@@ -163,7 +163,7 @@ Screenshots are S-tier, when the environment is set up for it and the change is 
 
 Execution-based evidence is A-tier. Test results, console output. Show the exact test that now fails and passes, using pseudocode.
 
-### Merge Danger
+### Merge danger
 
 Describe whether it's a one-way or two-way door. You can walk back through two-way doors, but not one-way doors. A PR that is cheap to roll back is lower risk. Changes that involve destructive actions or hard-to-reverse decisions are one-way doors.
 

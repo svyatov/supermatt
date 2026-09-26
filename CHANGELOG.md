@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.7] - 2026-09-26
+
+### Fixed
+
+- `pr`: the template's headings and labels are in sentence case (`Merge danger`, `Blast radius`), so a PR body passes a sentence-case heading check.
+- `retro`: the sub-agent transcripts sit in the directory named after the session file, which after a resume differs from the session ID the environment reports.
+- `tdd`: a mutation that keeps a name in use writes `x + 0` in place of a self-assignment `x = x`, which a vet step such as `go vet` reports `broken`.
+
 ## [0.5.6] - 2026-09-26
 
 ### Fixed
@@ -247,7 +255,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.6...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.7...HEAD
+[0.5.7]: https://github.com/svyatov/supermatt/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/svyatov/supermatt/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/svyatov/supermatt/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/svyatov/supermatt/compare/v0.5.3...v0.5.4
