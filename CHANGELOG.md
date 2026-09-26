@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-26
+
+### Deprecated
+
+- `wizard`: deprecated with no replacement. Its template is gone, and the skill is now a stub that says so. SuperMatt 0.7.0 removes it.
+
+### Fixed
+
+- `diagnosing-bugs`: the human-in-the-loop template reads each answer straight into its variable, so it no longer builds a shell command from the user's answer.
+- `tdd`: the mocking reference's hard-to-mock example no longer reads an API key from the environment, which the Claude plugin directory held as a credential leaving the machine.
+- The plugin ships its logo as its icon and sets `displayName` and `keywords` in `plugin.json`, so the Claude plugin directory lists it as SuperMatt with its own icon.
+
 ## [0.5.10] - 2026-09-26
 
 ### Fixed
@@ -275,7 +287,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.10...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/svyatov/supermatt/compare/v0.5.10...v0.6.0
 [0.5.10]: https://github.com/svyatov/supermatt/compare/v0.5.9...v0.5.10
 [0.5.9]: https://github.com/svyatov/supermatt/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/svyatov/supermatt/compare/v0.5.7...v0.5.8

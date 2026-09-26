@@ -10,7 +10,6 @@ trap 'rm -rf "$TMP"' EXIT
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
 sh -n "$REPO/skills/diagnosing-bugs/scripts/hitl-loop.template.sh" || fail "hitl-loop.template.sh syntax"
-bash -n "$REPO/skills/wizard/template.sh" || fail "wizard/template.sh syntax"
 
 # Run against a copy, so a broken guard cannot write into this checkout.
 mkdir "$TMP/repo" "$TMP/home"

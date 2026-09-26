@@ -1,3 +1,5 @@
 interface:
-  display_name: "SuperMatt: Wizard"
-  short_description: "Generate an interactive setup wizard"
+  display_name: "SuperMatt: Wizard (deprecated)"
+  short_description: "Deprecated, removed in 0.7.0"
+policy:
+  allow_implicit_invocation: false

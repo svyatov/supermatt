@@ -9,7 +9,7 @@ You get a first response within 7 days.
 ## What to report
 
 - A skill that leads an agent to run a destructive or data-leaking command the user did not ask for.
-- A bundled script or template that is unsafe to run, such as the `wizard` template or `scripts/link-skills.sh`.
+- A bundled script or template that is unsafe to run, such as the `tdd` mutation script or `scripts/link-skills.sh`.
 - Skill text that lets untrusted input, such as an issue body or a fetched web page, take over the agent.
 
 ## Supported versions
