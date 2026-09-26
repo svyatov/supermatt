@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-09-27
+
+### Fixed
+
+- `to-tickets`: a ticket's Seams list every seam from the spec's Testing Decisions that one of its acceptance criteria crosses, so a ticket with a UI criterion names the UI seam too.
+
 ## [0.6.1] - 2026-09-26
 
 ### Added
@@ -293,7 +299,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/svyatov/supermatt/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/svyatov/supermatt/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/svyatov/supermatt/compare/v0.5.10...v0.6.0
 [0.5.10]: https://github.com/svyatov/supermatt/compare/v0.5.9...v0.5.10
