@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/assets/logo.png" alt="SuperMatt" width="200">
+  <img src=".claude-plugin/icon.png" alt="SuperMatt" width="200">
 </p>
 
 <h1 align="center"><a href="https://github.com/mattpocock/skills">Matt Pocock's skills</a>, supercharged.</h1>

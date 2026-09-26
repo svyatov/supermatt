@@ -13,7 +13,7 @@ set -euo pipefail
 # to keep installed skills up to date.
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-DESTS=("$HOME/.claude/skills" "$HOME/.agents/skills")
+DESTS=(~/.claude/skills ~/.agents/skills)
 
 # Collect the repo's skills once (each is a directory directly under skills/),
 # link into every destination.

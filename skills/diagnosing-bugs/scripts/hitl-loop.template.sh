@@ -25,8 +25,7 @@ step() {
 
 capture() {
   printf '\n>>> %s\n    > ' "$2"
-  read -r answer
-  eval "$1=\$answer"
+  read -r "$1"
 }
 
 # --- edit below ---------------------------------------------------------
