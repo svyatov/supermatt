@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-09-26
+
+### Fixed
+
+- `code-review`: the diff is written once to a file in the review's temp directory and every sub-agent reads that file, since a shell hook can shorten a diff printed to the terminal. A reviewer reads a file the diff adds from the diff itself, and reads surrounding context by line range. The same-model fallback for the Adversarial axis may write scratch state under the review's temp directory to run triggers, which the read-only peer cannot.
+- `implement`: a verified review finding whose cause lies outside the repo goes to the user as a question with a recommendation, like one whose fix would reverse the spec.
+- `retro`: a candidate that edits a file outside the repo names that file's source first, so it never proposes a hand edit to a file a tool generates.
+- `tdd`: a large mutation batch runs in the background, since BUILD and TEST run once per mutation and dozens of them can outlast the shell tool's time limit.
+
 ## [0.5.4] - 2026-09-26
 
 ### Fixed
@@ -232,7 +241,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.4...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.5...HEAD
+[0.5.5]: https://github.com/svyatov/supermatt/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/svyatov/supermatt/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/svyatov/supermatt/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/svyatov/supermatt/compare/v0.5.1...v0.5.2
