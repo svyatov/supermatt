@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-09-27
+
+### Fixed
+
+- `tdd`: `scripts/mutate.sh` kills a mutation's TEST, and every process TEST started, after `-t SECONDS` (by default five times the unchanged run plus a minute), and reports it `timeout`. A mutation that made the code loop forever used to hold the batch until the test runner's own timeout, and left a child of the runner spinning after it. The script now needs `perl`.
+
 ## [0.6.2] - 2026-09-27
 
 ### Fixed
@@ -299,7 +305,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.2...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.3...HEAD
+[0.6.3]: https://github.com/svyatov/supermatt/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/svyatov/supermatt/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/svyatov/supermatt/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/svyatov/supermatt/compare/v0.5.10...v0.6.0

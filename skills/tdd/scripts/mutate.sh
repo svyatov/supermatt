@@ -1,5 +1,5 @@
 #!/bin/sh
-# Usage: mutate.sh [-b BUILD] TEST MUTATION...
+# Usage: mutate.sh [-b BUILD] [-t SECONDS] TEST MUTATION...
 #
 # Applies each mutation on its own, runs BUILD (when given) and then TEST, and
 # restores the file before the next one. A mutation file holds the target path
@@ -7,34 +7,86 @@
 # the text to put in its place. Only the first match is replaced.
 #
 # Prints one line per mutation file: red (TEST failed), GREEN (TEST passed: no
-# test protects that behavior), broken (BUILD failed, which proves nothing),
-# or missing (the text to find is not in the file). Exits 1 unless every
-# mutation is red. Exits 2 before any mutation when BUILD or TEST already
-# fails on the unchanged code, since every mutation would then read red. After
-# a broken mutation, a hint on stderr names its usual cause, an unused name.
+# test protects that behavior), timeout (TEST ran past SECONDS and was killed),
+# broken (BUILD failed, which proves nothing), or missing (the text to find is
+# not in the file). SECONDS defaults to five times the unchanged run plus a
+# minute. Exits 1 unless every mutation is red. Exits 2 before any mutation
+# when BUILD or TEST already fails on the unchanged code, since every mutation
+# would then read red. After a broken mutation, a hint on stderr names its
+# usual cause, an unused name.
+#
+# TEST runs under a perl supervisor that leads a process group of its own, so
+# dash, which has no job control without a terminal, gets one too. The group
+# is killed whole once TEST exits. A process whose parent died, as a test
+# runner's child does when the runner is killed on its own timeout, stays in
+# the group, so nothing TEST started outlives it.
 set -u
 
-build=
-if [ "${1-}" = -b ]; then
-  build=$2
-  shift 2
-fi
-if [ $# -lt 2 ]; then
-  echo "usage: mutate.sh [-b BUILD] TEST MUTATION..." >&2
+usage() {
+  echo "usage: mutate.sh [-b BUILD] [-t SECONDS] TEST MUTATION..." >&2
+  exit 2
+}
+
+build= limit=
+while [ $# -gt 0 ]; do
+  case $1 in
+  -b) build=$2; shift 2 ;;
+  -t) limit=$2; shift 2 ;;
+  *) break ;;
+  esac
+done
+case $limit in
+*[!0-9]*) usage ;;
+esac
+[ $# -ge 2 ] || usage
+if ! command -v perl > /dev/null 2>&1; then
+  echo "mutate.sh: perl is required, to run TEST in a process group of its own" >&2
   exit 2
 fi
 test=$1
 shift
 
-if ! { [ -z "$build" ] || sh -c "$build"; } > /dev/null 2>&1 || ! sh -c "$test" > /dev/null 2>&1; then
+backup=$(mktemp)
+target= group=
+trap 'stop; if [ -n "$target" ]; then cp "$backup" "$target"; fi; rm -f "$backup" "$backup.expired"' EXIT
+trap 'exit 130' INT TERM
+
+# stop kills TEST's process group, where one runs.
+stop() {
+  if [ -n "$group" ]; then kill -KILL -"$group" 2> /dev/null; fi
+  group=
+}
+
+# The supervisor: it leads the group, runs TEST as its child, and at the limit
+# (none at 0) marks the timeout and kills TEST. It exits 0 when TEST passed.
+supervise='
+  my ($limit, $expired) = splice @ARGV, 0, 2;
+  setpgrp;
+  defined(my $pid = fork) or die "fork: $!";
+  exec @ARGV or die "exec: $!" unless $pid;
+  $SIG{ALRM} = sub { open my $mark, ">", $expired; kill "KILL", $pid };
+  alarm $limit;
+  waitpid $pid, 0;
+  exit($? ? 1 : 0);
+'
+
+# run_test runs TEST, killed at $1 seconds unless that is 0, and sets outcome
+# to pass, fail or timeout.
+run_test() {
+  rm -f "$backup.expired"
+  perl -e "$supervise" "$1" "$backup.expired" sh -c "$test" > /dev/null 2>&1 &
+  group=$!
+  if wait "$group" 2> /dev/null; then outcome=pass; else outcome=fail; fi
+  stop
+  if [ -e "$backup.expired" ]; then outcome=timeout; fi
+}
+
+start=$(date +%s)
+if ! { [ -z "$build" ] || sh -c "$build"; } > /dev/null 2>&1 || ! { run_test 0 && [ "$outcome" = pass ]; }; then
   echo "mutate.sh: BUILD or TEST fails with no mutation applied, so no red would mean anything: $test" >&2
   exit 2
 fi
-
-backup=$(mktemp)
-target=
-trap 'if [ -n "$target" ]; then cp "$backup" "$target"; fi; rm -f "$backup"' EXIT
-trap 'exit 130' INT TERM
+limit=${limit:-$((($(date +%s) - start) * 5 + 60))}
 
 status=0
 for m in "$@"; do
@@ -57,10 +109,13 @@ for m in "$@"; do
     result=missing
   elif [ -n "$build" ] && ! sh -c "$build" > /dev/null 2>&1; then
     result=broken
-  elif sh -c "$test" > /dev/null 2>&1; then
-    result=GREEN
   else
-    result=red
+    run_test "$limit"
+    case $outcome in
+    pass) result=GREEN ;;
+    fail) result=red ;;
+    *) result=timeout ;;
+    esac
   fi
   cp "$backup" "$target"
   target=
