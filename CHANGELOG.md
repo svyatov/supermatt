@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.10] - 2026-09-26
+
+### Fixed
+
+- `tdd`: a mutation batch running in the background needs the working tree left alone until it exits, since `mutate.sh` rewrites each target in place and restores it from a copy, so an edit made meanwhile is lost or skews the results.
+
 ## [0.5.9] - 2026-09-26
 
 ### Fixed
@@ -269,7 +275,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.9...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.10...HEAD
+[0.5.10]: https://github.com/svyatov/supermatt/compare/v0.5.9...v0.5.10
 [0.5.9]: https://github.com/svyatov/supermatt/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/svyatov/supermatt/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/svyatov/supermatt/compare/v0.5.6...v0.5.7
