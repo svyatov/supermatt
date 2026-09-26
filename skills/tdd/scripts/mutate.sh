@@ -15,12 +15,17 @@
 # would then read red. After a broken mutation, a hint on stderr names its
 # usual cause, an unused name.
 #
-# TEST runs in a process group of its own, killed whole once TEST exits. A
-# process whose parent died, as a test runner's child does when the runner is
-# killed on its own timeout, stays in the group, so nothing TEST started
-# outlives it. perl creates the group, since dash has no job control without a
-# terminal.
+# TEST runs under a perl supervisor that leads a process group of its own, so
+# dash, which has no job control without a terminal, gets one too. The group
+# is killed whole once TEST exits. A process whose parent died, as a test
+# runner's child does when the runner is killed on its own timeout, stays in
+# the group, so nothing TEST started outlives it.
 set -u
+
+usage() {
+  echo "usage: mutate.sh [-b BUILD] [-t SECONDS] TEST MUTATION..." >&2
+  exit 2
+}
 
 build= limit=
 while [ $# -gt 0 ]; do
@@ -31,12 +36,9 @@ while [ $# -gt 0 ]; do
   esac
 done
 case $limit in
-*[!0-9]*) set -- ;;
+*[!0-9]*) usage ;;
 esac
-if [ $# -lt 2 ]; then
-  echo "usage: mutate.sh [-b BUILD] [-t SECONDS] TEST MUTATION..." >&2
-  exit 2
-fi
+[ $# -ge 2 ] || usage
 if ! command -v perl > /dev/null 2>&1; then
   echo "mutate.sh: perl is required, to run TEST in a process group of its own" >&2
   exit 2
@@ -45,41 +47,46 @@ test=$1
 shift
 
 backup=$(mktemp)
-target= group= timer=
+target= group=
 trap 'stop; if [ -n "$target" ]; then cp "$backup" "$target"; fi; rm -f "$backup" "$backup.expired"' EXIT
 trap 'exit 130' INT TERM
 
-# stop kills TEST's process group and the timer's, where either runs.
+# stop kills TEST's process group, where one runs.
 stop() {
-  for g in $group $timer; do
-    kill -KILL -"$g" 2> /dev/null
-    wait "$g" 2> /dev/null
-  done
-  group= timer=
+  if [ -n "$group" ]; then kill -KILL -"$group" 2> /dev/null; fi
+  group=
 }
 
-# run_test runs TEST, killed at $limit seconds when limit is set, and sets
-# outcome to pass, fail or timeout.
+# The supervisor: it leads the group, runs TEST as its child, and at the limit
+# (none at 0) marks the timeout and kills TEST. It exits 0 when TEST passed.
+supervise='
+  my ($limit, $expired) = splice @ARGV, 0, 2;
+  setpgrp;
+  defined(my $pid = fork) or die "fork: $!";
+  exec @ARGV or die "exec: $!" unless $pid;
+  $SIG{ALRM} = sub { open my $mark, ">", $expired; kill "KILL", $pid };
+  alarm $limit;
+  waitpid $pid, 0;
+  exit($? ? 1 : 0);
+'
+
+# run_test runs TEST, killed at $1 seconds unless that is 0, and sets outcome
+# to pass, fail or timeout.
 run_test() {
   rm -f "$backup.expired"
-  perl -e 'setpgrp; exec @ARGV or die' sh -c "$test" > /dev/null 2>&1 &
+  perl -e "$supervise" "$1" "$backup.expired" sh -c "$test" > /dev/null 2>&1 &
   group=$!
-  if [ -n "$limit" ]; then
-    perl -e 'setpgrp; exec @ARGV or die' sh -c "sleep $limit; : > '$backup.expired'; kill -KILL -$group" > /dev/null 2>&1 &
-    timer=$!
-  fi
   if wait "$group" 2> /dev/null; then outcome=pass; else outcome=fail; fi
   stop
   if [ -e "$backup.expired" ]; then outcome=timeout; fi
 }
 
-given=$limit limit=
 start=$(date +%s)
-if ! { [ -z "$build" ] || sh -c "$build"; } > /dev/null 2>&1 || ! { run_test && [ "$outcome" = pass ]; }; then
+if ! { [ -z "$build" ] || sh -c "$build"; } > /dev/null 2>&1 || ! { run_test 0 && [ "$outcome" = pass ]; }; then
   echo "mutate.sh: BUILD or TEST fails with no mutation applied, so no red would mean anything: $test" >&2
   exit 2
 fi
-limit=${given:-$((($(date +%s) - start) * 5 + 60))}
+limit=${limit:-$((($(date +%s) - start) * 5 + 60))}
 
 status=0
 for m in "$@"; do
@@ -103,7 +110,7 @@ for m in "$@"; do
   elif [ -n "$build" ] && ! sh -c "$build" > /dev/null 2>&1; then
     result=broken
   else
-    run_test
+    run_test "$limit"
     case $outcome in
     pass) result=GREEN ;;
     fail) result=red ;;
