@@ -55,4 +55,32 @@ code=0
 sh "$REPO/skills/tdd/scripts/mutate.sh" -b false '[ "$(sh add.sh)" = 2 ]' red.m >/dev/null 2>&1 || code=$?
 [ "$code" = 2 ] || fail "a broken baseline BUILD exited $code, want 2"
 
+# A limit that is not whole seconds, and a machine with no perl to make the
+# process group, stop the run before any mutation.
+code=0
+sh "$REPO/skills/tdd/scripts/mutate.sh" -t 5s '[ "$(sh add.sh)" = 2 ]' red.m >/dev/null 2>&1 || code=$?
+[ "$code" = 2 ] || fail "-t 5s exited $code, want 2"
+mkdir noperl
+out="$(PATH="$TMP/noperl" "$(command -v sh)" "$REPO/skills/tdd/scripts/mutate.sh" '[ "$(sh add.sh)" = 2 ]' red.m 2>&1)" &&
+  fail "a run with no perl exited zero"
+case "$out" in
+*"perl is required"*) ;;
+*) fail "a run with no perl reported: $out" ;;
+esac
+
+# Nothing TEST starts outlives it, as a test runner's child does when the
+# runner is killed on its own timeout.
+sh "$REPO/skills/tdd/scripts/mutate.sh" 'sleep 30 & echo $! > left.pid; [ "$(sh add.sh)" = 2 ]' red.m >/dev/null
+! kill -0 "$(cat left.pid)" 2>/dev/null || fail "a process TEST started outlived it"
+
+# A mutation that never ends, as a deleted loop guard does, is stopped at -t
+# SECONDS with everything it started, and reported as a timeout.
+code=0
+out="$(sh "$REPO/skills/tdd/scripts/mutate.sh" -t 1 \
+  '[ "$(sh add.sh)" = 2 ] || { sleep 30 & echo $! > hung.pid; wait; }' red.m)" || code=$?
+[ "$out" = "red.m timeout" ] || fail "a hung mutation reported: $out"
+[ "$code" = 1 ] || fail "a run with a timeout exited $code, want 1"
+! kill -0 "$(cat hung.pid)" 2>/dev/null || fail "a hung mutation's process outlived the timeout"
+cmp -s add.sh add.orig || fail "add.sh was not restored after a timeout"
+
 echo "ok"
