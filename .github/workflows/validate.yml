@@ -34,6 +34,7 @@ jobs:
       - run: sh tests/link-skills.test.sh
       - run: sh tests/mutate.test.sh
       - run: sh tests/release.test.sh
+      - run: sh tests/directory-branch.test.sh
 
   skills:
     runs-on: ubuntu-latest

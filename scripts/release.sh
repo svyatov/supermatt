@@ -3,7 +3,8 @@
 #
 # Tags and publishes the version in .claude-plugin/plugin.json. Run it on main
 # after the release pull request merges. It creates a signed tag, pushes it, and
-# opens a GitHub Release whose notes are that version's CHANGELOG.md section.
+# opens a GitHub Release whose notes are that version's CHANGELOG.md section,
+# then updates the directory branch (see directory-branch.sh).
 # -n prints the tag and the notes, then stops before tagging.
 set -eu
 
@@ -31,3 +32,4 @@ fi
 git tag -s -m "$tag" "$tag"
 git push origin "$tag"
 printf '%s\n' "$notes" | gh release create "$tag" --verify-tag --title "$tag" --notes-file -
+sh scripts/directory-branch.sh "$tag"
