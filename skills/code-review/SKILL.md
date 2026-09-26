@@ -26,7 +26,7 @@ The issue tracker should have been provided to you. If `docs/agents/issue-tracke
 
 Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
 
-Resolve the merge-base once with `git merge-base <fixed-point> HEAD` and capture the diff command with that SHA written out: `git diff <merge-base-sha>` (against the merge-base, and including uncommitted changes to tracked files). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+Resolve the merge-base once with `git merge-base <fixed-point> HEAD`, create a fresh `mktemp -d` directory (`$DIR` below), and write the diff into it: `git diff <merge-base-sha> > "$DIR/diff.patch"` (against the merge-base, and including uncommitted changes to tracked files). That file is the diff every sub-agent reads: a shell hook can shorten a diff printed to the terminal, and a redirected one lands on disk whole. Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
 
 Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside three parallel sub-agents.
 
@@ -89,32 +89,32 @@ Every sub-agent prompt includes the **finding rules** (see _Finding rules_) past
 
 **Standards sub-agent prompt** should include:
 
-- The full diff command and commit list.
+- The diff file path and commit list.
 - The list of standards-source files you found in step 3, **plus the smell baseline, the refactor check, and the test check from step 3** pasted in full (the sub-agent has no other access to them).
 - The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); (b) any baseline smell you spot: name it and quote the hunk; (c) any refactor check hit: name the commit and the test file; and (d) any test check hit: quote the untested behavior or the vacuous assertion. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, refactor check hits are hard, but baseline smells and test check hits are judgement calls, and a documented repo standard overrides the baseline. Under 400 words."
 
 **Spec sub-agent prompt** should include:
 
-- The diff command and commit list.
+- The diff file path and commit list.
 - The path or fetched contents of the spec.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
 
-**Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff command and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then, when the repo builds a program, the path of one built from `HEAD` so the peer can run a trigger instead of only tracing it, then "Under 400 words." The fallback sub-agent gets this same prompt.
+**Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff file path and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then, when the repo builds a program, the path of one built from `HEAD` so the peer can run a trigger instead of only tracing it, then "Under 400 words." The fallback sub-agent gets this same prompt.
 
-For the peer, first create a fresh `mktemp -d` directory and build the program there with the repo's own build command (a build binary already in the checkout may predate the change). Then write the prompt, with that binary's path already filled in, to `prompt.md` in that directory with the file-writing tool (Claude Code: Write). The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under that directory now, and name it in the prompt. Then start the peer's command from the repo root, alongside the other sub-agents, as its own background shell call (Claude Code: `run_in_background: true`, with no trailing `&`), so the call's completion notice is the signal that `out.md` is ready:
+For the peer, first build the program in `$DIR` with the repo's own build command (a build binary already in the checkout may predate the change). Then write the prompt, with that binary's path already filled in, to `prompt.md` in that directory with the file-writing tool (Claude Code: Write). The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under that directory now, and name it in the prompt. Then start the peer's command from the repo root, alongside the other sub-agents, as its own background shell call (Claude Code: `run_in_background: true`, with no trailing `&`), so the call's completion notice is the signal that `out.md` is ready:
 
 - `codex`: `codex exec - --ignore-user-config --disable apps --disable plugins -C "$(git rev-parse --show-toplevel)" -s read-only -c 'approval_policy="never"' --ephemeral -o "$DIR/out.md" < "$DIR/prompt.md"`
-- `claude`: it has no shell, so first append the diff to `prompt.md` between `=== BEGIN DIFF ===` and `=== END DIFF ===` lines. Then run `claude -p --safe-mode --strict-mcp-config --tools Read Grep Glob --permission-mode dontAsk --no-session-persistence < "$DIR/prompt.md" > "$DIR/out.md"`. When the Codex sandbox blocks its network access, request escalated permissions for this one command.
+- `claude`: it has no shell, so first append `$DIR/diff.patch` to `prompt.md` between `=== BEGIN DIFF ===` and `=== END DIFF ===` lines. Then run `claude -p --safe-mode --strict-mcp-config --tools Read Grep Glob --permission-mode dontAsk --no-session-persistence < "$DIR/prompt.md" > "$DIR/out.md"`. When the Codex sandbox blocks its network access, request escalated permissions for this one command.
 
 Each flag set keeps the peer read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. The `codex` flags also skip the user's `config.toml`, so that peer runs on the CLI's default model; `claude --safe-mode` keeps the user's model selection.
 
-Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is one line telling it to read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt. When the fallback fails too, the Adversarial axis is **incomplete**. Delete the temp directory once the Adversarial axis has a report, from the peer or the fallback.
+Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is two lines: read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt; and, unlike the peer, it may write scratch state under `$DIR` to run triggers, and it leaves the repository unedited. When the fallback fails too, the Adversarial axis is **incomplete**.
 
 ### 6. Verify P0 and P1 findings
 
-Number every quoted P0 and P1 finding from every axis. When there are none, skip to step 7. Otherwise spawn one validator sub-agent whose prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then the numbered findings with their axis, quote, and reasoning, then the diff command and commit list.
+Number every quoted P0 and P1 finding from every axis. When there are none, skip to step 7. Otherwise spawn one validator sub-agent whose prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then the numbered findings with their axis, quote, and reasoning, then the diff file path and commit list.
 
 Apply its verdicts to each finding on its own axis:
 
@@ -125,6 +125,8 @@ Apply its verdicts to each finding on its own axis:
 When the validator fails or leaves a finding without a verdict, that finding stays and is labelled `not validated`.
 
 ### 7. Aggregate
+
+Delete `$DIR` first: nothing from here on reads it.
 
 Present the reports under `## Standards`, `## Spec`, and `## Adversarial (<peer>)` headings, verbatim or lightly cleaned, keeping each finding's severity, `file:line`, and quoted line, each ending with its "Dropped by verification" line when step 6 dropped anything. When the fallback ran, the last heading is `## Adversarial (same model: <reason>)`. Do **not** merge or rerank findings, because the axes are deliberately separate (see _Why separate axes_). Print this aggregate as its own message before anything else continues, also when another skill loaded this one. Done when every finding from every axis appears under its heading or on its dropped line.
 
@@ -146,6 +148,7 @@ The verdict is a rule over severities. Don't pick a single worst finding across 
 
   Baseline smells are P2 or P3. A refactor check hit is P1. A test check hit is P2.
 - **Quote the line.** Every finding cites `file:line` and quotes the line it flags. A claim that something is missing quotes where it would be defined, and a race quotes both sides. A claim that nothing else calls or uses a symbol rests on a symbol-aware search (LSP, CodeGraph) when one is available, and otherwise says "grep-only". Label a finding without a quote `unverified`; it does not move the verdict.
+- **Read by range.** Read the diff file in full, by line range when it is long. A file the diff adds is already in it whole; read other files by line range for the context around a hunk.
 - **Lead with the effect.** Open each finding with what a user or caller sees, then give one fix. When more than one fits, recommend one and name the trade-off. When the right fix depends on something you can't see, propose the most likely default and name the assumption.
 - **Skip:**
   - Code the diff didn't change, unless the diff makes it newly relevant (a new caller of an existing bug). Test: would you flag it on the same diff without the surrounding file?
