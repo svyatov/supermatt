@@ -31,7 +31,7 @@ function processPayment(order, paymentClient) {
 
 // Hard to mock
 function processPayment(order) {
-  const client = new StripeClient(process.env.STRIPE_KEY);
+  const client = new StripeClient();
   return client.charge(order.total);
 }
 ```
