@@ -14,7 +14,7 @@ Before you start, record the current commit with `git rev-parse HEAD`.
 
 Where possible, at pre-agreed seams, call the Skill tool with "tdd". Seams that the spec or issue names are pre-agreed, and so are the seams of code you refactor and of a review finding you fix.
 
-Run typechecking regularly, and the full test suite and the repo's lint before every commit, chaining the commit on each check's own exit status (`&&`) so a red check stops it: run each check unpiped, or after `set -o pipefail`, since a check piped into `tail` or `grep` exits with the filter's status. Give that call the tool's longest timeout, since a full suite plus lint can outlast the default and move to the background.
+Run typechecking and the repo's lint after each slice of work, so the linter shapes the code as it is written. Before every commit, run the lint and then the full test suite, chaining the commit on each check's own exit status (`&&`) so a red check stops it: run each check unpiped, or after `set -o pipefail`, since a check piped into `tail` or `grep` exits with the filter's status. Give that call the tool's longest timeout, since a full suite plus lint can outlast the default and move to the background.
 
 Once done, commit your work to the current branch; on the default branch, create a branch first, named by the repo's convention. Reference each issue it implements in the commit message (`#<n>`, or the file path on a local tracker).
 

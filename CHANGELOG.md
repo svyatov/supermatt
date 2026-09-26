@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.8] - 2026-09-26
+
+### Fixed
+
+- `code-review`: with no fixed point given on a branch other than the default branch, the review diffs against the default branch and says so in one line, and asks only on the default branch itself. Fixture files for the Adversarial axis are written with the file-writing tool, the shell kept for `mkdir`, `git`, and `ln`, so a hook that blocks shell redirects does not stop the setup.
+- `implement`: lint runs with typechecking after each slice of work, so a lint failure no longer waits behind a full test suite at commit time.
+- `tdd`: an equivalent mutation of code that has to stay is a listed survivor, with the input that could not tell it apart, and the mutation check is done when every mutation is red or a listed survivor. A mutation that removes a loop or recursion guard runs under the test runner's own time limit, and its timeout counts as red.
+
 ## [0.5.7] - 2026-09-26
 
 ### Fixed
@@ -255,7 +263,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.7...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.5.8...HEAD
+[0.5.8]: https://github.com/svyatov/supermatt/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/svyatov/supermatt/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/svyatov/supermatt/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/svyatov/supermatt/compare/v0.5.4...v0.5.5
