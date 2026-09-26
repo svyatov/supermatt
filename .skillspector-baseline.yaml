@@ -1,0 +1,57 @@
+version: 1
+
+# Every rule below is a keyword false positive, suppressed by rule and path so
+# a new finding in any other file still fails the build.
+
+rules:
+  - id: "EA3"
+    path: "*/CREDITS.md"
+    reason: >-
+      "NOT LIMITED TO" is the warranty disclaimer in the MIT license text that
+      each CREDITS.md reproduces for the upstream skill it credits.
+
+  - id: "AS3"
+    path: "*/CREDITS.md"
+    reason: >-
+      The credited upstream skill's SKILL.md path, cited as attribution.
+
+  - id: "AS3"
+    path: "*/SKILL.md"
+    message: "*skills/*/SKILL.md*"
+    reason: >-
+      The credits-url frontmatter field links the upstream skill's SKILL.md
+      as attribution. The skill enumerates no installed skills.
+
+  - id: "AR1"
+    path: "to-questionnaire/SKILL.md"
+    reason: >-
+      "always answer" describes questions the user can answer; it tells the
+      agent nothing about refusals.
+
+  - id: "EA2"
+    path: "grilling/SKILL.md"
+    reason: >-
+      "don't ask the user" refers to a question the codebase already answers;
+      the skill looks it up instead of asking.
+
+  - id: "P5"
+    path: "ideate/SKILL.md"
+    reason: >-
+      "make the final cut yourself" means the agent picks which ideas to cut.
+
+  - id: "MP2"
+    path: "ask-supermatt/PHASE-BOUNDARIES.md"
+    reason: >-
+      The padding the scanner sees is the column alignment of a Markdown table.
+
+  - id: "P6"
+    path: "diagnosing-bugs/scripts/hitl-loop.template.sh"
+    reason: >-
+      "show instruction" documents the step helper, which prints a step for the
+      human to perform. Nothing prints a system prompt.
+
+  - id: "TM2"
+    path: "to-tickets/SKILL.md"
+    reason: >-
+      The expand-migrate-contract sequence describes blocking edges between
+      tickets a human works, not chained tool calls.

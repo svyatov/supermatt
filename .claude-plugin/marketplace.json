@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "supermatt",
+  "owner": {
+    "name": "Leonid Svyatov"
+  },
+  "description": "SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code.",
+  "plugins": [
+    {
+      "name": "supermatt",
+      "source": "./",
+      "description": "SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code."
+    }
+  ]
+}
