@@ -134,7 +134,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Scope and names
 
-| | |
+| Change | What |
 |---|---|
 | **Kept** | The engineering and productivity skills, plus `retro` and `pr` from upstream's in-progress set. |
 | **Dropped** | Upstream's `misc` skills and the rest of its in-progress set. |
@@ -143,13 +143,14 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Borrowed ideas
 
-Some of the checks above are adapted from other skill sets, and each skill credits its source:
+Some of the checks above are adapted from other skill sets:
 
 | Source | Skills |
 |---|---|
 | [Every's compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin) | `code-review`, `diagnosing-bugs`, `to-spec`, `ideate` |
 | [Superpowers](https://github.com/obra/superpowers) | `tdd`, `diagnosing-bugs` |
 | Luke Ramsden's [software-design](https://github.com/lukeramsden/software-design-agent-skill) | `codebase-design` |
+| Dex Horthy's [show-me](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md) | `pr` |
 
 The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 
@@ -161,13 +162,13 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 |---|---|
 | **[ask-supermatt](./skills/ask-supermatt/SKILL.md)** | Ask which skill or flow fits your situation. A router over the skills in this repo. |
 | **[grill-with-docs](./skills/grill-with-docs/SKILL.md)** | Grilling session that also builds your project's domain model, sharpening terminology and updating `GLOSSARY.md` and ADRs inline. |
-| **[triage](./skills/triage/SKILL.md)** | Move issues through a state machine of triage roles. |
+| **[triage](./skills/triage/SKILL.md)** | Move issues and external PRs through a state machine of triage roles: categorise, verify, grill if needed, and write agent-ready briefs. |
 | **[ideate](./skills/ideate/SKILL.md)** | Generate grounded ideas for what to build next, critique every one, and rank the survivors in a Markdown file, each with a prompt that takes it into `/grill-with-docs`. |
 | **[architecture-review](./skills/architecture-review/SKILL.md)** | Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. |
 | **[setup-supermatt-skills](./skills/setup-supermatt-skills/SKILL.md)** | Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo. |
 | **[to-spec](./skills/to-spec/SKILL.md)** | Turn the current conversation into a spec and publish it to the issue tracker. |
-| **[to-tickets](./skills/to-tickets/SKILL.md)** | Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, whether as text in a local file or as native blocking links on a real tracker. |
-| **[implement](./skills/implement/SKILL.md)** | Build the work described by a spec or set of tickets, driving `/tdd` at pre-agreed seams, then committing and closing out with `/code-review`. |
+| **[to-tickets](./skills/to-tickets/SKILL.md)** | Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, as text in one file per ticket locally or as native blocking links on a real tracker. |
+| **[implement](./skills/implement/SKILL.md)** | Build the work described by a spec, tickets, or triaged issues, driving `/tdd` at pre-agreed seams, then committing and closing out with `/code-review`. |
 | **[retro](./skills/retro/SKILL.md)** | Run a retrospective on a coding session and get ranked suggestions for the agent's environment: automated checks, context pointers, coding-standards rules, stale or contradictory instructions, and a leaner `AGENTS.md`. |
 | **[wayfinder](./skills/wayfinder/SKILL.md)** | Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear. |
 | **[wizard](./skills/wizard/SKILL.md)** | Deprecated, with no replacement. SuperMatt 0.7.0 removes it. |
@@ -184,7 +185,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[codebase-design](./skills/codebase-design/SKILL.md)** | Shared discipline and vocabulary for designing deep modules: small interfaces, clean seams, testable through the interface. |
 | **[code-review](./skills/code-review/SKILL.md)** | Three-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?), **Spec** (does it faithfully implement the originating issue/spec?), and **Adversarial** (how does it fail in production?), run as parallel sub-agents and closed with a verdict. When Claude Code runs the review, the Adversarial axis goes to `codex` if it is installed; when Codex runs it, the axis goes to `claude`. |
 | **[pr](./skills/pr/SKILL.md)** | The shape of a pull request body: a summary diagram or diff sketch, before/after evidence, and the merge danger (one-way or two-way door, blast radius). |
-| **[resolving-merge-conflicts](./skills/resolving-merge-conflicts/SKILL.md)** | Work through an in-progress git merge or rebase conflict hunk by hunk, resolving by intent traced to each side's primary source, then finish the operation, never `--abort`. |
+| **[resolving-merge-conflicts](./skills/resolving-merge-conflicts/SKILL.md)** | Work through an in-progress git merge or rebase conflict hunk by hunk, resolving by intent traced to each side's primary source, run the project's checks, then finish the operation, never `--abort`. |
 
 ## Productivity
 
