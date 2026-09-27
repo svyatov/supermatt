@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-09-27
+
+### Fixed
+
+- `code-review`: the diff now includes untracked files, uncommitted work on the default branch reviews against `HEAD` without asking, and requirements settled in the conversation count as a spec source.
+- `diagnosing-bugs`: the review's P0 and P1 fixes follow in the same turn as the aggregate, and a debug probe that prints nothing is checked for placement before its output channel.
+- `grilling`: a question's disputed premise is settled with direct evidence before the decision goes back to the user, and a round holds no question another question in it would answer or reshape.
+- `ideate`: the Take it further prompt keeps the `grill-with-docs` command even though that user-only skill never appears in the skill listing.
+- `implement`: the frontier pick takes only `ready-for-agent` tickets with code left and stops when none remain, and the lint runs after every green tdd cycle and review fix.
+- `prototype`: the throwaway branch is pushed when the repository has a remote, and UI prototypes outside the browser get a flag, a key, and a PROTOTYPE bar in place of the web switcher.
+- `retro`: a regular file under the home directory is checked for a sync from a repository before it is called hand-edited, and the transcript search starts from a tested `jq` query for failed tool calls.
+- `setup-supermatt-skills`: Step 3 prints every draft before asking whether to write the files.
+- `tdd`: code the change needs behind an unconfirmed seam waits for that seam to be confirmed, and mutation covers every file the run changed.
+- `triage`: the issue or PR is read with the tracker config's own read command, after reading that config in its own call.
+- `wayfinder`: the challenge runs before any confirmation and goes to the user as one question, and repository files a resolution changes are committed without asking.
+
 ## [0.6.3] - 2026-09-27
 
 ### Fixed
@@ -305,7 +321,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.3...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.4...HEAD
+[0.6.4]: https://github.com/svyatov/supermatt/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/svyatov/supermatt/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/svyatov/supermatt/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/svyatov/supermatt/compare/v0.6.0...v0.6.1

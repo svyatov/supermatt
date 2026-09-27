@@ -135,6 +135,8 @@ Tool preference:
 
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
+A tagged probe that prints nothing was most likely never reached. Before you change how it prints, grep the tag to confirm it sits in the test the loop runs, above the call that fails.
+
 **Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
 
 **Heisenbug.** If the bug goes away when you add a log or attach a debugger, the probe changed the timing or ordering: that is evidence, and the bug is still there. Suspect races, async ordering, and unflushed I/O. Observe from outside the path instead (in-memory buffer dumped after the failure, sampling profiler, `strace`/`dtrace`). A real fix still holds with the probe put back.
@@ -184,4 +186,4 @@ Required before declaring done:
 - [ ] Throwaway debug harnesses deleted (or moved to a clearly-marked debug location)
 - [ ] The full test suite passes
 - [ ] The regression test and the fix are committed, and the commit message states the hypothesis that turned out correct, so the next debugger learns
-- [ ] The fix is reviewed, unless an outer flow (such as `implement`) reviews this diff itself: call the Skill tool with "code-review", with the commit you recorded in Phase 5 as the fixed point and, as the spec, the path of a file in the OS temporary directory holding the bug report or captured symptom. Fix every verified P0 and P1 finding, and commit the fixes.
+- [ ] The fix is reviewed, unless an outer flow (such as `implement`) reviews this diff itself: call the Skill tool with "code-review", with the commit you recorded in Phase 5 as the fixed point and, as the spec, the path of a file in the OS temporary directory holding the bug report or captured symptom. Fix every verified P0 and P1 finding in the same turn, and commit the fixes. When the aggregate carries one, send the aggregate together with the first fix's tool call: a message with no tool call ends the turn and leaves the fixes to the user.
