@@ -4,7 +4,14 @@ Bug reports, skill ideas, and pull requests are welcome. For a new skill or a la
 
 ## Set up
 
-Fork the repository and clone your fork. To try your working copy in Claude Code, start a session with the plugin loaded from disk:
+Fork the repository and clone your fork. Install [lefthook](https://lefthook.dev) and [betterleaks](https://github.com/betterleaks/betterleaks), then turn on the git hooks. They scan commits for secrets and dashes, check commit messages, and run the tests before a push:
+
+```
+brew install lefthook betterleaks
+lefthook install
+```
+
+To try your working copy in Claude Code, start a session with the plugin loaded from disk:
 
 ```
 claude --plugin-dir .
