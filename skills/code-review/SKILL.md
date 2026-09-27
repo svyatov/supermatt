@@ -24,9 +24,9 @@ The issue tracker should have been provided to you. If `docs/agents/issue-tracke
 
 ### 1. Pin the fixed point
 
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one and HEAD is on a branch other than the default branch, the fixed point is the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD`, minus its `origin/`): name it in one line and carry on. On the default branch itself, ask.
+Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one and HEAD is on a branch other than the default branch, the fixed point is the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD`, minus its `origin/`): name it in one line and carry on. On the default branch with uncommitted changes, the fixed point is `HEAD`: name it in one line and carry on. On a clean default branch, ask.
 
-Resolve the merge-base once with `git merge-base <fixed-point> HEAD`, create a fresh `mktemp -d` directory (`$DIR` below), and write the diff into it: `git diff <merge-base-sha> > "$DIR/diff.patch"` (against the merge-base, and including uncommitted changes to tracked files). That file is the diff every sub-agent reads: a shell hook can shorten a diff printed to the terminal, and a redirected one lands on disk whole. Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+Resolve the merge-base once with `git merge-base <fixed-point> HEAD`, create a fresh `mktemp -d` directory (`$DIR` below), and write the diff into it: `git diff <merge-base-sha> > "$DIR/diff.patch"` (against the merge-base, and including uncommitted changes to tracked files), then append every untracked file: `git ls-files -z --others --exclude-standard | xargs -0 -I{} git diff --no-index /dev/null {} >> "$DIR/diff.patch"` (it exits non-zero whenever it appends a file, which is expected). That file is the diff every sub-agent reads: a shell hook can shorten a diff printed to the terminal, and a redirected one lands on disk whole. Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
 
 Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside three parallel sub-agents.
 
@@ -37,7 +37,8 @@ Look for the originating spec, in this order:
 1. Issue references in the commit messages (`#123`, `Closes #45`, a local issue file path, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
 2. A path the user passed as an argument.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+4. The request, plan, or approved findings in this conversation that the change carries out: write them to `$DIR/spec.md` and name that as the spec.
+5. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
 ### 3. Identify the standards sources
 

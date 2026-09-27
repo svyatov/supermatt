@@ -11,6 +11,8 @@ Generate **several radically different UI variations** on a single route, switch
 
 If the question is about logic/state rather than what something looks like, this is the wrong branch. Use [LOGIC.md](LOGIC.md).
 
+For a UI outside the browser (a terminal or desktop app), keep the same shape: the variants live in one program, a start flag stands in for `?variant=` (`-variant b`), a key stands in for the arrows, and a visible PROTOTYPE bar replaces the floating switcher.
+
 ## When this is the right shape
 
 - "What should this page look like?"
