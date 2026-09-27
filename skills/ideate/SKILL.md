@@ -68,7 +68,7 @@ Done when every merged idea is either ranked or carries a cut reason.
 Write `docs/ideation/YYYY-MM-DD-<topic>.md` (`open` as the topic when there is no focus), creating the directory if needed:
 
 - **Subject**: the focus, and the grounding summary cut to its key points.
-- **Ranked ideas**: for each survivor, the title, summary, basis, why it matters, size (S, M, or L), and a **Take it further** prompt in a fenced block. The prompt opens with the grill-with-docs command in the form this session invoked `ideate` with (`/grill-with-docs`, `/supermatt:grill-with-docs` from the Claude Code plugin, `$grill-with-docs` in Codex), then names the idea, its basis with the `file:line` pointers, and why it matters. A fresh session has no report and no grounding, so the prompt stands alone.
+- **Ranked ideas**: for each survivor, the title, summary, basis, why it matters, size (S, M, or L), and a **Take it further** prompt in a fenced block. The prompt opens with the grill-with-docs command in the form this session invoked `ideate` with (`/grill-with-docs`, `/supermatt:grill-with-docs` from the Claude Code plugin, `$grill-with-docs` in Codex), then names the idea, its basis with the `file:line` pointers, and why it matters. A fresh session has no report and no grounding, so the prompt stands alone. `grill-with-docs` ships alongside this skill and only the user can invoke it, so your skill listing never shows it: write that command exactly as given here.
 - **Cut**: a table of every cut idea and its reason.
 
 ### 7. Present
