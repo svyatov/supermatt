@@ -4,12 +4,12 @@
   "owner": {
     "name": "Leonid Svyatov"
   },
-  "description": "SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code.",
+  "description": "The best of Matt Pocock's Skills, Superpowers, and Compound Engineering. One complete, simple, supercharged SDLC system for your coding agent.",
   "plugins": [
     {
       "name": "supermatt",
       "source": "./",
-      "description": "SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code."
+      "description": "The best of Matt Pocock's Skills, Superpowers, and Compound Engineering. One complete, simple, supercharged SDLC system for your coding agent."
     }
   ]
 }
