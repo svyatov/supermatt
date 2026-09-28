@@ -11,8 +11,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 
 - `implement`: QA runs on the committed work before `code-review`, in a fresh sub-agent that gets only the fixed point, the spec, and the earlier fails. Each fail is fixed test-first until QA passes, and review fixes that change behavior get QA again before anything closes.
-- `diagnosing-bugs`: the fix passes `qa` against the bug report before it is reviewed, and a fail goes back to Phase 3.
-- `tdd`: `mutate.sh` moves its exit cleanup into one function, with no change in behavior. A test now checks that an interrupted run stops TEST, restores the target, and removes its backup.
+- `diagnosing-bugs`: the fix passes `qa` against the bug report before it is reviewed, and a fail goes back to Phase 3. Its upstream licenses move from `CREDITS.md` into a `NOTICE` file.
+- `tdd`: `mutate.sh` moves its exit cleanup into one function, with no change in behavior. A test now checks that an interrupted run stops TEST, restores the target, and removes its backup. The upstream license moves from `CREDITS.md` into a `NOTICE` file.
+- `code-review`, `codebase-design`, `grilling`, `ideate`, `pr`, `qa`, `retro`, `setup-supermatt-skills`, `to-questionnaire`, `to-tickets`: each scans clean with skillspector, with no change in behavior. Upstream licenses move from `CREDITS.md` into a `NOTICE` file, credit links point at the upstream skill's directory, and sentences the scanner misread are reworded.
 
 ## [0.6.4] - 2026-09-27
 

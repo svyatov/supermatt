@@ -35,7 +35,7 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 
 Remember that all work goes through two stages: implementation and review. The implementation agent has the most **context pressure**. They are responsible for exploration, writing code, and debugging failures.
 
-The review agent has the least context pressure: it receives a diff, so no exploration needed. It often does not need to write code or debug.
+The review agent has the least context pressure: it receives a diff, so no exploration needed. It seldom writes code or debugs failures.
 
 This means that the review agent should be responsible for imposing coding standards, not the implementation agent.
 

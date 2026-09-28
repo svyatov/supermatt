@@ -8,8 +8,8 @@
 #   sh hitl-loop.template.sh
 #
 # Two helpers:
-#   step "<instruction>"          → show instruction, wait for Enter
-#   capture VAR "<question>"      → show question, read response into VAR
+#   step "<instruction>"          → print the step, wait for Enter
+#   capture VAR "<question>"      → print the question, read response into VAR
 #
 # At the end, captured values are printed as KEY=VALUE for the agent to parse.
 #

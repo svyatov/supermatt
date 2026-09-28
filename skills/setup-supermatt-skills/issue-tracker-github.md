@@ -9,7 +9,7 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 - **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
 - **List children**: the open issues whose `## Parent` section names `<number>`, each with its count of open blockers: `gh api 'repos/{owner}/{repo}/issues?state=open&per_page=100' --paginate --jq '.[] | select(.body // "" | test("## Parent\\s+#<number>\\b")) | "\(.number) blocked_by=\(.issue_dependencies_summary.blocked_by) \(.title)"'`, plus any sub-issues (`gh api repos/{owner}/{repo}/issues/<number>/sub_issues --jq '.[] | select(.state == "open") | "\(.number) blocked_by=\(.issue_dependencies_summary.blocked_by) \(.title)"'`).
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
-- **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
+- **Apply / remove labels**: `gh issue edit <number> --add-label "<name>"` or `--remove-label "<name>"`
 - **Create a missing label**: `--label` / `--add-label` fails on a label the repo doesn't have yet. Create it first with `gh label create "<name>" --force`.
 - **Close**: `gh issue close <number> --comment "..."`
 
@@ -23,7 +23,7 @@ When set to `yes`, PRs run through the same labels and states as issues, using t
 
 - **Read a PR**: `gh pr view <number> --json title,state,body,comments --jq '.title, .state, .body, (.comments[] | "--- \(.author.login): \(.body)")'` and `gh pr diff <number>` for the diff.
 - **List external PRs for triage**: `gh pr list` has no author association field, so use the REST API: `gh api 'repos/{owner}/{repo}/pulls?state=open' --paginate --jq '[.[] | select(.author_association | IN("CONTRIBUTOR", "FIRST_TIME_CONTRIBUTOR", "NONE")) | {number, title, body, author: .user.login, labels: [.labels[].name]}]'`. This drops `OWNER`/`MEMBER`/`COLLABORATOR`. Read each PR's comments with `gh pr view`.
-- **Comment / label / close**: `gh pr comment`, `gh pr edit --add-label`/`--remove-label`, `gh pr close`.
+- **Comment / label / close**: `gh pr comment`, `gh pr close`, and `gh pr edit` with `--add-label` or `--remove-label`.
 
 GitHub shares one number space across issues and PRs, so a bare `#42` may be either: resolve with `gh pr view 42` and fall back to `gh issue view 42`.
 
