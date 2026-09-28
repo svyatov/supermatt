@@ -4,16 +4,22 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-28
+
 ### Added
 
-- `qa`: QA a change in the running program before code review. It writes a scenario for every requested behavior and every user-reachable path the diff changes, drives a terminal program through tmux and a web app through a browser tool, and reports each scenario as pass, fail, or blocked with the evidence it observed.
+- `qa`: QA a change in the running program before code review. It writes a scenario for every requested behavior and every user-reachable path the diff changes, drives a terminal program through tmux and a web app through a browser tool, and reports each scenario as pass, fail, or blocked with the evidence it observed. A terminal program runs every scenario in a big (215x60) and a small (80x24) terminal, gets its environment on the typed command, since the session's login shell rebuilds `PATH`, and a scenario that measures widths turns tabs into spaces with `stty oxtabs` first.
 
 ### Changed
 
-- `implement`: QA runs on the committed work before `code-review`, in a fresh sub-agent that gets only the fixed point, the spec, and the earlier fails. Each fail is fixed test-first until QA passes, and review fixes that change behavior get QA again before anything closes.
+- `implement`: QA runs on the committed work before `code-review`, in a fresh sub-agent that gets only the fixed point, the spec, and the earlier fails. Each fail is fixed test-first until QA passes, and review fixes that change behavior get QA again before anything closes. The `code-review` report no longer ends the turn: fixing its findings follows in the same turn.
 - `diagnosing-bugs`: the fix passes `qa` against the bug report before it is reviewed, and a fail goes back to Phase 3. Its upstream licenses move from `CREDITS.md` into a `NOTICE` file.
 - `tdd`: `mutate.sh` moves its exit cleanup into one function, with no change in behavior. A test now checks that an interrupted run stops TEST, restores the target, and removes its backup. The upstream license moves from `CREDITS.md` into a `NOTICE` file.
 - `code-review`, `codebase-design`, `grilling`, `ideate`, `pr`, `qa`, `retro`, `setup-supermatt-skills`, `to-questionnaire`, `to-tickets`: each scans clean with skillspector, with no change in behavior. Upstream licenses move from `CREDITS.md` into a `NOTICE` file, credit links point at the upstream skill's directory, and sentences the scanner misread are reworded.
+
+### Fixed
+
+- `setup-supermatt-skills`: the domain docs it writes say ADRs live in `docs/adr/` once the first one is written, so an agent in a repo without ADRs no longer runs `ls docs/adr` and gets an error.
 
 ## [0.6.4] - 2026-09-27
 
@@ -332,7 +338,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.6.4...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/svyatov/supermatt/compare/v0.6.4...v0.7.0
 [0.6.4]: https://github.com/svyatov/supermatt/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/svyatov/supermatt/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/svyatov/supermatt/compare/v0.6.1...v0.6.2

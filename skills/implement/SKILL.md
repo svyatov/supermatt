@@ -20,7 +20,7 @@ Once done, commit your work to the current branch; on the default branch, create
 
 Then QA the changes since the commit you recorded in a fresh context: this context wrote them, so it shares their blind spots. Spawn one sub-agent that calls the Skill tool with "qa", and give it only that commit as the fixed point and the spec path or issue reference as the request, with no notes or summary of your own. Tell it to report without editing any file. On each later pass, also give it the earlier fails, with their steps, as scenarios it must run. Without sub-agents, call the Skill tool with "qa" yourself. Fix each fail test-first (call the Skill tool with "tdd"), commit the fix the same way as the work, and QA again until the verdict has no fail. Name each blocked scenario, and what it needs, in your final message.
 
-Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec.
+Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec. Its report is not the end of this skill: continue to the next step in the same turn.
 
 Fix every verified finding the review reports on this branch, at every severity, and commit the fixes the same way as the work. Two kinds of finding go to the user as a question instead, with your recommendation: one whose fix would reverse something the spec asked for, and one whose cause lies outside this repo (an agent, service, or library working as designed), so no change here removes it.
 
