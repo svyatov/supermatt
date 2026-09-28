@@ -10,7 +10,7 @@ QA checks the running program against what was requested; tests check the code a
 
 QA runs before `code-review`: once QA shows the change does what was asked, the review can spend itself on how the code is written and how it fails.
 
-QA reports and leaves the code as it found it. Scratch state goes in `$DIR`, a fresh `mktemp -d`. The caller fixes each fail, test-first, and runs QA again.
+QA reports to its caller and leaves the code and the issue tracker as it found them: it files, comments on, and labels no issue, since a fail in unmerged work is the caller's to fix, not a ticket. Scratch state goes in `$DIR`, a fresh `mktemp -d`. The caller fixes each fail, test-first, and runs QA again.
 
 ## Process
 

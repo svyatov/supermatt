@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-09-28
+
+### Fixed
+
+- `qa`, `implement`: QA reports its fails to the caller and files, comments on, and labels no issue, so a fail in unmerged work goes back to `implement` to fix, not to the tracker as a ticket.
+
 ## [0.7.0] - 2026-09-28
 
 ### Added
@@ -338,7 +344,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.7.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/svyatov/supermatt/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/svyatov/supermatt/compare/v0.6.4...v0.7.0
 [0.6.4]: https://github.com/svyatov/supermatt/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/svyatov/supermatt/compare/v0.6.2...v0.6.3
