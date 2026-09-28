@@ -16,7 +16,7 @@ QA reports to its caller and leaves the code and the issue tracker as it found t
 
 ### 1. Pin the change and the request
 
-The change is the diff since a fixed point: the one the caller or user names; else the default branch, when `HEAD` is on another branch; else `HEAD`, when the default branch has uncommitted work. Read the diff in full, and read each untracked file `git status --short` lists.
+The change is the diff since a fixed point: the one the caller or user names; else the default branch, when `HEAD` is on another branch; else `HEAD`, when the default branch has uncommitted work. Write the diff to disk with `git diff <fixed-point> > "$DIR/diff.patch"` and read that file in full: a shell hook can shorten a diff printed to the terminal, and a redirected one lands on disk whole. Also read each untracked file `git status --short` lists.
 
 The request is what the change was meant to do: the spec or issue the caller passes, else the issue its commits reference, else the request settled in this conversation. With none, ask.
 
