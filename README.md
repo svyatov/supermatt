@@ -110,7 +110,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Skills hand off to each other
 
-- `implement` runs the full suite before every commit, fixes every `qa` fail test-first, passes the spec to `code-review`, fixes the verified P0 and P1 findings, and closes each issue once the review is clean.
+- `implement` runs the full suite before every commit, runs `qa` in a fresh sub-agent and fixes every fail test-first, passes the spec to `code-review`, fixes the verified P0 and P1 findings, and closes each issue once the review is clean.
 - `diagnosing-bugs` writes the regression test through `tdd` and reviews the fix with `code-review`, using the bug report as the spec.
 - Test seams agreed in `to-spec` or `triage` travel through `to-tickets` into `implement` and `tdd`, so no skill asks about them twice.
 - Each planning skill ends by pointing to the next step: `ideate` to `/grill-with-docs`, `architecture-review` to `/to-spec` or `/implement`, and `wayfinder` to `/to-spec`.

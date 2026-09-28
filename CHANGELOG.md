@@ -10,7 +10,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
-- `implement`: QA runs on the committed work before `code-review`, each fail is fixed test-first until QA passes, and review fixes that change behavior get QA again before anything closes.
+- `implement`: QA runs on the committed work before `code-review`, in a fresh sub-agent that gets only the fixed point, the spec, and the earlier fails. Each fail is fixed test-first until QA passes, and review fixes that change behavior get QA again before anything closes.
 - `diagnosing-bugs`: the fix passes `qa` against the bug report before it is reviewed, and a fail goes back to Phase 3.
 
 ## [0.6.4] - 2026-09-27
