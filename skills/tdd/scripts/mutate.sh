@@ -46,16 +46,24 @@ fi
 test=$1
 shift
 
-backup=$(mktemp)
-target= group=
-trap 'stop; if [ -n "$target" ]; then cp "$backup" "$target"; fi; rm -f "$backup" "$backup.expired"' EXIT
-trap 'exit 130' INT TERM
-
 # stop kills TEST's process group, where one runs.
 stop() {
   if [ -n "$group" ]; then kill -KILL -"$group" 2> /dev/null; fi
   group=
 }
+
+# cleanup stops TEST, restores the target a mutation left changed, and removes
+# the backup.
+cleanup() {
+  stop
+  if [ -n "$target" ]; then cp "$backup" "$target"; fi
+  rm -f "$backup" "$backup.expired"
+}
+
+backup=$(mktemp)
+target= group=
+trap cleanup EXIT
+trap 'exit 130' INT TERM
 
 # The supervisor: it leads the group, runs TEST as its child, and at the limit
 # (none at 0) marks the timeout and kills TEST. It exits 0 when TEST passed.
