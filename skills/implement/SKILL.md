@@ -18,7 +18,7 @@ Run typechecking and the repo's lint after each slice of work, so the linter sha
 
 Once done, commit your work to the current branch; on the default branch, create a branch first, named by the repo's convention. Reference each issue it implements in the commit message (`#<n>`, or the file path on a local tracker).
 
-Then call the Skill tool with "qa" to QA the changes since the commit you recorded, and give it the spec or issue as the request. Fix each fail test-first (call the Skill tool with "tdd"), commit the fix the same way as the work, and QA again until the verdict has no fail. Name each blocked scenario, and what it needs, in your final message.
+Then QA the changes since the commit you recorded in a fresh context: this context wrote them, so it shares their blind spots. Spawn one sub-agent that calls the Skill tool with "qa", and give it only that commit as the fixed point and the spec path or issue reference as the request, with no notes or summary of your own. Tell it to report without editing any file. On each later pass, also give it the earlier fails, with their steps, as scenarios it must run. Without sub-agents, call the Skill tool with "qa" yourself. Fix each fail test-first (call the Skill tool with "tdd"), commit the fix the same way as the work, and QA again until the verdict has no fail. Name each blocked scenario, and what it needs, in your final message.
 
 Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec.
 
