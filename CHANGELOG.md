@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- `qa`: QA a change in the running program before code review. It writes a scenario for every requested behavior and every user-reachable path the diff changes, drives a terminal program through tmux and a web app through a browser tool, and reports each scenario as pass, fail, or blocked with the evidence it observed.
+
+### Changed
+
+- `implement`: QA runs on the committed work before `code-review`, each fail is fixed test-first until QA passes, and review fixes that change behavior get QA again before anything closes.
+- `diagnosing-bugs`: the fix passes `qa` against the bug report before it is reviewed, and a fail goes back to Phase 3.
+
 ## [0.6.4] - 2026-09-27
 
 ### Fixed
