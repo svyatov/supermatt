@@ -21,7 +21,7 @@
 </p>
 
 - **Claude Code and Codex.** Each host installs SuperMatt from its own native plugin marketplace.
-- **28 skills.** 21 for engineering and 7 for productivity, listed below.
+- **29 skills.** 22 for engineering and 7 for productivity, listed below.
 - **A second model reviews your changes.** `code-review` adds an Adversarial axis and sends it to `codex` from Claude Code, or to `claude` from Codex, when that CLI is installed. Upstream reviews on two axes.
 - **One flow from idea to closed issue.** Forked from [mattpocock/skills](https://github.com/mattpocock/skills) at `c55ee46`, each skill checks its own work and hands the result to the next.
 
@@ -85,14 +85,14 @@ flowchart LR
   grill["grill-with-docs<br>sharpen the idea"] --> spec["to-spec<br>publish the spec"]
   spec --> tickets["to-tickets<br>split into tickets"]
   spec -. fits one session .-> implement
-  tickets --> implement["implement<br>tdd, then code-review"]
+  tickets --> implement["implement<br>tdd, qa, then code-review"]
   implement --> done(["reviewed, closed issue"])
 ```
 
 1. `grill-with-docs` sharpens the idea by interview.
 2. `to-spec` turns the conversation into a spec on your issue tracker.
 3. `to-tickets` splits the spec into tickets. Skip it when the work fits in one session.
-4. `implement` builds each ticket through `tdd`, then closes it out with `code-review`.
+4. `implement` builds each ticket through `tdd`, checks it in the running program with `qa`, then closes it out with `code-review`.
 
 ## How it differs from mattpocock/skills
 
@@ -105,11 +105,12 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 - `tdd` checks that each test goes red for the reason it names, counts a cycle green only when the full suite passes, ends with a mutation check, and flags change-detector tests.
 - `diagnosing-bugs` asks what you already tried, rules out the environment and uncommitted work, and fixes nothing until the causal chain has no gaps. It escalates to you after 2-3 dead hypotheses or 3 failed fixes.
 - `architecture-review` assesses the codebase first and writes no report when the codebase is healthy. It finds hot spots by change count over the last year and skips modules that are shallow by design.
+- `qa`, new in SuperMatt, runs the changed program the way its user would (a terminal program in tmux, a web app in a browser) and checks every requested behavior before `code-review` reads the code.
 - `ideate`, new in SuperMatt, has a fresh sub-agent try to refute each idea before it ranks the survivors.
 
 ### Skills hand off to each other
 
-- `implement` runs the full suite before every commit, passes the spec to `code-review`, fixes the verified P0 and P1 findings, and closes each issue once the review is clean.
+- `implement` runs the full suite before every commit, fixes every `qa` fail test-first, passes the spec to `code-review`, fixes the verified P0 and P1 findings, and closes each issue once the review is clean.
 - `diagnosing-bugs` writes the regression test through `tdd` and reviews the fix with `code-review`, using the bug report as the spec.
 - Test seams agreed in `to-spec` or `triage` travel through `to-tickets` into `implement` and `tdd`, so no skill asks about them twice.
 - Each planning skill ends by pointing to the next step: `ideate` to `/grill-with-docs`, `architecture-review` to `/to-spec` or `/implement`, and `wayfinder` to `/to-spec`.
@@ -138,7 +139,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 |---|---|
 | **Kept** | The engineering and productivity skills, plus `retro` and `pr` from upstream's in-progress set. |
 | **Dropped** | Upstream's `misc` skills and the rest of its in-progress set. |
-| **Added** | `ideate`. |
+| **Added** | `ideate` and `qa`. |
 | **Renamed** | `ask-matt` is `ask-supermatt`, `improve-codebase-architecture` is `architecture-review`, `setup-matt-pocock-skills` is `setup-supermatt-skills`, and `CONTEXT.md` is `GLOSSARY.md`. |
 
 ### Borrowed ideas
@@ -168,7 +169,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[setup-supermatt-skills](./skills/setup-supermatt-skills/SKILL.md)** | Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo. |
 | **[to-spec](./skills/to-spec/SKILL.md)** | Turn the current conversation into a spec and publish it to the issue tracker. |
 | **[to-tickets](./skills/to-tickets/SKILL.md)** | Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, as text in one file per ticket locally or as native blocking links on a real tracker. |
-| **[implement](./skills/implement/SKILL.md)** | Build the work described by a spec, tickets, or triaged issues, driving `/tdd` at pre-agreed seams, then committing and closing out with `/code-review`. |
+| **[implement](./skills/implement/SKILL.md)** | Build the work described by a spec, tickets, or triaged issues, driving `/tdd` at pre-agreed seams, then committing, checking it with `/qa`, and closing out with `/code-review`. |
 | **[retro](./skills/retro/SKILL.md)** | Run a retrospective on a coding session and get ranked suggestions for the agent's environment: automated checks, context pointers, coding-standards rules, stale or contradictory instructions, and a leaner `AGENTS.md`. |
 | **[wayfinder](./skills/wayfinder/SKILL.md)** | Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear. |
 | **[wizard](./skills/wizard/SKILL.md)** | Deprecated, with no replacement. SuperMatt 0.7.0 removes it. |
@@ -183,6 +184,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[tdd](./skills/tdd/SKILL.md)** | Test-driven development with a red-green loop. Builds features or fixes bugs one vertical slice at a time. |
 | **[domain-modeling](./skills/domain-modeling/SKILL.md)** | Actively build and sharpen a project's domain model by challenging terms, stress-testing with scenarios, and updating `GLOSSARY.md` and ADRs inline. |
 | **[codebase-design](./skills/codebase-design/SKILL.md)** | Shared discipline and vocabulary for designing deep modules: small interfaces, clean seams, testable through the interface. |
+| **[qa](./skills/qa/SKILL.md)** | QA a change in the running program before code review: write a scenario for every requested behavior, drive a terminal program through tmux or a web app through a browser, and report each scenario as pass, fail, or blocked with the evidence observed. |
 | **[code-review](./skills/code-review/SKILL.md)** | Three-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?), **Spec** (does it faithfully implement the originating issue/spec?), and **Adversarial** (how does it fail in production?), run as parallel sub-agents and closed with a verdict. When Claude Code runs the review, the Adversarial axis goes to `codex` if it is installed; when Codex runs it, the axis goes to `claude`. |
 | **[pr](./skills/pr/SKILL.md)** | The shape of a pull request body: a summary diagram or diff sketch, before/after evidence, and the merge danger (one-way or two-way door, blast radius). |
 | **[resolving-merge-conflicts](./skills/resolving-merge-conflicts/SKILL.md)** | Work through an in-progress git merge or rebase conflict hunk by hunk, resolving by intent traced to each side's primary source, run the project's checks, then finish the operation, never `--abort`. |
