@@ -1,57 +1,99 @@
-version: 1
+version: 2
 
-# Every rule below is a keyword false positive, suppressed by rule and path so
-# a new finding in any other file still fails the build.
+# CI scans each skill on its own, so every path below is relative to one
+# skill's directory. Each rule suppresses a reviewed false positive, pinned by
+# rule, path, and matched phrase, so a new finding anywhere else still fails
+# the build.
 
 rules:
   - id: "EA3"
-    path: "*/CREDITS.md"
+    path: "CREDITS.md"
+    message: "*NOT LIMITED TO*"
     reason: >-
       "NOT LIMITED TO" is the warranty disclaimer in the MIT license text that
       each CREDITS.md reproduces for the upstream skill it credits.
 
   - id: "AS3"
-    path: "*/CREDITS.md"
+    path: "CREDITS.md"
+    message: "*skills/*/SKILL.md*"
     reason: >-
       The credited upstream skill's SKILL.md path, cited as attribution.
 
   - id: "AS3"
-    path: "*/SKILL.md"
+    path: "SKILL.md"
     message: "*skills/*/SKILL.md*"
     reason: >-
       The credits-url frontmatter field links the upstream skill's SKILL.md
       as attribution. The skill enumerates no installed skills.
 
   - id: "AR1"
-    path: "to-questionnaire/SKILL.md"
+    path: "SKILL.md"
+    message: "*always answer*"
     reason: >-
-      "always answer" describes questions the user can answer; it tells the
-      agent nothing about refusals.
+      to-questionnaire: "always answer" describes questions the user can
+      answer; it tells the agent nothing about refusals.
 
   - id: "EA2"
-    path: "grilling/SKILL.md"
+    path: "SKILL.md"
+    message: "*don't ask the user*"
     reason: >-
-      "don't ask the user" refers to a question the codebase already answers;
-      the skill looks it up instead of asking.
+      grilling: "don't ask the user" refers to a question the codebase already
+      answers; the skill looks it up instead of asking.
+
+  - id: "EA2"
+    path: "SKILL.md"
+    message: "*without asking*"
+    reason: >-
+      setup-supermatt-skills: the single-context domain docs layout fits
+      almost every repo, so the skill writes it as a default without asking,
+      by design.
 
   - id: "P5"
-    path: "ideate/SKILL.md"
+    path: "SKILL.md"
+    message: "*cut yourself*"
     reason: >-
-      "make the final cut yourself" means the agent picks which ideas to cut.
-
-  - id: "MP2"
-    path: "ask-supermatt/PHASE-BOUNDARIES.md"
-    reason: >-
-      The padding the scanner sees is the column alignment of a Markdown table.
+      ideate: "make the final cut yourself" means the agent picks which ideas
+      to cut.
 
   - id: "P6"
-    path: "diagnosing-bugs/scripts/hitl-loop.template.sh"
+    path: "scripts/hitl-loop.template.sh"
+    message: "*show instruction*"
     reason: >-
-      "show instruction" documents the step helper, which prints a step for the
-      human to perform. Nothing prints a system prompt.
+      diagnosing-bugs: "show instruction" documents the step helper, which
+      prints a step for the human to perform. Nothing prints a system prompt.
 
   - id: "TM2"
-    path: "to-tickets/SKILL.md"
+    path: "SKILL.md"
+    message: "*First expand: add the new form beside the old*"
     reason: >-
-      The expand-migrate-contract sequence describes blocking edges between
-      tickets a human works, not chained tool calls.
+      to-tickets: the expand-migrate-contract sequence describes blocking edges
+      between tickets a human works, not chained tool calls.
+
+  - id: "RA2"
+    path: "SKILL.md"
+    message: "*write code or debug*"
+    reason: >-
+      retro: the sentence says the review agent seldom writes code or debugs,
+      to argue where coding standards belong. It persists nothing.
+
+  - id: "TR1"
+    path: "SKILL.md"
+    message: "*smoke-test*"
+    reason: >-
+      qa: the trigger list names the requests QA answers (QA, smoke-test, click
+      through, does it work). Each one asks for QA of a change.
+
+  - id: "AE1"
+    path: "SKILL.md"
+    message: "*scripts/mutate.sh (partial)*"
+    reason: >-
+      tdd: mutate.sh runs the caller's BUILD and TEST strings through sh -c,
+      which no static parser can resolve. Running them is the script's job.
+
+  - id: "AE1"
+    path: "SKILL.md"
+    message: "*issue-tracker-github.md (partial)*"
+    reason: >-
+      setup-supermatt-skills: the file holds 64 inline code spans of gh
+      commands, past the scanner's bound of 64 marker removals. The spans are
+      the commands the agent runs, so they stay.
