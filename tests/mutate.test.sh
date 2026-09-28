@@ -83,4 +83,22 @@ out="$(sh "$REPO/skills/tdd/scripts/mutate.sh" -t 1 \
 ! kill -0 "$(cat hung.pid)" 2>/dev/null || fail "a hung mutation's process outlived the timeout"
 cmp -s add.sh add.orig || fail "add.sh was not restored after a timeout"
 
+# A run interrupted mid-mutation stops TEST, restores the target, and leaves
+# no backup behind.
+mkdir tmpd
+TMPDIR="$TMP/tmpd" sh "$REPO/skills/tdd/scripts/mutate.sh" \
+  '[ "$(sh add.sh)" = 2 ] || { sleep 30 & echo $! > stuck.pid; wait; }' red.m >/dev/null &
+run=$!
+i=0
+until [ -s stuck.pid ]; do
+  i=$((i + 1))
+  [ "$i" -le 100 ] || fail "the mutated TEST never started"
+  sleep 0.1
+done
+kill -TERM "$run"
+wait "$run" || true
+! kill -0 "$(cat stuck.pid)" 2>/dev/null || fail "an interrupted run's TEST outlived it"
+cmp -s add.sh add.orig || fail "add.sh was not restored after an interrupt"
+[ -z "$(ls -A tmpd)" ] || fail "an interrupted run left files behind: $(ls -A tmpd)"
+
 echo "ok"

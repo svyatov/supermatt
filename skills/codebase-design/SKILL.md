@@ -4,7 +4,7 @@ description: Shared vocabulary for designing deep modules. Use when the user wan
 metadata:
   credits-skill: software-design
   credits-author: Luke Ramsden
-  credits-url: "https://github.com/lukeramsden/software-design-agent-skill/blob/main/skills/software-design/SKILL.md"
+  credits-url: "https://github.com/lukeramsden/software-design-agent-skill/tree/main/skills/software-design"
 license: MIT
 ---
 

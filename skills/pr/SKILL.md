@@ -5,7 +5,7 @@ metadata:
   credits-skill: show-me
   credits-author: Dex Horthy
   credits-organisation: Humanlayer
-  credits-url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
+  credits-url: "https://github.com/humanlayer/skills/tree/main/plugins/show-me/skills/show-me"
 license: MIT
 ---
 
