@@ -4,7 +4,14 @@ Bug reports, skill ideas, and pull requests are welcome. For a new skill or a la
 
 ## Set up
 
-Fork the repository and clone your fork. To try your working copy in Claude Code, start a session with the plugin loaded from disk:
+Fork the repository and clone your fork. Install [lefthook](https://lefthook.dev) and [betterleaks](https://github.com/betterleaks/betterleaks), then turn on the git hooks. They scan commits for secrets and dashes, check commit messages, and run the tests before a push:
+
+```
+brew install lefthook betterleaks
+lefthook install
+```
+
+To try your working copy in Claude Code, start a session with the plugin loaded from disk:
 
 ```
 claude --plugin-dir .
@@ -27,9 +34,10 @@ claude plugin validate --strict ./skills
 sh tests/link-skills.test.sh
 sh tests/mutate.test.sh
 sh tests/release.test.sh
+sh tests/directory-branch.test.sh
 ```
 
-`tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. `tests/mutate.test.sh` tests the `tdd` skill's mutation runner, and `tests/release.test.sh` tests the maintainer's `scripts/release.sh`. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
+`tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. `tests/mutate.test.sh` tests the `tdd` skill's mutation runner. `tests/release.test.sh` and `tests/directory-branch.test.sh` test the maintainer's `scripts/release.sh` and `scripts/directory-branch.sh`. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
 
 ## Rules for a change
 

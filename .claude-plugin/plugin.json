@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "supermatt",
   "displayName": "SuperMatt",
-  "version": "0.6.4",
-  "description": "SuperMatt turns Matt Pocock's agent skills into one self-checking flow for Claude Code and Codex, from idea to reviewed code.",
+  "version": "0.7.0",
+  "description": "The best of Matt Pocock's Skills, Superpowers, and Compound Engineering. One complete, simple, supercharged SDLC system for your coding agent.",
   "author": {
     "name": "Leonid Svyatov and Matt Pocock"
   },

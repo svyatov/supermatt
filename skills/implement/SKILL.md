@@ -18,7 +18,9 @@ Run typechecking and the repo's lint after each slice of work, so the linter sha
 
 Once done, commit your work to the current branch; on the default branch, create a branch first, named by the repo's convention. Reference each issue it implements in the commit message (`#<n>`, or the file path on a local tracker).
 
-Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec.
+Then QA the changes since the commit you recorded in a fresh context: this context wrote them, so it shares their blind spots. Spawn one sub-agent that calls the Skill tool with "qa", and give it only that commit as the fixed point and the spec path or issue reference as the request, with no notes or summary of your own. Tell it to report without editing any file. On each later pass, also give it the earlier fails, with their steps, as scenarios it must run. Without sub-agents, call the Skill tool with "qa" yourself. Fix each fail test-first (call the Skill tool with "tdd"), commit the fix the same way as the work, and QA again until the verdict has no fail. Name each blocked scenario, and what it needs, in your final message.
+
+Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec. Its report is not the end of this skill: continue to the next step in the same turn.
 
 Fix every verified finding the review reports on this branch, at every severity, and commit the fixes the same way as the work. Two kinds of finding go to the user as a question instead, with your recommendation: one whose fix would reverse something the spec asked for, and one whose cause lies outside this repo (an agent, service, or library working as designed), so no change here removes it.
 
@@ -31,4 +33,4 @@ When the work is a refactor, or when a review fix only restructures code, keep b
 - Tests that the design agreed are superseded by tests at a deepened interface are deleted in their own commit, not a `refactor:` one, once the new tests are green.
 - When a step goes red, revert it and take a smaller step.
 
-A review fix that has to change behavior (a bug or a spec gap) goes test-first: call the Skill tool with "tdd". When the review asks for both kinds, fix the structural findings first and commit them as `refactor:`, then make the behavior fixes on top of that commit.
+A review fix that has to change behavior (a bug or a spec gap) goes test-first: call the Skill tool with "tdd". Once such fixes are committed, QA again before you close anything. When the review asks for both kinds, fix the structural findings first and commit them as `refactor:`, then make the behavior fixes on top of that commit.
