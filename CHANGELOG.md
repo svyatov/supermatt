@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-09-28
+
+### Fixed
+
+- `qa`: QA writes the diff to `$DIR/diff.patch` and reads that file, so a shell hook that shortens terminal output no longer truncates it. Before it launches a program that redraws the screen, it runs `stty oxtabs`, so captures carry spaces instead of tabs. It launches a terminal program with `exec` in a pane that stays after exit, so a crash leaves its last screen for capture and later keys no longer reach a shell prompt, and it reads the exit status from `#{pane_dead_status}`.
+
 ## [0.7.1] - 2026-09-28
 
 ### Fixed
@@ -344,7 +350,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.7.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/svyatov/supermatt/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/svyatov/supermatt/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/svyatov/supermatt/compare/v0.6.4...v0.7.0
 [0.6.4]: https://github.com/svyatov/supermatt/compare/v0.6.3...v0.6.4
