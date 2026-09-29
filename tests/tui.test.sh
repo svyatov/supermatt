@@ -65,4 +65,12 @@ out="$(sh "$TUI" wait qa-r "after escape:" 5)" || fail "the raw program read not
 after escape:." ] || fail "Escape reached the program with the next key: $out"
 sh "$TUI" stop qa-r
 
+# tmux reads a ; at the end of an argument as its command separator, even
+# after -l, so a SQL statement such as BEGIN; loses its ;.
+sh "$TUI" start qa-s 40 10 sh -c 'echo ready; read -r line; echo "got $line"; sleep 5'
+sh "$TUI" wait qa-s ready 5 >/dev/null || fail "the reading program did not start"
+sh "$TUI" keys qa-s "BEGIN;" Enter || fail "keys refused a key that ends with ;"
+out="$(sh "$TUI" wait qa-s "got BEGIN;" 5)" || fail "the trailing ; did not reach the program: $out"
+sh "$TUI" stop qa-s
+
 echo "ok"
