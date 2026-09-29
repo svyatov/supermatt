@@ -51,7 +51,7 @@ Done when every scenario has a status and its evidence.
 
 ### 5. Clean up and report
 
-Stop everything you started: tmux sessions, servers, browser tabs. Delete `$DIR`, keeping only the screenshots the report cites.
+Stop everything you started: tmux sessions, servers, browser tabs. Delete `$DIR` by its literal path, keeping only the screenshots the report cites. Done when `tmux ls` lists none of your sessions and `$DIR` holds nothing but those screenshots. A cleanup command that fails or is blocked goes in the report as leftover state, with the command to remove it.
 
 Report one line per scenario (status, what it checked, the evidence or its path), then every fail in full, then the verdict:
 

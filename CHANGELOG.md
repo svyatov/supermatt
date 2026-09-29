@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-29
+
+### Added
+
+- `qa`: a bundled `scripts/tui.sh` drives a terminal program in tmux. `start` launches it from a script, so no long command line is typed into the pane, with tabs as spaces and a pane that outlives it. `wait` polls until the expected text shows, with a time limit, and prints the screen without its blank rows and with icons named by code point, and `gone` polls until text leaves the screen. `keys` pauses after `Escape`, so a Bubble Tea app does not read the next key as Alt+key, and sends a key that starts with a dash as text instead of a tmux flag, and `show` and `stop` do the rest, so a QA pass no longer needs fixed sleeps or shell functions of its own. The skill names the one `tui` function to call it by, which zsh runs where a command stored in a variable fails. Cleanup deletes `$DIR` by its literal path and is done only when `tmux ls` lists none of its sessions, and a blocked cleanup is reported as leftover state, so a stale session no longer reaches the next QA pass. A layout is judged to fit by the frame's right border at the pane's edge, since tmux clips a row that is too wide and counting a row's characters cannot find it.
+
+### Changed
+
+- `code-review`: the Duplicated Code smell also flags a new hunk that repeats a function already outside the diff, and reports how many copies the codebase holds in total, and the wait for the Adversarial peer runs in short sleeps, so its completion notice is not held behind one long sleep. A P2 or P3 that quotes its line counts as verified without the validator, so it stays in the open findings until it is fixed.
+- `implement`: every question to the user about a review finding lists its options with their costs and ends on a recommendation, so the user can answer with an option code. Every check runs bare, during slices too, so no filter after it can hide a red exit status.
+
 ## [0.7.3] - 2026-09-29
 
 ### Changed
@@ -357,7 +368,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.7.3...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/svyatov/supermatt/compare/v0.7.3...v0.8.0
 [0.7.3]: https://github.com/svyatov/supermatt/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/svyatov/supermatt/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/svyatov/supermatt/compare/v0.7.0...v0.7.1

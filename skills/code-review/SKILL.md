@@ -52,7 +52,7 @@ On top of whatever the repo documents, the Standards axis always carries the **s
 Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 - **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
-- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
+- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change, or a new hunk repeats logic that a function outside the diff already computes (search the codebase for it by what it computes). Report how many copies the codebase holds in total, not only those in the diff, since that count decides whether an extraction pays. → extract the shared shape, or call the existing function.
 - **Feature Envy**: a method that reaches into another object's data more than its own. → move the method onto the data it envies.
 - **Data Clumps**: the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
 - **Primitive Obsession**: a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
@@ -111,7 +111,7 @@ For the peer, first build the program in `$DIR` with the repo's own build comman
 
 Each flag set keeps the peer read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. The `codex` flags also skip the user's `config.toml`, so that peer runs on the CLI's default model; `claude --safe-mode` keeps the user's model selection.
 
-Wait for the peer before step 6. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is two lines: read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt; and, unlike the peer, it may write scratch state under `$DIR` to run triggers (file contents through the file-writing tool, the shell for `mkdir`, `git`, and `ln`) and leaves it there for step 7 to delete, and it leaves the repository unedited. When the fallback fails too, the Adversarial axis is **incomplete**.
+Wait for the peer before step 6. With nothing else to do while it runs, wait in short calls (`sleep 20`), so its completion notice lands between them: one long sleep holds the notice until the sleep ends. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is two lines: read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt; and, unlike the peer, it may write scratch state under `$DIR` to run triggers (file contents through the file-writing tool, the shell for `mkdir`, `git`, and `ln`) and leaves it there for step 7 to delete, and it leaves the repository unedited. When the fallback fails too, the Adversarial axis is **incomplete**.
 
 ### 6. Verify P0 and P1 findings
 
@@ -131,7 +131,7 @@ Delete `$DIR` first: nothing from here on reads it.
 
 Present the reports under `## Standards`, `## Spec`, and `## Adversarial (<peer>)` headings, verbatim or lightly cleaned, keeping each finding's severity, `file:line`, and quoted line, each ending with its "Dropped by verification" line when step 6 dropped anything. When the fallback ran, the last heading is `## Adversarial (same model: <reason>)`. Do **not** merge or rerank findings, because the axes are deliberately separate (see _Why separate axes_). Print this aggregate as its own message before anything else continues, also when another skill loaded this one. Done when every finding from every axis appears under its heading or on its dropped line.
 
-A **verified** finding quotes its line and was not rejected in step 6. End with a one-line summary: findings per axis by severity, then the verdict:
+A **verified** finding quotes its line and was not rejected in step 6. Step 6 checks only P0 and P1, so a P2 or P3 that quotes its line is verified, and it stays open until it is fixed. End with a one-line summary: findings per axis by severity, then the verdict:
 
 - Any verified P0 on any axis: **Not ready**.
 - Otherwise, any verified P1 or an incomplete axis: **Ready with fixes**.
