@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-29
+
+### Fixed
+
+- `qa`: `tui.sh keys` escapes a `;` at the end of a key, which tmux reads as its command separator even after `-l`, so a SQL statement such as `BEGIN IMMEDIATE;` reaches the program whole. `TERMINAL.md` says to write it as `'\;'` in a raw `tmux send-keys`.
+
+### Changed
+
+- `implement`: when the reviewer proposed a fix for a finding that goes to the user as a question, one option is that fix in the reviewer's own words.
+
 ## [0.8.0] - 2026-09-29
 
 ### Added
@@ -368,7 +378,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.8.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/svyatov/supermatt/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/svyatov/supermatt/compare/v0.7.3...v0.8.0
 [0.7.3]: https://github.com/svyatov/supermatt/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/svyatov/supermatt/compare/v0.7.1...v0.7.2
