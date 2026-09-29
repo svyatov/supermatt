@@ -16,7 +16,8 @@
 #
 # keys sends each KEY through tmux send-keys: text, or a key name such as
 # Enter, Escape, BSpace, Up, or C-c. It pauses after Escape, so the next key
-# does not reach the program as Alt+key.
+# does not reach the program as Alt+key, and it escapes a trailing ;, which
+# tmux would read as its command separator.
 #
 # wait polls the screen every 0.1 seconds until it contains TEXT, a fixed
 # string, and prints it. It exits 1 and prints the screen once SECONDS (a whole
@@ -58,6 +59,9 @@ keys() {
   session=$1
   shift
   for key; do
+    case $key in
+      *\;) key="${key%;}\\;" ;; # tmux reads a trailing ; as its command separator
+    esac
     tmux send-keys -t "$session" -- "$key" || exit 1
     if [ "$key" = Escape ]; then
       sleep 0.2
