@@ -22,7 +22,7 @@ Then QA the changes since the commit you recorded in a fresh context: this conte
 
 Then call the Skill tool with "code-review" to review the changes since the commit you recorded, and give it the spec or issue as the spec. Its report is not the end of this skill: continue to the next step in the same turn.
 
-Fix every verified finding the review reports on this branch, at every severity, and commit the fixes the same way as the work. Two kinds of finding go to the user as a question instead, with your recommendation: one whose fix would reverse something the spec asked for, and one whose cause lies outside this repo (an agent, service, or library working as designed), so no change here removes it.
+Fix every verified finding the review reports on this branch, at every severity, and commit the fixes the same way as the work. Two kinds of finding go to the user as a question instead, with your recommendation: one whose fix would reverse something the spec asked for, and one whose cause lies outside this repo (an agent, service, or library working as designed), so no change here removes it. Every other finding ends fixed or asked: one you judge not worth fixing (a one-caller helper, a local convention) goes to the user as a question too, with your reason.
 
 When the review is clean (verdict **Ready**, or every axis completed and every verified P0 and P1 finding is fixed), close each issue you implemented through the tracker's Close operation. A pull request stays open for a human to merge. A closed issue is what unblocks the tickets that wait on it, so close it only once its commits are merged into the default branch. Until then, leave the issue open and tell the user the close waits on the merge.
 
