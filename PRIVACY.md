@@ -6,7 +6,7 @@ SuperMatt is a set of agent skills: Markdown instructions and a few shell and Ja
 
 Your agent handles your conversation and code under the terms of its own provider. Beyond that, some skills pass data to tools and services you set up yourself:
 
-- **`code-review`** hands its Adversarial axis to a second model: the `codex` CLI (OpenAI) when Claude Code runs the review, or the `claude` CLI (Anthropic) when Codex runs it. That model receives the diff under review and the review instructions, and can read the repository without changing it. The axis skips this step when that CLI isn't installed.
+- **`code-review`** hands every axis and the validation of findings to a second model as well: the `codex` CLI (OpenAI) when Claude Code runs the review, or the `claude` CLI (Anthropic) when Codex runs it. That model receives the diff under review, the spec the review checks against (an issue's text, a spec file, or the request from the session), the repository's coding standards, the findings to validate, and the review instructions, and can read the repository without changing it. The review skips this step when that CLI isn't installed.
 - **`jury`** gives one seat to the `codex` CLI (OpenAI) when it is installed. That model receives the brief (the question, options, and facts) and can read the repository without changing it.
 - **`to-spec`, `to-tickets`, `triage`, `wayfinder`, `implement`, `code-review`, and `orchestrate`** read or write issues on the issue tracker you choose in `setup-supermatt-skills`: GitHub through the `gh` CLI, GitLab through the `glab` CLI, or local Markdown files.
 - **`ship-pr`** pushes the branch, opens a pull request, and merges it on GitHub through the `gh` CLI.
