@@ -5,6 +5,8 @@
 #        tui.sh wait SESSION TEXT [SECONDS]
 #        tui.sh gone SESSION TEXT [SECONDS]
 #        tui.sh show SESSION
+#        tui.sh resize SESSION COLS ROWS
+#        tui.sh colors SESSION
 #        tui.sh stop SESSION
 #
 # Drives a terminal program in a detached tmux session.
@@ -33,11 +35,19 @@
 #
 # show prints the screen without trailing blank lines, and
 # each Nerd Font icon (a private use code point) as [U+XXXX].
+#
+# resize changes the window to COLS x ROWS, then prints the screen as press
+# does, once the program's redraw has settled.
+#
+# colors prints each run of text that is not blank as ROW COLOR "TEXT", one
+# run per line. COLOR is the foreground: #rrggbb, a palette index as c3, or
+# default, with +bold on a bold run.
 set -u
 
 usage() {
   echo "usage: tui.sh start SESSION COLS ROWS COMMAND [ARG...] | keys SESSION [-l] KEY... | press SESSION [-l] KEY... |" \
-    "wait SESSION TEXT [SECONDS] | gone SESSION TEXT [SECONDS] | show SESSION | stop SESSION" >&2
+    "wait SESSION TEXT [SECONDS] | gone SESSION TEXT [SECONDS] | show SESSION | resize SESSION COLS ROWS | colors SESSION |" \
+    "stop SESSION" >&2
   exit 2
 }
 
@@ -84,6 +94,35 @@ keys() {
 show() {
   tmux capture-pane -p -t "$1" |
     perl -CSD -0777 -pe 's/([\x{e000}-\x{f8ff}\x{f0000}-\x{10ffff}])/sprintf("[U+%04X]", ord $1)/ge; s/\n+\z/\n/'
+}
+
+# colors reads the SGR codes of capture-pane -e. tmux carries the attributes
+# from one row to the next, so the state carries too.
+colors() {
+  tmux capture-pane -p -e -t "$1" | perl -CSD -ne '
+    BEGIN { $fg = "default"; $bold = "" }
+    sub run { my $t = shift; $t =~ s/([\x{e000}-\x{f8ff}\x{f0000}-\x{10ffff}])/sprintf("[U+%04X]", ord $1)/ge;
+      print qq($. $fg$bold "$t"\n) if $t =~ /\S/ }
+    chomp;
+    for my $part (split /(\e\[[0-9;:]*m)/) {
+      if ($part !~ /^\e\[([0-9;:]*)m$/) { run($part); next }
+      my @p = split /[;:]/, $1;
+      @p = (0) unless @p;
+      while (@p) {
+        my $c = shift @p;
+        if ($c eq "" || $c == 0) { $fg = "default"; $bold = "" }
+        elsif ($c == 1) { $bold = "+bold" }
+        elsif ($c == 22) { $bold = "" }
+        elsif ($c == 39) { $fg = "default" }
+        elsif ($c >= 30 && $c <= 37) { $fg = "c" . ($c - 30) }
+        elsif ($c >= 90 && $c <= 97) { $fg = "c" . ($c - 82) }
+        elsif ($c == 38 || $c == 48) {
+          my $mode = shift @p;
+          my $color = $mode == 5 ? "c" . shift(@p) : sprintf("#%02x%02x%02x", splice(@p, 0, 3));
+          $fg = $color if $c == 38;
+        }
+      }
+    }'
 }
 
 # wait_for polls until TEXT is on the screen (want=yes) or off it (want=no).
@@ -133,6 +172,13 @@ settle() {
   printf '%s\n' "$last"
 }
 
+# The default tmux socket is shared by every session on the machine, so another
+# session's kill-server would take the program down mid-run.
+if [ -z "${TMUX_TMPDIR:-}" ]; then
+  echo "tui.sh: run export TMUX_TMPDIR=\$DIR first, so this QA run has a tmux server of its own" >&2
+  exit 2
+fi
+
 [ $# -ge 2 ] || usage
 command=$1
 shift
@@ -143,6 +189,8 @@ press) keys "$@" && settle "$1" ;;
 wait) [ $# -ge 2 ] || usage; wait_for yes "$@" ;;
 gone) [ $# -ge 2 ] || usage; wait_for no "$@" ;;
 show) show "$1" ;;
+resize) [ $# -ge 3 ] || usage; tmux resize-window -t "$1" -x "$2" -y "$3" && settle "$1" ;;
+colors) colors "$1" ;;
 stop) tmux kill-session -t "$1" ;;
 *) usage ;;
 esac

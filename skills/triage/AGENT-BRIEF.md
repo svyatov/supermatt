@@ -38,7 +38,7 @@ Name the seams the tests go through, agreed with the maintainer during triage. T
 
 ### Checked claims
 
-The agent takes every statement about the current code as fact. A line that says something needs no change, or that a case cannot happen, names the check that proved it: a reproduction, a test, a read code path. Run the check before you post, or drop the line. Then read each Key interfaces line against every decision and every case in Desired behavior: a line that holds for the case you reproduced but not for a case a decision names (another writer, another caller) is wrong.
+The agent takes every statement about the current code as fact. A line that says something needs no change, or that a case cannot happen, names the check that proved it: a reproduction, a test, a read code path. Run the check before you post, or drop the line. Then read each Key interfaces line against every decision and every case in Desired behavior: a line that holds for the case you reproduced but not for a case a decision names (another writer, another caller) is wrong. A guard on stored data has more writers than the input path: every path that loads a stored value and writes it back (a copy, a new version, a migration) is one. Name each and what it does with a value stored before the guard.
 
 ### Explicit scope boundaries
 

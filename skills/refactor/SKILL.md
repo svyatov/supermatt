@@ -78,9 +78,11 @@ A whole codebase always offers more findings than are worth acting on. Read `HOT
 
 Read the ranked candidates through subagents, one per area, each returning findings rather than file contents. A project-scope assessment reads far more code than it reports on, and most of it comes back Clean. Step 4 reads what it actually edits. A project under about 1,000 source lines is the exception: read it directly, a few files per call, so each output stays under the 30,000-character limit that moves a result to a file.
 
-### Planned work
+### Planned and settled work
 
-A finding that removes an indirection (a function where a value would do, a parameter, a hook, a seam) can take out what the next planned change needs. Before you list one, read the issues the target's commits reference and the open children of their parent issue. Drop a finding that a planned issue needs, and name that issue in the verdict.
+Before you list any finding, read each issue the target's commits reference, with its comments, through the **Read an issue** operation in `docs/agents/issue-tracker.md`. Drop a finding that a comment already settled, such as a user's answer to the same question during `implement`, and name that comment in the verdict.
+
+A finding that removes an indirection (a function where a value would do, a parameter, a hook, a seam) can take out what the next planned change needs. Before you list one, also read the open children of those issues' parent issue. Drop a finding that a planned issue needs, and name that issue in the verdict.
 
 ### The verdict
 

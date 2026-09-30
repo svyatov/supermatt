@@ -73,12 +73,12 @@ Done when every scenario has a status and its evidence.
 
 ### 5. Clean up and report
 
-Stop everything you started: tmux sessions, servers, browser tabs. Delete `$DIR` and every other scratch directory by its literal path, typed out as the earlier call printed it, keeping only the evidence files the report cites: an `rm -rf` on a variable or a command substitution, such as `"$(cat /tmp/qa-dir)"`, is denied. Done when `tmux ls` lists none of your sessions and `$DIR` holds nothing but those evidence files. A cleanup command that fails or is blocked goes in the report as leftover state, with the command to remove it.
+Stop everything you started: each tmux session with `tui stop qa-<name>` (the run's tmux server exits with its last session), then servers and browser tabs. Delete `$DIR` and every other scratch directory by its literal path, typed out as the earlier call printed it, keeping only the evidence files the report cites: an `rm -rf` on a variable or a command substitution, such as `"$(cat /tmp/qa-dir)"`, is denied. Done when `tmux ls` lists none of your sessions and `$DIR` holds nothing but those evidence files. A cleanup command that fails or is blocked goes in the report as leftover state, with the command to remove it.
 
 Report one line per scenario (status, what it checked, the evidence or its path), then every fail in full, then:
 
 - **Not covered**: what no scenario tested and why, such as a platform, a browser, or a terminal you did not run.
-- **Concerns**: what is neither a pass nor a fail but looked wrong, such as a slow first load or a stray warning.
+- **Concerns**: what is neither a pass nor a fail but looked wrong, such as a slow first load or a stray warning. A result that contradicts a sentence of the request is a fail, also when that sentence calls the path unchanged or out of scope.
 
 Then the verdict:
 
