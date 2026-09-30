@@ -1,5 +1,0 @@
-interface:
-  display_name: "SuperMatt: Architecture Review (deprecated)"
-  short_description: "Deprecated, use improve-architecture"
-policy:
-  allow_implicit_invocation: false
