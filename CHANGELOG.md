@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-30
+
+### Changed
+
+- `code-review`: every axis now has two readers, a sub-agent and the other model family (`codex` from Claude Code, `claude` from Codex), given the same prompt. A finding both readers raise at the same severity is tagged `[both]` and counts as confirmed; every other P0 to P2 finding is validated by the family that did not raise it, every rejection names its evidence, and the reviewer checks that evidence before it drops the finding. Each axis heading names the readers that finished it, and an axis is incomplete only when neither did. The Adversarial brief adds security, public contract, migration, reliability, and concurrency checks for the surfaces the diff touches, sibling-path drift, and stand-in checks that run in a different context from production. The test check adds flaky and mirror tests, and the validator adds memory safety and cryptography as protected subjects. The peer runs at high reasoning effort, and the `claude` peer's inlined files sit between nonce-marked lines. Claude Code is detected by `CLAUDE_CODE_CHILD_SESSION`, since IDE extensions set `CLAUDECODE` in their terminals and a Codex session there picked itself as the peer. The smell baseline, refactor check, and test check move to `STANDARDS.md`, loaded only for the Standards prompt.
+
 ## [0.9.1] - 2026-09-30
 
 ### Changed
@@ -415,7 +421,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.9.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/svyatov/supermatt/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/svyatov/supermatt/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/svyatov/supermatt/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/svyatov/supermatt/compare/v0.8.1...v0.8.2
