@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-09-29
+
+### Changed
+
+- `triage`: when the maintainer delegates ("I am away"), every point that waits for direction takes the recommended option and records it as a decision, follow-up issues included. When verification disproves a statement in the issue body, triage corrects the body, or opens the brief with the correction when an outside reporter wrote it, so a later PR does not repeat the false claim. `AGENT-BRIEF.md` adds Checked claims: a brief line that says nothing needs to change, or that a case cannot happen, names the check that proved it, and each Key interfaces line is read against every decision, so a brief no longer covers only the case that was reproduced.
+- `implement`: when a slice's own checks are the lint and the full suite, the commit goes on that same call, so the two checks do not run twice in a row. A review fix that changes behavior now gets its own review of the fix commits after QA, since a fix can carry a new bug that QA cannot reach. Each finished slice is committed as it lands, since the old single commit at the end carried a whole ticket (583 lines) past five atomic-commit reminders. The branch off the default branch is made before the work starts, since a commit on `main` reached the repo's branch hook only after the lint and the full suite had run.
+- `code-review`: the peer's `prompt.md` is written with the diff path and the binary path already in it as absolute paths, so the agent no longer writes a placeholder and then edits the file in place with `sed`. When the diff changes what a selector, query, or condition matches and the spec asks for unchanged behavior, a reviewer runs the old and new forms on the same input before calling them equivalent, and reports an equivalence it did not run as `unverified`. A finding's `file:line` is the file's own line, from the `+` side of the hunk header, since reviewers cited `diff.patch` lines past the end of the file.
+- `qa`: a driver script waits on text with `tui wait` after each step, since a fixed `sleep` read the screen before startup or a sync had drawn it. For a refactor, the expected result is the base build's screen: both builds run from folders with the same name and the same seeded state, and only a per-run value such as a clock is masked before the captures are diffed. The base build comes from a `git archive` export, since a dependency install in a `git worktree` ran the old commit's `prepare` script and replaced the main checkout's git hooks. `tui.sh keys -l TEXT` types TEXT as literal text, since an agent reached for `-l` twice in one pass and `keys` typed the flag into a path prompt.
+- `tdd`: a cycle is green only once the project's lint and typecheck pass too, since a lint first run after the last cycle returned nine findings at once.
+- `setup-supermatt-skills`: the GitHub tracker template resolves a bare `#42` with one `gh api` call that reports issue or PR, since the old `gh pr view` first step failed on every issue number.
+
 ## [0.8.1] - 2026-09-29
 
 ### Fixed
@@ -378,7 +389,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.8.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/svyatov/supermatt/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/svyatov/supermatt/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/svyatov/supermatt/compare/v0.7.3...v0.8.0
 [0.7.3]: https://github.com/svyatov/supermatt/compare/v0.7.2...v0.7.3

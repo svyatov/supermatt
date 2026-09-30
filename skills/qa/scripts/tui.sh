@@ -1,6 +1,6 @@
 #!/bin/sh
 # Usage: tui.sh start SESSION COLS ROWS COMMAND [ARG...]
-#        tui.sh keys SESSION KEY...
+#        tui.sh keys SESSION [-l] KEY...
 #        tui.sh wait SESSION TEXT [SECONDS]
 #        tui.sh gone SESSION TEXT [SECONDS]
 #        tui.sh show SESSION
@@ -15,9 +15,10 @@
 # environment on COMMAND: env HOME=... PATH=... PROGRAM.
 #
 # keys sends each KEY through tmux send-keys: text, or a key name such as
-# Enter, Escape, BSpace, Up, or C-c. It pauses after Escape, so the next key
-# does not reach the program as Alt+key, and it escapes a trailing ;, which
-# tmux would read as its command separator.
+# Enter, Escape, BSpace, Up, or C-c. A -l sends the KEY after it as literal
+# text, so text that reads as a key name is typed as written. It pauses after
+# Escape, so the next key does not reach the program as Alt+key, and it escapes
+# a trailing ;, which tmux would read as its command separator.
 #
 # wait polls the screen every 0.1 seconds until it contains TEXT, a fixed
 # string, and prints it. It exits 1 and prints the screen once SECONDS (a whole
@@ -30,7 +31,7 @@
 set -u
 
 usage() {
-  echo "usage: tui.sh start SESSION COLS ROWS COMMAND [ARG...] | keys SESSION KEY... |" \
+  echo "usage: tui.sh start SESSION COLS ROWS COMMAND [ARG...] | keys SESSION [-l] KEY... |" \
     "wait SESSION TEXT [SECONDS] | gone SESSION TEXT [SECONDS] | show SESSION | stop SESSION" >&2
   exit 2
 }
@@ -58,11 +59,17 @@ start() {
 keys() {
   session=$1
   shift
+  literal=
   for key; do
+    if [ "$key" = -l ] && [ -z "$literal" ]; then
+      literal=-l
+      continue
+    fi
     case $key in
       *\;) key="${key%;}\\;" ;; # tmux reads a trailing ; as its command separator
     esac
-    tmux send-keys -t "$session" -- "$key" || exit 1
+    tmux send-keys -t "$session" $literal -- "$key" || exit 1
+    literal=
     if [ "$key" = Escape ]; then
       sleep 0.2
     fi
