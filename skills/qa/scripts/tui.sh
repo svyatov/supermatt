@@ -1,6 +1,7 @@
 #!/bin/sh
 # Usage: tui.sh start SESSION COLS ROWS COMMAND [ARG...]
 #        tui.sh keys SESSION [-l] KEY...
+#        tui.sh press SESSION [-l] KEY...
 #        tui.sh wait SESSION TEXT [SECONDS]
 #        tui.sh gone SESSION TEXT [SECONDS]
 #        tui.sh show SESSION
@@ -20,6 +21,10 @@
 # Escape, so the next key does not reach the program as Alt+key, and it escapes
 # a trailing ;, which tmux would read as its command separator.
 #
+# press sends the keys as keys does, then polls the screen every 0.1 seconds
+# and prints it once it stays the same for 0.3 seconds. It exits 1 and prints
+# the screen when it still changes after 5 seconds, such as under a clock.
+#
 # wait polls the screen every 0.1 seconds until it contains TEXT, a fixed
 # string, and prints it. It exits 1 and prints the screen once SECONDS (a whole
 # number, 10 by default) pass, or once the program has exited without showing
@@ -31,7 +36,7 @@
 set -u
 
 usage() {
-  echo "usage: tui.sh start SESSION COLS ROWS COMMAND [ARG...] | keys SESSION [-l] KEY... |" \
+  echo "usage: tui.sh start SESSION COLS ROWS COMMAND [ARG...] | keys SESSION [-l] KEY... | press SESSION [-l] KEY... |" \
     "wait SESSION TEXT [SECONDS] | gone SESSION TEXT [SECONDS] | show SESSION | stop SESSION" >&2
   exit 2
 }
@@ -106,12 +111,35 @@ wait_for() {
   done
 }
 
+# settle polls until the screen stays the same for three polls in a row, then prints it.
+settle() {
+  session=$1 tries=50 same=0
+  last="$(show "$session")"
+  while [ "$same" -lt 3 ]; do
+    if [ "$tries" -le 0 ]; then
+      printf '%s\n' "$last"
+      echo "tui.sh: the screen still changes after 5 seconds: read it with wait" >&2
+      return 1
+    fi
+    tries=$((tries - 1))
+    sleep 0.1
+    screen="$(show "$session")"
+    if [ "$screen" = "$last" ]; then
+      same=$((same + 1))
+    else
+      same=0 last=$screen
+    fi
+  done
+  printf '%s\n' "$last"
+}
+
 [ $# -ge 2 ] || usage
 command=$1
 shift
 case $command in
 start) start "$@" ;;
 keys) keys "$@" ;;
+press) keys "$@" && settle "$1" ;;
 wait) [ $# -ge 2 ] || usage; wait_for yes "$@" ;;
 gone) [ $# -ge 2 ] || usage; wait_for no "$@" ;;
 show) show "$1" ;;
