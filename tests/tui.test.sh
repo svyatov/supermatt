@@ -81,4 +81,17 @@ sh "$TUI" keys qa-l -l Enter -l "x;" Enter || fail "keys refused -l"
 out="$(sh "$TUI" wait qa-l "got Enterx;" 5)" || fail "-l did not send its text literally: $out"
 sh "$TUI" stop qa-l
 
+# press types the keys, then prints the screen once it stops changing, so a
+# redraw that lands a moment after the key is not read too early.
+sh "$TUI" start qa-p 40 10 sh -c 'echo ready; read -r line; sleep 0.1; echo "got $line"; sleep 5'
+sh "$TUI" wait qa-p ready 5 >/dev/null || fail "the reading program did not start"
+out="$(sh "$TUI" press qa-p hi Enter)" || fail "press exited nonzero: $out"
+case $out in *"got hi"*) ;; *) fail "press printed the screen before it settled: $out" ;; esac
+sh "$TUI" stop qa-p
+
+# A screen that never settles, such as a clock, makes press fail instead of hang.
+sh "$TUI" start qa-c 40 10 sh -c 'i=0; while :; do i=$((i + 1)); echo "$i"; sleep 0.05; done'
+sh "$TUI" press qa-c x >/dev/null 2>&1 && fail "press passed on a screen that never settled"
+sh "$TUI" stop qa-c
+
 echo "ok"
