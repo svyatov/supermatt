@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
+pre-commit:
+  parallel: true
+  jobs:
+    - name: secrets
+      run: betterleaks git --pre-commit --staged --redact --verbose
+    - name: no-dashes
+      run: |
+        ! grep -nIE "$(printf '\342\200\223|\342\200\224')" {staged_files}
+      fail_text: "En or em dash found. AGENTS.md bans them: rewrite the sentence."
+    - name: whitespace
+      run: git diff --cached --check
+
+commit-msg:
+  jobs:
+    - name: conventional
+      run: |
+        head -1 {1} | grep -qE '^(feat|fix|docs|chore|ci|refactor)(\(.+\))?!?: .+' || { echo "Use Conventional Commits: type(scope): description"; exit 1; }
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: tests
+      glob: "{scripts,tests,skills}/*"
+      run: for t in tests/*.test.sh; do sh "$t" || exit 1; done && bun test tests/
+    - name: plugin-validate
+      run: claude plugin validate --strict . && claude plugin validate --strict ./skills
