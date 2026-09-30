@@ -1,6 +1,8 @@
 #!/bin/sh
 # Tests scripts/release.sh -n against a temporary repository and its origin.
 set -eu
+# A hook in a linked worktree exports an absolute GIT_DIR, which would aim every git command below at the real repo.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"
