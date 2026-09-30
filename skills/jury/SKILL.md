@@ -44,19 +44,19 @@ Seat three jurors, or five when the arguments end in `5`. Each seat gets one **l
 | 4 | Outsider | What does someone with no history in this choice see? |
 | 5 | Evidence | Which facts in the brief carry the decision, and how solid is each? |
 
-When this host is not Codex, run `command -v codex`. If it prints a path, the last seat is a **Codex seat**: it runs on a different model family, and different families catch different mistakes. Otherwise every seat is a subagent of this host.
+This host is Codex when any of `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID` is set. When it is not, run `command -v codex`. If it prints a path, the last seat is a **Codex seat**: it runs on a different model family, and different families catch different mistakes. Otherwise every seat is a subagent of this host.
 
 ## Step 4: Blind vote
 
 Dispatch every seat in one message, so no juror can see another's answer. A host seat is a fresh subagent, never a fork of this conversation, that gets only the juror prompt. The Codex seat is a Bash call in the same message, with a 600000 ms timeout. Make its directory first with `mktemp -d`:
 
 ```bash
-codex exec -s read-only --ephemeral --skip-git-repo-check -C <project root> -o <temp dir>/vote.md - > <temp dir>/codex.log 2>&1 <<'EOF'
+codex exec --ignore-user-config --disable apps --disable plugins -s read-only -c 'approval_policy="never"' --ephemeral --skip-git-repo-check -C <project root> -o <temp dir>/vote.md - > <temp dir>/codex.log 2>&1 <<'EOF'
 <juror prompt>
 EOF
 ```
 
-Read its answer from `vote.md`, never from the command output. If the command exits non-zero or the file is empty, read the reason from `tail -5 <temp dir>/codex.log`, dispatch a host subagent with the same lens, and record the swap and its reason for the Panel line.
+The flags keep the seat read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. Read its answer from `vote.md`, never from the command output. If the command exits non-zero or the file is empty, read the reason from `tail -5 <temp dir>/codex.log`, dispatch a host subagent with the same lens, and record the swap and its reason for the Panel line.
 
 The juror prompt:
 

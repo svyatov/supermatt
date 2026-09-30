@@ -29,7 +29,7 @@ Every step applies these. Findings cite them by name.
 2. **Never remove the only guard of a claim we own.** Every deletion names where its claim stays covered, or why the claim is not ours (library behavior, trivial code).
 3. **Keep list.** These stay unless the user says otherwise: regression tests tied to a bug or incident, contract tests at a service boundary, tests of error text or formats that consumers rely on, property and invariant tests, tests on money, auth, and permission paths.
 4. **Speed never buys a weaker claim.** A lever that makes a test fast by removing what it proves (stubbing the database in a test whose claim is the query) is a deletion. Treat it as one, with the evidence a deletion needs.
-5. **No new dependencies without asking.** A profiler or mutation tool the project does not have gets proposed, not added. If the user agrees, call the Skill tool with `dependency-vetting` and vet it first.
+5. **No new dependencies without asking.** A profiler or mutation tool the project does not have gets proposed, not added. If the user agrees, call the Skill tool with "dependency-vetting" and vet it first.
 
 ## Process
 

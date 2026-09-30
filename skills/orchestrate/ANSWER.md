@@ -29,4 +29,4 @@ When the worker has an open question (QUESTION is not NONE, or it ended its turn
 2. A yes/no question ("Should I proceed?", "Want me to fix it?"): if a yes would run an unsafe action (see Safe actions), park the lane. Otherwise prompt the worker with `Yes.` (`--wait`), wait for the worker, and go to step 5.
 3. Otherwise prompt the worker with `/what-would-you-do` (`--wait`) and wait for the worker. Read its last 80 lines and find the option it recommends ("I recommend O2"). When it offers a `/jury` line, take its lean instead.
 4. Prompt the worker with `Go with <option>.` (`--wait`) and wait for the worker.
-5. In session A, ask the five-line question again. In other sessions, read the worker's last 40 lines for a new question. After three answer rounds with a question still open (five in session T, since triage asks one question at a time), park the lane.
+5. In session A, ask the five-line question again. In other sessions, read the worker's last 40 lines for a new question. After three answer rounds with a question still open (five in session T, since triage asks its recommendation, its seams, and each grilling round in separate turns), park the lane.
