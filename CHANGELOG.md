@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-09-30
+
+### Changed
+
+- `ship-pr`: after the merge, closes each still-open issue the branch commits reference, through the tracker's Close operation, so the tickets waiting on it become workable. It also puts an untracked tool-state directory (such as `.codegraph/`) in the root `.gitignore`, as `commit` does, and calls `pr` and `oss-writing` as two Skill tool calls.
+- `implement`: never closes an issue itself. It leaves each issue open, says the work is ready to ship, and leaves the close to the merge step, since its old wording said both "close" and "close only once merged".
+- `ask-supermatt`: says `/ship-pr` closes the issues it finishes, and no longer names `architecture-review`.
+- `diagnosing-bugs`: on its own, fixes every verified review finding at every severity, as `implement` does, not only P0 and P1.
+- `jury`: the Codex seat runs with the same hardening as the `code-review` peer (no user config, apps, plugins, or approval escalation), and a Codex host is detected from `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID`.
+- `orchestrate`: gives the real reason triage gets five answer rounds.
+- `refactor`, `improve-tests`: name the skill in a Skill tool call in quotes, like every other skill.
+
+### Removed
+
+- `architecture-review`: deprecated in 0.9.0. Use `improve-architecture`.
+- `wizard`: deprecated in 0.6.0, with no replacement.
+
 ## [0.11.0] - 2026-09-30
 
 ### Changed
@@ -427,7 +444,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.11.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/svyatov/supermatt/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/svyatov/supermatt/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/svyatov/supermatt/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/svyatov/supermatt/compare/v0.9.0...v0.9.1

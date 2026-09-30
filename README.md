@@ -177,16 +177,14 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
 | **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving worker Claude Code sessions in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo. |
 | **[commit](./skills/commit/SKILL.md)** | Commit all changes on the current branch, main included, after a scan for secrets. |
-| **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, wait for green CI, then squash merge. |
+| **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, wait for green CI, then squash merge and close the issues it finishes. |
 | **[fix-findings](./skills/fix-findings/SKILL.md)** | Apply every finding from the most recent review, audit, verification, or check, at the root cause and without widening scope. |
-| **[architecture-review](./skills/architecture-review/SKILL.md)** | Deprecated: use `improve-architecture`. SuperMatt 0.10.0 removes it. |
 | **[setup-supermatt-skills](./skills/setup-supermatt-skills/SKILL.md)** | Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo. |
 | **[to-spec](./skills/to-spec/SKILL.md)** | Turn the current conversation into a spec and publish it to the issue tracker. |
 | **[to-tickets](./skills/to-tickets/SKILL.md)** | Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, as text in one file per ticket locally or as native blocking links on a real tracker. |
 | **[implement](./skills/implement/SKILL.md)** | Build the work described by a spec, tickets, or triaged issues, driving `/tdd` at pre-agreed seams, then committing, checking it with `/qa`, and closing out with `/code-review`. |
 | **[retro](./skills/retro/SKILL.md)** | Run a retrospective on a coding session and get ranked suggestions for the agent's environment: automated checks, context pointers, coding-standards rules, stale or contradictory instructions, and a leaner `AGENTS.md`. |
 | **[wayfinder](./skills/wayfinder/SKILL.md)** | Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear. |
-| **[wizard](./skills/wizard/SKILL.md)** | Deprecated, with no replacement. SuperMatt 0.7.0 removes it. |
 
 ### Model-invoked
 

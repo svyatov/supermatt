@@ -154,7 +154,7 @@ Present the plan for approval (in Claude Code, through `ExitPlanMode`) and proce
 
 1. Search for test files covering the target code (look for test files matching the module/class name, grep for the function name in test directories).
 2. If tests exist, note which behaviors they cover. Proceed to Step 4.
-3. If tests are missing or sparse, **stop and tell the user.** Refactoring without tests risks silently changing business logic. Ask whether to write characterization tests first or proceed without them. To write them, call the Skill tool with `tdd` and follow its characterization tests, in their own `test:` commit.
+3. If tests are missing or sparse, **stop and tell the user.** Refactoring without tests risks silently changing business logic. Ask whether to write characterization tests first or proceed without them. To write them, call the Skill tool with "tdd" and follow its characterization tests, in their own `test:` commit.
 
 Judge coverage over the code you are about to change, not over the repository. A repo at 85% overall tells you nothing if the target sits in the untested 15%.
 
