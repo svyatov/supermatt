@@ -3,7 +3,7 @@ name: orchestrate
 description: "Work through a repository's GitHub issues unattended, driving worker Claude Code sessions in herdr panes to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo."
 argument-hint: "[max issues]"
 disable-model-invocation: true
-compatibility: Designed for Claude Code. Requires herdr, gh, and Node.js 18.17 or later (built-in modules only). The notification uses osascript, so it shows on macOS only.
+compatibility: Designed for Claude Code. Requires herdr, gh, and Bun or Node.js 18.17 or later (built-in modules only). The notification uses osascript, so it shows on macOS only.
 license: MIT
 ---
 
@@ -26,7 +26,7 @@ Repeat until a stop condition is met. Never ask the user anything, through a que
 4. Run `herdr --skill` and follow its rules. Parse every ID from JSON output. Never close a tab or pane you did not create.
 5. Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If either is missing, or the tracker is not GitHub, say so and stop. READY, BUG, and TRIAGE are the label strings that `triage-labels.md` maps to the ready-for-agent, bug, and needs-triage roles.
 6. Your working directory is the repo's main checkout, and the workers use the same checkout. DEFAULT is the output of `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`. Run `git switch DEFAULT && git pull --ff-only`. The tree must be clean. If it is not, stop.
-7. LIMIT is the number in the arguments, or no limit when there is none. RUN_START is `date -u +%Y-%m-%dT%H:%M:%SZ`. Run `node <this skill's directory>/scripts/next-issue.mjs READY BUG TRIAGE` and print the queue it lists, so the operator sees what will run.
+7. LIMIT is the number in the arguments, or no limit when there is none. RUN_START is `date -u +%Y-%m-%dT%H:%M:%SZ`. RUN is `bun` when `command -v bun` finds it, else `node`. Run `RUN <this skill's directory>/scripts/next-issue.mjs READY BUG TRIAGE` and print the queue it lists, so the operator sees what will run.
 
 ## Worker
 
@@ -101,7 +101,7 @@ A spec is a parent issue: its tickets are its sub-issues, or the issues whose `#
 
 ### 1. Pick the issue
 
-If LIMIT issues have merged, stop. Otherwise run `node <this skill's directory>/scripts/next-issue.mjs READY BUG TRIAGE` in the checkout. It lists the open, unassigned issues to work on, with an open blocker (native, or a `Blocked by:` line) dropped: specs whose tickets are all closed, then bugs, then the rest, lowest number first. Each line is `number<TAB>title<TAB>spec|ready|triage`. Specs and TRIAGE bugs count only when the repo's own team filed them.
+If LIMIT issues have merged, stop. Otherwise run `RUN <this skill's directory>/scripts/next-issue.mjs READY BUG TRIAGE` in the checkout. It lists the open, unassigned issues to work on, with an open blocker (native, or a `Blocked by:` line) dropped: specs whose tickets are all closed, then bugs, then the rest, lowest number first. Each line is `number<TAB>title<TAB>spec|ready|triage`. Specs and TRIAGE bugs count only when the repo's own team filed them.
 
 Take the first line. If there is none, report "no unblocked issues" and stop. Say which issue you picked, as `#N title`. Empty SESSIONS. If its last column is `spec`, verify it (see Verify a spec). If it is `triage`, triage it first (see Triage a bug).
 
