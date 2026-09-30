@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-09-30
+
+### Fixed
+
+- `code-review`: a host reader copies the whole tree into its scratch directory with `rsync -a --exclude .git`, so a trigger build finds the files the diff never names, such as an embed. Every host reader gets the same fixed prompt, which names that copy as the place to run a trigger or a mutation, since a reader told only to leave the repository unedited mutated the live tree while the others read it. The host saves `git status` and `git diff HEAD` before the readers start and compares them once they finish, and stops on a difference. The `codex` peer writes its progress log to `$DIR/<axis>.peer.log`, so a validator run in the foreground no longer prints hundreds of kilobytes. A validator rejects a finding with a command only when that command ran the finding's exact trigger, since a mutation that tested one half of a claim dropped a real finding about a test that cannot fail. The Adversarial brief counts a value that a store, a file, or another writer accepts as a concrete trigger even when the UI refuses it, since a reader dropped a real panic from a stored value as speculation.
+- `implement`: each question about a review finding opens with the code it concerns (`file:line`) and what the choice changes, so the user can pick an option without asking what it means. Each answer the user gives is posted on the issue, so a later QA, refactor, or ship session reads the decision and does not ask again. When two criteria of a ticket cannot both hold, it asks the user which one wins before it writes code, since a conflict resolved in silence came back as a review finding and the same question. It fixes review findings only from the report that ends on the verdict line, since an agent that fixed from one reader's `.peer.md` skipped validation and the report twice, fixed a bug only in part, and later listed a fixed finding as open. Its final message names every finding code of each review with the commit that fixed it or the question that asks it, since a finding left neither fixed nor asked surfaced only when the user asked for it. It also quotes the verdict line of each review, since an agent that went from the readers' output straight to fixes never printed the verdict and later said no review had run.
+- `qa`: `tui.sh` refuses to run until `TMUX_TMPDIR` is set, and `TERMINAL.md` exports it to the run's own directory, so another session that stops the shared default tmux server no longer stops a QA run. The `C-c` check types `sh $DIR/run.sh` in place of a command line, which a `PATH` that holds a space breaks. `tui colors` prints each run of text with its foreground color, so a QA run checks a color without writing its own parser for `capture-pane -e`. Clean-up stops each tmux session with `tui stop`, since the run's server exits with its last session and a guard blocks `tmux kill-server`. `tui resize` resizes the window and prints the screen once the redraw settles, so a size sweep needs no `sleep`. `TERMINAL.md` judges the fit on a raw `tmux capture-pane`, since the `[U+XXXX]` icon names of `tui show` widen a row past its border. A result that contradicts a sentence of the request is a fail, also when that sentence calls the path unchanged or out of scope, since a run filed a raw store error on a save the request called unchanged as a concern and passed.
+- `refactor`: reads each issue the target's commits reference, with its comments, through `docs/agents/issue-tracker.md` before it lists any finding, and drops a finding that a comment already settled, so it does not ask again what the user answered during `implement`.
+- `ship-pr`: removes the session's own worktree and merges in one shell call from the main checkout, since the next call would otherwise start in a deleted directory. It reads each issue the branch commits reference with its comments, through the tracker's Read an issue operation, so the PR body and the report use the triage brief and do not ask again what triage settled.
+- `triage`: a brief that adds a guard on stored data names every path that loads a stored value and writes it back (a copy, a new version, a migration) and what each does with a value stored before the guard, since a brief that checked only the input path said the app's own saves never reach the guard, and review found three that did.
+
 ## [0.12.0] - 2026-09-30
 
 ### Changed
@@ -444,7 +455,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.12.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.12.1...HEAD
+[0.12.1]: https://github.com/svyatov/supermatt/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/svyatov/supermatt/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/svyatov/supermatt/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/svyatov/supermatt/compare/v0.9.1...v0.10.0
