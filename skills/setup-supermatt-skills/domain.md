@@ -10,7 +10,7 @@ This repo is **[single-context | multi-context]**: [one `GLOSSARY.md` at the roo
 - **`GLOSSARY-MAP.md`** at the repo root if it exists: it points at one `GLOSSARY.md` per context. Read each one relevant to the topic.
 - **`docs/adr/`**, once it exists: read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
 
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill (reached through the grilling flows, `/triage`, `/wayfinder`, and `/architecture-review`, or directly) creates them lazily when terms or decisions actually get resolved.
+If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill (reached through the grilling flows, `/triage`, `/wayfinder`, and `/improve-architecture`, or directly) creates them lazily when terms or decisions actually get resolved.
 
 ## File structure
 

@@ -155,7 +155,7 @@ Write the regression test **before the fix**, but only if there is a **correct s
 
 A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow (single-caller test when the bug needs multiple callers, unit test that can't replicate the chain that triggered the bug), a regression test there gives false confidence.
 
-**If no correct seam exists, that itself is the finding.** Note it. The codebase architecture is preventing the bug from being locked down. Report it to the user in Phase 6, and tell them to run `/architecture-review` (`$architecture-review` in Codex) to find where the seam should go.
+**If no correct seam exists, that itself is the finding.** Note it. The codebase architecture is preventing the bug from being locked down. Report it to the user in Phase 6, and tell them to run `/improve-architecture` (`$improve-architecture` in Codex) to find where the seam should go.
 
 If a correct seam exists:
 
@@ -171,7 +171,7 @@ After **2-3 dead hypotheses or 3 failed fixes**, the diagnosis is what is wrong.
 
 | Pattern | Diagnosis | Next move |
 | --- | --- | --- |
-| Hypotheses point at different subsystems | Design problem, not a local bug | Stop, present the findings, and suggest `/architecture-review` (`$architecture-review` in Codex) |
+| Hypotheses point at different subsystems | Design problem, not a local bug | Stop, present the findings, and suggest `/improve-architecture` (`$improve-architecture` in Codex) |
 | Evidence contradicts itself | Wrong mental model of the code | Re-read the path from its entry point, assuming nothing |
 | Works locally, fails in CI/prod | Environment difference | Compare config, dependencies, data, timing |
 | Fix works but the prediction was wrong | Symptom fix; the cause is still active | Keep investigating |
