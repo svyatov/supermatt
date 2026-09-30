@@ -10,7 +10,7 @@ Your agent handles your conversation and code under the terms of its own provide
 - **`jury`** gives one seat to the `codex` CLI (OpenAI) when it is installed. That model receives the brief (the question, options, and facts) and can read the repository without changing it.
 - **`to-spec`, `to-tickets`, `triage`, `wayfinder`, `implement`, `code-review`, and `orchestrate`** read or write issues on the issue tracker you choose in `setup-supermatt-skills`: GitHub through the `gh` CLI, GitLab through the `glab` CLI, or local Markdown files.
 - **`ship-pr`** pushes the branch, opens a pull request, and merges it on GitHub through the `gh` CLI.
-- **`orchestrate`** drives worker Claude Code sessions through `herdr`, reads their transcripts under `~/.claude/projects`, closes and comments on GitHub issues through `gh`, and shows a macOS notification when it stops.
+- **`orchestrate`** drives worker Claude Code sessions through `herdr`, creates git worktrees for them under the repo's `.claude/worktrees/`, reads their transcripts under `~/.claude/projects`, closes and comments on GitHub issues through `gh`, and shows a macOS notification when it stops.
 - **`research`** reads public web pages and documentation to answer your question.
 
 Each of those services handles the data under its own privacy policy.

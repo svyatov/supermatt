@@ -96,7 +96,7 @@ flowchart LR
 4. `implement` builds each ticket through `tdd`, checks it in the running program with `qa`, then closes it out with `code-review`.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` merges it once CI is green.
 
-With triaged issues on GitHub, `orchestrate` runs steps 4 and 5 unattended for each issue in turn, in worker Claude Code sessions inside herdr.
+With triaged issues on GitHub, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker Claude Code sessions inside herdr.
 
 ## How it differs from mattpocock/skills
 
@@ -175,7 +175,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[improve-architecture](./skills/improve-architecture/SKILL.md)** | Assess a codebase's architecture and stop when it is healthy; otherwise map the structure, list deepening opportunities, grill and design the one you pick, and hand a plan to `/implement`. |
 | **[refactor](./skills/refactor/SKILL.md)** | Refactor code at method, file, or project scope without changing behavior. Assesses first and stops when the code is clean, and gates edits on test coverage. |
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
-| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended, driving worker Claude Code sessions in herdr panes to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo. |
+| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving worker Claude Code sessions in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo. |
 | **[commit](./skills/commit/SKILL.md)** | Commit all changes on the current branch, main included, after a scan for secrets. |
 | **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, wait for green CI, then squash merge. |
 | **[fix-findings](./skills/fix-findings/SKILL.md)** | Apply every finding from the most recent review, audit, verification, or check, at the root cause and without widening scope. |
