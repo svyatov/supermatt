@@ -4,9 +4,25 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-30
+
+### Added
+
+- `orchestrate`: works through a repository's GitHub issues unattended, from a herdr pane in Claude Code. For each issue it opens fresh worker sessions for `triage`, `implement`, `fix-findings`, `refactor`, `ship-pr`, and `retro`, answers their questions and dialogs itself, verifies each spec with `qa` and `code-review` once its tickets close, and notifies you only when the queue is done or it needs you. It sends each skill as `/supermatt:name` from the installed plugin, since a bare `/code-review` there runs Claude Code's bundled review, and as `/name` when the skills are linked. Its issue picker runs on Bun, or on Node.js when Bun is missing. Moved from svyatov/agent-toolkit.
+- `refactor`: refactors at method, file, or project scope without changing behavior. It assesses first and stops when the code is clean, drops a finding that removes an indirection a planned issue needs, and writes missing characterization tests through `tdd` before any edit. Moved from svyatov/agent-toolkit.
+- `improve-tests`: cuts a test suite to the tests that catch real bugs and its run time to the minimum, from a timed baseline. Moved from svyatov/agent-toolkit.
+- `improve-architecture`: replaces `architecture-review`. It maps the structure before it looks for friction, visits every module in the map, and requires every new element to pay for itself, then grills and designs the chosen candidate with `codebase-design` and hands a plan with a migration strategy to `/to-spec` or `/implement`. The HTML report is gone. Moved from svyatov/agent-toolkit.
+- `commit`, `ship-pr`, `fix-findings`, `what-would-you-do`: commit on the current branch; commit, push, open a PR, and squash merge on green CI; apply the findings of the last review or check; and explain an open question with a recommended answer. Full-named versions of agent-toolkit's `/c`, `/cprw`, `/fa`, and `/ww`, which orchestrate's workers call.
+- `jury`: puts a hard decision to a panel of 3 or 5 subagents, one on `codex` when it is installed, and returns one verdict with the dissent and a first action. Moved from svyatov/agent-toolkit.
+- `dependency-vetting`: verifies a package is authentic before anything installs, adds, or recommends it. Moved from svyatov/agent-toolkit.
+
 ### Changed
 
 - `qa`: `tui.sh press` sends keys as `keys` does, then prints the screen once it stops changing, and exits 1 on a screen that keeps changing. `TERMINAL.md` names it for a key whose result draws at once, since QA passes timed their reads with 31 fixed sleeps against 4 `tui wait` calls, and wrapped `keys; sleep; show` in helper functions a hook blocked. Cleanup types each scratch directory's path out, since `rm -rf "$(cat /tmp/qa-dir)"` was denied in two passes.
+
+### Deprecated
+
+- `architecture-review`: use `improve-architecture`. The stub names the replacement, and SuperMatt 0.10.0 removes it.
 
 ## [0.8.2] - 2026-09-29
 
@@ -393,7 +409,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.8.2...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/svyatov/supermatt/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/svyatov/supermatt/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/svyatov/supermatt/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/svyatov/supermatt/compare/v0.7.3...v0.8.0
