@@ -17,3 +17,5 @@ Unhappy paths a terminal program adds:
 - `C-c` midway exits cleanly and leaves the terminal usable. Run this one in a plain shell, so the shell comes back to show it: `tmux new-session -d -s qa-<name> -x 215 -y 60`, then type `env HOME=$DIR/home PATH=$DIR/bin:$PATH PROGRAM` with `tmux send-keys`. Put the environment on the typed command, since the session's login shell rebuilds `PATH` from its profile.
 - Output piped into `cat` (not a TTY) carries no color codes and no prompts.
 - A terminal UI redraws when the window shrinks mid-run: start at the big size, then `tmux resize-window -t qa-<name> -x 80 -y 24`.
+- Text pasted as well as typed, when the change reads text: write it to `$DIR/paste.txt`, then `tmux load-buffer -b qa $DIR/paste.txt` and `tmux paste-buffer -p -d -b qa -t qa-<name>`. The `-p` wraps it in bracketed paste when the program asks for that. Include a newline inside the text, since a pasted newline often submits early or breaks the redraw.
+- Two instances against the same `$DIR/home` when the change writes shared state: a config file, a database, a lock.

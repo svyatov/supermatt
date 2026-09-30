@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-09-30
+
+### Changed
+
+- `qa`: draws scenarios from named test heuristics (data attacks, CRUD with follow the data, a chained flow) and checks a list of never-and-always invariants after each one. It judges results with the FEW HICCUPPS oracles as well as the request, confirms each write at its store and after a restart, and saves evidence as tool output. Before it records a fail, it isolates, maximizes, and generalizes it, and labels it introduced or pre-existing against the base build. It ends with one exploratory charter, and its report names what was not covered and any concerns. When the session wrote the change, QA runs in a fresh subagent. `BROWSER.md` adds an isolated profile, waits after each action, a ban on script-made states, dialog handling, forced offline, slow, and error states, dark mode, and two tabs. `TERMINAL.md` adds pasted text and two instances on shared state.
+
 ## [0.9.0] - 2026-09-30
 
 ### Added
@@ -409,7 +415,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.9.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/svyatov/supermatt/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/svyatov/supermatt/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/svyatov/supermatt/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/svyatov/supermatt/compare/v0.8.0...v0.8.1
