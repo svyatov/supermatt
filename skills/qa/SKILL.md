@@ -8,6 +8,8 @@ compatibility: Drives terminal programs through tmux, and web apps through which
 
 QA checks the running program against what was requested; tests check the code against what its author expected. A scenario passes only on a result you **observed** in the running program. A green suite, a read of the code, or an exit status on its own is not an observation.
 
+QA hunts for the fail. The author of a change grades it too kindly, so when this session wrote the change, run QA in a fresh subagent: give it the diff, the request, and this skill, and tell it to find where the change breaks.
+
 QA runs before `code-review`: once QA shows the change does what was asked, the review can spend itself on how the code is written and how it fails.
 
 QA reports to its caller and leaves the code and the issue tracker as it found them: it files, comments on, and labels no issue, since a fail in unmerged work is the caller's to fix, not a ticket. Scratch state goes in `$DIR`, a fresh `mktemp -d`. The caller fixes each fail, test-first, and runs QA again.
@@ -27,7 +29,12 @@ A **scenario** is one thing a user does and the result they should then see: the
 - every requirement in the request;
 - every user-reachable path the diff changes that the request never names (a new flag, a reworded message, a moved button);
 - the unhappy paths of each: invalid or empty input, cancel or interrupt midway, the same action twice, a first run with no saved state;
+- data attacks on each new input: Goldilocks (too small, too big, just right), each boundary and one past it, 0, 1, and many items, and text with unicode, emoji, leading or trailing spaces, quotes, delimiters, and a newline;
+- CRUD on each record the change writes: create, read, update, and delete it, and follow the data to every view that shows it and through a restart;
+- a flow: the scenarios chained one after another with no reset between them, the way a user's session runs, entering and leaving each state the change adds;
 - one existing flow that shares the changed code, to catch a regression next to the change.
+
+Above the scenarios, list the change's invariants under **Never and always**: what must never happen (data lost, a file left half-written, a secret in a log) and what must always hold (the terminal restored, the old data still readable). Check them after every scenario, the unhappy ones most of all.
 
 For a change meant to keep behavior (a refactor), the expected result is the base build's screen. Export the base commit with `git archive <base> | tar -x -C "$DIR/base"` and build it there. A `git worktree` shares `.git/hooks` with the main checkout, so a dependency install in one runs the old commit's `prepare` script and rewrites the main checkout's hooks. Drive both builds with the same keys, from folders with the same name and the same seeded state, and diff the captures. Mask only what changes on every run, such as a clock.
 
@@ -47,15 +54,33 @@ Pick the driver by the program's interface:
 
 Do each step as the user would: type the command, press the keys, click, fill in the form, submit. After each step, read what the program shows and compare it with the expected result. Check the logs, stderr, and browser console for errors on every scenario, passing ones too.
 
-Record each scenario in `scenarios.md` as **pass**, **fail**, or **blocked**, with its evidence: the captured screen, the output, a screenshot path, the error. A fail also records the steps that reproduce it, the expected result, and the observed one. A fail ends that scenario, not the run.
+Judge each result with the FEW HICCUPPS oracles as well as the request. A result that matches the request still fails when it contradicts the rest of the product (a sibling command names its flags, keys, or exit codes another way), the program's own claims (`--help`, the README, its error text), or the conventions of its platform and of comparable tools (`NO_COLOR`, `-` for stdin, a 4xx status for a bad request). An error message passes when it names the bad input and what to do next.
+
+A screen that says "Saved" shows only that the program claims the write. Confirm each write at its store: read back the file, the database row, or the API, then restart or reload and read it again.
+
+Record each scenario in `scenarios.md` as **pass**, **fail**, or **blocked**, with its evidence: the captured screen, the output, a screenshot path, the error. Evidence is what the tool wrote: redirect or `tee` output into a file in `$DIR` and cite that file, so a retyped summary never stands in for it. A fail also records the steps that reproduce it, the expected result, and the observed one. Before you record a fail, spend a few steps on it:
+
+- **Isolate**: cut the steps to the fewest that still fail.
+- **Maximize**: follow the same path to a worse outcome, such as a crash or lost data.
+- **Generalize**: try the sibling paths that reach the same code, and name every one that fails.
+- **Introduced or pre-existing**: run the same steps on the base build, exported as for a refactor, and record which it is.
+
+A fail ends that scenario, not the run.
+
+Once every scripted scenario has a status, run one exploratory charter on the riskiest part of the change: "Explore <target> with <resources> to discover <information>", for about twenty actions. Add each problem it finds to `scenarios.md` as a new scenario with its status.
 
 Done when every scenario has a status and its evidence.
 
 ### 5. Clean up and report
 
-Stop everything you started: tmux sessions, servers, browser tabs. Delete `$DIR` and every other scratch directory by its literal path, typed out as the earlier call printed it, keeping only the screenshots the report cites: an `rm -rf` on a variable or a command substitution, such as `"$(cat /tmp/qa-dir)"`, is denied. Done when `tmux ls` lists none of your sessions and `$DIR` holds nothing but those screenshots. A cleanup command that fails or is blocked goes in the report as leftover state, with the command to remove it.
+Stop everything you started: tmux sessions, servers, browser tabs. Delete `$DIR` and every other scratch directory by its literal path, typed out as the earlier call printed it, keeping only the evidence files the report cites: an `rm -rf` on a variable or a command substitution, such as `"$(cat /tmp/qa-dir)"`, is denied. Done when `tmux ls` lists none of your sessions and `$DIR` holds nothing but those evidence files. A cleanup command that fails or is blocked goes in the report as leftover state, with the command to remove it.
 
-Report one line per scenario (status, what it checked, the evidence or its path), then every fail in full, then the verdict:
+Report one line per scenario (status, what it checked, the evidence or its path), then every fail in full, then:
+
+- **Not covered**: what no scenario tested and why, such as a platform, a browser, or a terminal you did not run.
+- **Concerns**: what is neither a pass nor a fail but looked wrong, such as a slow first load or a stray warning.
+
+Then the verdict:
 
 - Any fail: **Fails QA**.
 - Otherwise, any blocked scenario: **Passes with gaps**, naming each blocked scenario and what it needs.
