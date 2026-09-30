@@ -29,6 +29,8 @@ A **scenario** is one thing a user does and the result they should then see: the
 - the unhappy paths of each: invalid or empty input, cancel or interrupt midway, the same action twice, a first run with no saved state;
 - one existing flow that shares the changed code, to catch a regression next to the change.
 
+For a change meant to keep behavior (a refactor), the expected result is the base build's screen. Export the base commit with `git archive <base> | tar -x -C "$DIR/base"` and build it there. A `git worktree` shares `.git/hooks` with the main checkout, so a dependency install in one runs the old commit's `prepare` script and rewrites the main checkout's hooks. Drive both builds with the same keys, from folders with the same name and the same seeded state, and diff the captures. Mask only what changes on every run, such as a clock.
+
 Done when every requirement and every changed user-reachable path maps to at least one scenario.
 
 ### 3. Launch the program

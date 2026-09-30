@@ -73,4 +73,12 @@ sh "$TUI" keys qa-s "BEGIN;" Enter || fail "keys refused a key that ends with ;"
 out="$(sh "$TUI" wait qa-s "got BEGIN;" 5)" || fail "the trailing ; did not reach the program: $out"
 sh "$TUI" stop qa-s
 
+# -l sends the next argument as literal text, so text that reads as a key name
+# reaches the program as typed.
+sh "$TUI" start qa-l 40 10 sh -c 'echo ready; read -r line; echo "got $line"; sleep 5'
+sh "$TUI" wait qa-l ready 5 >/dev/null || fail "the reading program did not start"
+sh "$TUI" keys qa-l -l Enter -l "x;" Enter || fail "keys refused -l"
+out="$(sh "$TUI" wait qa-l "got Enterx;" 5)" || fail "-l did not send its text literally: $out"
+sh "$TUI" stop qa-l
+
 echo "ok"

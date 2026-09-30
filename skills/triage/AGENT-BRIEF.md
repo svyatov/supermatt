@@ -36,6 +36,10 @@ The agent needs to know when it's done. Every agent brief must have concrete, te
 
 Name the seams the tests go through, agreed with the maintainer during triage. The agent tests only at pre-agreed seams, and nobody is there to confirm new ones while it works.
 
+### Checked claims
+
+The agent takes every statement about the current code as fact. A line that says something needs no change, or that a case cannot happen, names the check that proved it: a reproduction, a test, a read code path. Run the check before you post, or drop the line. Then read each Key interfaces line against every decision and every case in Desired behavior: a line that holds for the case you reproduced but not for a case a decision names (another writer, another caller) is wrong.
+
 ### Explicit scope boundaries
 
 State what is out of scope. This prevents the agent from gold-plating or making assumptions about adjacent features.
