@@ -55,6 +55,8 @@ The maintainer invokes `/triage` and describes what they want in natural languag
 - "Move #42 to ready-for-agent"
 - "What's ready for agents to pick up?"
 
+When the maintainer delegates ("I am away", "decide for me"), every point below that waits for direction or asks the maintainer takes your recommended option instead: record it as a decision in the brief or comment and continue. This covers follow-up issues too: file each one and triage it in the same run.
+
 ## Show what needs attention
 
 Query the issue tracker and present three buckets, oldest first:
@@ -75,7 +77,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request (including whether it's already implemented). Wait for direction.
 
-3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a PR, confirm the diff does what it claims: check it out, run the relevant tests or commands. Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal). A confirmed verification makes a much stronger agent brief.
+3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a PR, confirm the diff does what it claims: check it out, run the relevant tests or commands. Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal). A confirmed verification makes a much stronger agent brief. When verification disproves a statement in the issue or PR body, correct it where later readers look first: edit the body when the maintainer or an agent wrote it, and otherwise open the brief with the correction. Later readers, the PR writer too, read the body before the brief.
 
 4. **Grill (if needed).** If the request needs fleshing out, call the Skill tool twice, for "grilling" and "domain-modeling", and grill it into shape a round of questions at a time, sharpening domain terms and updating `GLOSSARY.md`/ADRs inline as decisions land.
 

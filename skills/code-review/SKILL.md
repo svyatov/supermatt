@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes: Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/spec asked for?), and Adversarial (how does the change fail in production?). Runs the reviews in parallel sub-agents and reports them side by side with a verdict. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: 'Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes: Standards (does the code follow this repo''s documented coding standards?), Spec (does the code match what the originating issue/spec asked for?), and Adversarial (how does the change fail in production?). Runs the reviews in parallel sub-agents and reports them side by side with a verdict. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".'
 argument-hint: "[fixed-point] [spec-path]"
 metadata:
   credits-skill: ce-code-review
@@ -49,7 +49,7 @@ On top of whatever the repo documents, the Standards axis always carries the **s
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
 - **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation.
 
-Each smell reads *what it is* → *how to fix*; match it against the diff:
+Each smell reads _what it is_ → _how to fix_; match it against the diff:
 
 - **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
 - **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change, or a new hunk repeats logic that a function outside the diff already computes (search the codebase for it by what it computes). Report how many copies the codebase holds in total, not only those in the diff, since that count decides whether an extraction pays. → extract the shared shape, or call the existing function.
@@ -104,7 +104,7 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 
 **Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff file path and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then, when the repo builds a program, the path of one built from `HEAD` so the peer can run a trigger instead of only tracing it, then "Under 400 words." The fallback sub-agent gets this same prompt.
 
-For the peer, first build the program in `$DIR` with the repo's own build command (a build binary already in the checkout may predate the change). Then write the prompt, with that binary's path already filled in, to `prompt.md` in that directory with the file-writing tool (Claude Code: Write). The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under that directory now, writing each file's contents with the file-writing tool as for `prompt.md` and keeping the shell for `mkdir`, `git`, and `ln`, and name it in the prompt. Then start the peer's command from the repo root, alongside the other sub-agents, as its own background shell call (Claude Code: `run_in_background: true`, with no trailing `&`), so the call's completion notice is the signal that `out.md` is ready:
+For the peer, first build the program in `$DIR` with the repo's own build command (a build binary already in the checkout may predate the change). Then write the prompt, with the diff path and that binary's path written in as absolute paths, to `prompt.md` in that directory with the file-writing tool (Claude Code: Write). The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under that directory now, writing each file's contents with the file-writing tool as for `prompt.md` and keeping the shell for `mkdir`, `git`, and `ln`, and name it in the prompt. Then start the peer's command from the repo root, alongside the other sub-agents, as its own background shell call (Claude Code: `run_in_background: true`, with no trailing `&`), so the call's completion notice is the signal that `out.md` is ready:
 
 - `codex`: `codex exec - --ignore-user-config --disable apps --disable plugins -C "$(git rev-parse --show-toplevel)" -s read-only -c 'approval_policy="never"' --ephemeral -o "$DIR/out.md" < "$DIR/prompt.md"`
 - `claude`: it has no shell, so first append `$DIR/diff.patch` to `prompt.md` between `=== BEGIN DIFF ===` and `=== END DIFF ===` lines. Then run `claude -p --safe-mode --strict-mcp-config --tools Read Grep Glob --permission-mode dontAsk --no-session-persistence < "$DIR/prompt.md" > "$DIR/out.md"`. When the Codex sandbox blocks its network access, request escalated permissions for this one command.
@@ -148,7 +148,9 @@ The verdict is a rule over severities. Don't pick a single worst finding across 
   - **P3**: minor.
 
   Baseline smells are P2 or P3. A refactor check hit is P1. A test check hit is P2.
-- **Quote the line.** Every finding cites `file:line` and quotes the line it flags. A claim that something is missing quotes where it would be defined, and a race quotes both sides. A claim that nothing else calls or uses a symbol rests on a symbol-aware search (LSP, CodeGraph) when one is available, and otherwise says "grep-only". Label a finding without a quote `unverified`; it does not move the verdict.
+
+- **Quote the line.** Every finding cites `file:line` and quotes the line it flags. The line is the file's own line number, counted from the `+` side of its hunk header (`@@ -a,b +c,d @@` starts at line `c`), never a line of `diff.patch`. A claim that something is missing quotes where it would be defined, and a race quotes both sides. A claim that nothing else calls or uses a symbol rests on a symbol-aware search (LSP, CodeGraph) when one is available, and otherwise says "grep-only". Label a finding without a quote `unverified`; it does not move the verdict.
+- **Run the equivalence.** When the diff changes what a selector, query, pattern, or condition matches and the spec asks for unchanged behavior, run the old and new forms on the same input (a fixture, a test, the built program) before you call them equivalent. An equivalence you did not run is a finding labelled `unverified`.
 - **Read by range.** Read the diff file in full, by line range when it is long. A file the diff adds is already in it whole; read other files by line range for the context around a hunk.
 - **Lead with the effect.** Open each finding with what a user or caller sees, then give one fix. When more than one fits, recommend one and name the trade-off. When the right fix depends on something you can't see, propose the most likely default and name the assumption.
 - **Skip:**
