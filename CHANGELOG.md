@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+
+- `qa`: `tui.sh press` sends keys as `keys` does, then prints the screen once it stops changing, and exits 1 on a screen that keeps changing. `TERMINAL.md` names it for a key whose result draws at once, since QA passes timed their reads with 31 fixed sleeps against 4 `tui wait` calls, and wrapped `keys; sleep; show` in helper functions a hook blocked. Cleanup types each scratch directory's path out, since `rm -rf "$(cat /tmp/qa-dir)"` was denied in two passes.
+
 ## [0.8.2] - 2026-09-29
 
 ### Changed
