@@ -1,22 +1,22 @@
 ---
 name: code-review
-description: 'Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes: Standards (does the code follow this repo''s documented coding standards?), Spec (does the code match what the originating issue/spec asked for?), and Adversarial (how does the change fail in production?). Runs the reviews in parallel sub-agents and reports them side by side with a verdict. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".'
+description: 'Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes: Standards (does the code follow this repo''s documented coding standards?), Spec (does the code match what the originating issue/spec asked for?), and Adversarial (how does the change fail in production?). Runs each axis in a sub-agent and in the other model family, and reports the axes side by side with a verdict. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".'
 argument-hint: "[fixed-point] [spec-path]"
 metadata:
   credits-skill: ce-code-review
   credits-author: Every
   credits-url: "https://github.com/EveryInc/compound-engineering-plugin/tree/main/skills/ce-code-review"
 license: MIT
-compatibility: Uses the codex CLI (from Claude Code) or the claude CLI (from Codex) for the Adversarial axis when installed.
+compatibility: Uses the codex CLI (from Claude Code) or the claude CLI (from Codex), when installed, as a second reader on every axis and as the cross-family validator.
 ---
 
 Three-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 - **Standards**: does the code conform to this repo's documented coding standards?
 - **Spec**: does the code faithfully implement the originating issue / spec?
-- **Adversarial**: how does the change fail in production? A different model runs this axis when one is installed, because sub-agents of one model agreeing is one reading repeated.
+- **Adversarial**: how does the change fail in production?
 
-All axes run as **parallel sub-agents** so they don't pollute each other's context. A validator sub-agent then checks every P0 and P1 with fresh eyes, and this skill aggregates what survives.
+Every axis has **two readers**, run in parallel so they don't pollute each other's context: a sub-agent of the host model and the **peer**, the other model family's CLI. A model favours its own reasoning and its errors correlate with its own family's, so sub-agents of one model agreeing is one reading repeated, and a second family catches bugs the first reads past. For the same reason, the family that did not raise a finding validates it, and this skill aggregates what survives.
 
 The issue tracker should have been provided to you. If `docs/agents/issue-tracker.md` is missing, tell the user to run `/setup-supermatt-skills` (`$setup-supermatt-skills` in Codex).
 
@@ -26,112 +26,98 @@ The issue tracker should have been provided to you. If `docs/agents/issue-tracke
 
 Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one and HEAD is on a branch other than the default branch, the fixed point is the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD`, minus its `origin/`): name it in one line and carry on. On the default branch with uncommitted changes, the fixed point is `HEAD`: name it in one line and carry on. On a clean default branch, ask.
 
-Resolve the merge-base once with `git merge-base <fixed-point> HEAD`, create a fresh `mktemp -d` directory (`$DIR` below), and write the diff into it: `git diff <merge-base-sha> > "$DIR/diff.patch"` (against the merge-base, and including uncommitted changes to tracked files), then append every untracked file: `git ls-files -z --others --exclude-standard | xargs -0 -I{} git diff --no-index /dev/null {} >> "$DIR/diff.patch"` (it exits non-zero whenever it appends a file, which is expected). That file is the diff every sub-agent reads: a shell hook can shorten a diff printed to the terminal, and a redirected one lands on disk whole. Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+Resolve the merge-base once with `git merge-base <fixed-point> HEAD`, create a fresh `mktemp -d` directory (`$DIR` below), and write the diff into it: `git diff <merge-base-sha> > "$DIR/diff.patch"` (against the merge-base, and including uncommitted changes to tracked files), then append every untracked file: `git ls-files -z --others --exclude-standard | xargs -0 -I{} git diff --no-index /dev/null {} >> "$DIR/diff.patch"` (it exits non-zero whenever it appends a file, which is expected). That file is the diff every reader reads: a shell hook can shorten a diff printed to the terminal, and a redirected one lands on disk whole. Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
 
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside three parallel sub-agents.
+Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside six parallel readers.
 
 ### 2. Identify the spec source
 
 Look for the originating spec, in this order:
 
 1. Issue references in the commit messages (`#123`, `Closes #45`, a local issue file path, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
-2. A path the user passed as an argument.
+2. A path the user passed as an argument. When it lies outside the repository, copy it to `$DIR/spec.md`, since the `claude` peer cannot read outside the repository.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
 4. The request, plan, or approved findings in this conversation that the change carries out: write them to `$DIR/spec.md` and name that as the spec.
-5. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+5. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** axis will skip and report "no spec available".
 
 ### 3. Identify the standards sources
 
 Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
 
-On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
+On top of whatever the repo documents, the Standards axis always carries [STANDARDS.md](STANDARDS.md): a Fowler smell baseline, a refactor check, and a test check. A documented repo standard overrides the baseline.
 
-- **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation.
-
-Each smell reads _what it is_ → _how to fix_; match it against the diff:
-
-- **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
-- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change, or a new hunk repeats logic that a function outside the diff already computes (search the codebase for it by what it computes). Report how many copies the codebase holds in total, not only those in the diff, since that count decides whether an extraction pays. → extract the shared shape, or call the existing function.
-- **Feature Envy**: a method that reaches into another object's data more than its own. → move the method onto the data it envies.
-- **Data Clumps**: the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
-- **Primitive Obsession**: a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
-- **Repeated Switches**: the same `switch`/`if`-cascade on the same type recurs across the change. → replace with polymorphism, or one map both sites share.
-- **Shotgun Surgery**: one logical change forces scattered edits across many files in the diff. → gather what changes together into one module.
-- **Divergent Change**: one file or module is edited for several unrelated reasons. → split so each module changes for one reason.
-- **Speculative Generality**: abstraction, parameters, or hooks added for needs the spec doesn't have. → delete it; inline back until a real need shows.
-- **Message Chains**: long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
-- **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
-- **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
-
-The Standards axis also carries one **refactor check**, a hard finding. A commit that its message marks as a refactor (`refactor:` in Conventional Commits) must not change an assertion's expected value for a behavior the commit still exposes. Such a change altered behavior under a refactor label, or rewrote a test to match the new code. A test deleted because the commit removed its subject or made it private passes, and so does one moved into boundary tests of the new interface.
-
-It also carries a **test check**, a judgement call:
-
-- **Untested behavior**: the diff changes runtime behavior (a new branch, a state change, an error path, a changed contract) and no test in the diff exercises it.
-- **Vacuous test**: a new or changed test would still pass with the code under test broken. It asserts only that nothing throws or that a value is truthy, computes its expected value with the code under test, or has a mock supply the result the code should produce.
-
-Trivial accessors and edits that change no behavior pass.
-
-### 4. Pick the Adversarial reviewer
+### 4. Pick the peer
 
 The peer is the other model's CLI:
 
-- `CLAUDECODE=1` is set: the host is Claude Code, so the peer is `codex`.
-- Any of `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID` is set: the host is Codex, so the peer is `claude`.
+- `CLAUDE_CODE_CHILD_SESSION=1` is set: the host is `claude`, so the peer is `codex`. (`CLAUDECODE` is not enough: IDE extensions set it in their terminals too.)
+- Any of `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID` is set: the host is `codex`, so the peer is `claude`.
 
-Confirm the peer is installed with `command -v <peer>`. When the host is unknown, the peer is missing, or the peer already failed in this session on a usage limit whose reset time has not passed, the Adversarial axis runs as a normal sub-agent instead (the **fallback**); note the reason for the report.
+Confirm the peer is installed with `command -v <peer>`. When the host is unknown, the peer is missing, or the peer already failed in this session on a usage limit whose reset time has not passed, there is **no peer**: every axis runs with its host reader only and validation stays on the host model. Note the reason for the report.
 
-Before the peer starts, tell the user one line: "Adversarial axis: sending the diff to <peer>." This is a notice, so carry on without waiting for a reply.
+Before the peer starts, tell the user one line: "Peer review: sending the diff to <peer> for every axis." This is a notice, so carry on without waiting for a reply.
 
-### 5. Spawn the sub-agents in parallel
+### 5. Run both readers of every axis in parallel
 
-Every sub-agent prompt includes the **finding rules** (see _Finding rules_) pasted in full.
+Each axis has one prompt, and both of its readers get that same text. Every axis prompt includes the **finding rules** (see _Finding rules_) pasted in full.
 
-**Standards sub-agent prompt** should include:
+**Standards prompt** should include:
 
 - The diff file path and commit list.
-- The list of standards-source files you found in step 3, **plus the smell baseline, the refactor check, and the test check from step 3** pasted in full (the sub-agent has no other access to them).
+- The list of standards-source files you found in step 3, **plus the contents of [STANDARDS.md](STANDARDS.md)** (smell baseline, refactor check, test check) pasted in full (the readers have no other access to them).
 - The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); (b) any baseline smell you spot: name it and quote the hunk; (c) any refactor check hit: name the commit and the test file; and (d) any test check hit: quote the untested behavior or the vacuous assertion. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, refactor check hits are hard, but baseline smells and test check hits are judgement calls, and a documented repo standard overrides the baseline. Under 400 words."
 
-**Spec sub-agent prompt** should include:
+**Spec prompt** should include:
 
 - The diff file path and commit list.
 - The path or fetched contents of the spec.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
-If the spec is missing, skip the Spec sub-agent and note this in the final report.
+If the spec is missing, skip the Spec axis and note this in the final report.
 
-**Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff file path and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then, when the repo builds a program, the path of one built from `HEAD` so the peer can run a trigger instead of only tracing it, then "Under 400 words." The fallback sub-agent gets this same prompt.
+**Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff file path and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then, when the repo builds a program, the path of one built from `HEAD` so a reader can run a trigger instead of only tracing it, then "Under 400 words."
 
-For the peer, first build the program in `$DIR` with the repo's own build command (a build binary already in the checkout may predate the change). Then write the prompt, with the diff path and that binary's path written in as absolute paths, to `prompt.md` in that directory with the file-writing tool (Claude Code: Write). The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under that directory now, writing each file's contents with the file-writing tool as for `prompt.md` and keeping the shell for `mkdir`, `git`, and `ln`, and name it in the prompt. Then start the peer's command from the repo root, alongside the other sub-agents, as its own background shell call (Claude Code: `run_in_background: true`, with no trailing `&`), so the call's completion notice is the signal that `out.md` is ready:
+Build that program in `$DIR` with the repo's own build command (a build binary already in the checkout may predate the change). The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under `$DIR` now, and name it in the Adversarial prompt. Write each axis prompt, with every path in it absolute, to `$DIR/<axis>.prompt.md` (`standards`, `spec`, `adversarial`), and write each fixture's contents the same way, with the file-writing tool (Claude Code: Write), keeping the shell for `mkdir`, `git`, and `ln`.
 
-- `codex`: `codex exec - --ignore-user-config --disable apps --disable plugins -C "$(git rev-parse --show-toplevel)" -s read-only -c 'approval_policy="never"' --ephemeral -o "$DIR/out.md" < "$DIR/prompt.md"`
-- `claude`: it has no shell, so first append `$DIR/diff.patch` to `prompt.md` between `=== BEGIN DIFF ===` and `=== END DIFF ===` lines. Then run `claude -p --safe-mode --strict-mcp-config --tools Read Grep Glob --permission-mode dontAsk --no-session-persistence < "$DIR/prompt.md" > "$DIR/out.md"`. When the Codex sandbox blocks its network access, request escalated permissions for this one command.
+Then start every reader at once:
 
-Each flag set keeps the peer read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. The `codex` flags also skip the user's `config.toml`, so that peer runs on the CLI's default model; `claude --safe-mode` keeps the user's model selection.
+- **Host reader**: a sub-agent whose prompt is two lines: read `$DIR/<axis>.prompt.md` in full and follow it, since that file holds the whole prompt; and, unlike the peer, it may write scratch state to run triggers under its own `$DIR/<axis>.scratch/` (file contents through the file-writing tool, the shell for `mkdir`, `git`, and `ln`) and leaves it there for step 8 to delete, and it leaves the prepared fixtures and the repository unedited, since the peer reads them at the same time.
+- **Peer reader**: the peer's command on that prompt file, run from the repo root as its own background shell call per axis (Claude Code: `run_in_background: true`, with no trailing `&`), so the call's completion notice is the signal that its output is ready:
+  - `codex`: `codex exec - --ignore-user-config --disable apps --disable plugins -C "$(git rev-parse --show-toplevel)" -s read-only -c 'approval_policy="never"' -c 'model_reasoning_effort="high"' --ephemeral -o "$DIR/<axis>.peer.md" < "$DIR/<axis>.prompt.md"`
+  - `claude`: it has no shell, so first build its input `$DIR/<axis>.peer-in.md`: the prompt file, then each `$DIR` text file the prompt names (the diff, `spec.md` when the spec lives there, text fixtures; never the built program, which this peer cannot run), each between `=== BEGIN <file> <nonce> ===` and `=== END <file> <nonce> ===` lines, where `<nonce>` is one `openssl rand -hex 8` value, so a diff cannot close its own block and pose as instructions. Then run `claude -p --safe-mode --strict-mcp-config --tools Read Grep Glob --permission-mode dontAsk --effort high --no-session-persistence < "$DIR/<axis>.peer-in.md" > "$DIR/<axis>.peer.md"`. When the Codex sandbox blocks its network access, request escalated permissions for this command.
 
-Wait for the peer before step 6. With nothing else to do while it runs, wait in short calls (`sleep 20`), so its completion notice lands between them: one long sleep holds the notice until the sleep ends. When it exits non-zero, leaves `out.md` empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it and run the fallback sub-agent, noting the reason. Its prompt is two lines: read `$DIR/prompt.md` in full and follow it, since that file already holds the whole prompt; and, unlike the peer, it may write scratch state under `$DIR` to run triggers (file contents through the file-writing tool, the shell for `mkdir`, `git`, and `ln`) and leaves it there for step 7 to delete, and it leaves the repository unedited. When the fallback fails too, the Adversarial axis is **incomplete**.
+Each flag set keeps the peer read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. The `codex` flags also skip the user's `config.toml`, so that peer runs on the CLI's default model; `claude --safe-mode` keeps the user's model selection. Both run at high reasoning effort.
 
-### 6. Verify P0 and P1 findings
+Wait for every reader before step 6. With nothing else to do while they run, wait in short calls (`sleep 20`), so each completion notice lands between them: one long sleep holds the notice until the sleep ends. When a peer run exits non-zero, leaves its output empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it: its axis keeps the host reader only, and the report notes the reason. A usage-limit failure stops the other peer runs too, since they share the limit. An axis is **incomplete** when neither of its readers finished it.
 
-Number every quoted P0 and P1 finding from every axis. When there are none, skip to step 7. Otherwise spawn one validator sub-agent whose prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then the numbered findings with their axis, quote, and reasoning, then the diff file path and commit list.
+### 6. Merge the readers of each axis
 
-Apply its verdicts to each finding on its own axis:
+Within one axis, two findings that name the same defect at the same `file:line` (or the same missing requirement) become one finding tagged `[both]`, with the clearer wording and the higher severity. Tag every other finding with the reader that raised it: `[<host>]` or `[<peer>]`, such as `[claude]` or `[codex]`. Merge only within an axis, never across axes.
 
-- **confirmed**: the finding stays as written.
-- **rejected**: the finding leaves its axis and goes on that axis's "Dropped by verification" line with the validator's reason.
+### 7. Validate across families
+
+A `[both]` finding whose two readers gave the same severity is already confirmed: two model families found it independently. Number every other quoted P0, P1, and P2 finding, including a `[both]` finding whose readers disagreed on severity, since they agreed that it exists but not how much it matters; the peer validates it. When there are none, skip to step 8. Otherwise give each finding to the family that did not raise it, both validators at once:
+
+- **Peer findings**: one host validator sub-agent.
+- **Host findings**: the peer. Write `$DIR/validate.prompt.md` and run the step 5 peer command on it, writing `$DIR/validate.peer.md`. When there is no peer, the host validator sub-agent takes these findings too, and the report notes that they were validated by the same model. When the peer run fails as in step 5, these findings are `not validated`.
+
+Each validator prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then its numbered findings with their axis, quote, and reasoning, then the diff file path and commit list.
+
+Apply the verdicts to each finding on its own axis:
+
+- **confirmed**: the finding stays as written, keeping the validator's "incidence not measured" note when it gave one.
+- **rejected**: check the evidence the rejection cites: open its `file:line`, or read the test result it reports. When it shows what the validator claims, the finding leaves its axis and goes on that axis's "Dropped by verification" line with the validator's reason. When it does not, the finding stays, labelled `unresolved: rejection not confirmed`.
 - **unresolved**: the finding stays with its severity, labelled `unresolved: <evidence still needed>`.
 
-When the validator fails or leaves a finding without a verdict, that finding stays and is labelled `not validated`.
+When a validator fails or leaves a finding without a verdict, that finding stays and is labelled `not validated`.
 
-### 7. Aggregate
+### 8. Aggregate
 
 Delete `$DIR` first: nothing from here on reads it.
 
-Present the reports under `## Standards`, `## Spec`, and `## Adversarial (<peer>)` headings, verbatim or lightly cleaned, keeping each finding's severity, `file:line`, and quoted line, each ending with its "Dropped by verification" line when step 6 dropped anything. When the fallback ran, the last heading is `## Adversarial (same model: <reason>)`. Do **not** merge or rerank findings, because the axes are deliberately separate (see _Why separate axes_). Print this aggregate as its own message before anything else continues, also when another skill loaded this one. Done when every finding from every axis appears under its heading or on its dropped line.
+Present the merged findings under `## Standards`, `## Spec`, and `## Adversarial` headings, verbatim or lightly cleaned, keeping each finding's reader tag, severity, `file:line`, and quoted line. Open each heading with one coverage line naming the readers that finished it and the reason any did not (`Readers: claude, codex` or `Readers: claude (codex: usage limit)`), and end it with its "Dropped by verification" line when step 7 dropped anything. Do **not** merge or rerank findings across axes, because the axes are deliberately separate (see _Why separate axes_). Print this aggregate as its own message before anything else continues, also when another skill loaded this one. Done when every finding from every axis appears under its heading or on its dropped line.
 
-A **verified** finding quotes its line and was not rejected in step 6. Step 6 checks only P0 and P1, so a P2 or P3 that quotes its line is verified, and it stays open until it is fixed. End with a one-line summary: findings per axis by severity, then the verdict:
+A **verified** finding quotes its line and was not rejected in step 7. Step 7 checks only P0 to P2, so a P3 that quotes its line is verified, and it stays open until it is fixed. End with a one-line summary: findings per axis by severity, then the verdict:
 
 - Any verified P0 on any axis: **Not ready**.
 - Otherwise, any verified P1 or an incomplete axis: **Ready with fixes**.

@@ -22,7 +22,7 @@
 
 - **Claude Code and Codex.** Each host installs SuperMatt from its own native plugin marketplace.
 - **39 skills.** 30 for engineering and 9 for productivity, listed below.
-- **A second model reviews your changes.** `code-review` adds an Adversarial axis and sends it to `codex` from Claude Code, or to `claude` from Codex, when that CLI is installed. Upstream reviews on two axes.
+- **A second model reviews your changes.** `code-review` runs every axis twice, once in a sub-agent and once in `codex` from Claude Code (or `claude` from Codex) when that CLI is installed, and the model that did not raise a finding validates it. Upstream reviews on two axes.
 - **One flow from idea to closed issue.** Forked from [mattpocock/skills](https://github.com/mattpocock/skills) at `c55ee46`, each skill checks its own work and hands the result to the next.
 
 ## Install
@@ -104,7 +104,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Skills check their own work
 
-- `code-review` adds a third axis, **Adversarial**: how does the change fail in production? Claude Code sends this axis to `codex`, and Codex sends it to `claude`, so a second model reviews every change. Findings carry P0-P3 severities and quote the lines they cite. A validator sub-agent checks every P0 and P1 before the review ends with a verdict, and the Standards axis also checks that tests exercise the changed behavior. Upstream reviews on two axes, Standards and Spec.
+- `code-review` adds a third axis, **Adversarial**: how does the change fail in production? Its brief also runs security, public contract, migration, reliability, and concurrency checks on the parts of the diff they apply to. Every axis has two readers, a sub-agent and a second model (`codex` from Claude Code, `claude` from Codex), and a finding both raise is marked `[both]`. Findings carry P0-P3 severities and quote the lines they cite. The model that did not raise a P0, P1, or P2 finding validates it before the review ends with a verdict, and the Standards axis also checks that tests exercise the changed behavior. Upstream reviews on two axes, Standards and Spec.
 - `to-spec` checks the draft spec in a fresh-context sub-agent before it publishes it.
 - `tdd` checks that each test goes red for the reason it names, counts a cycle green only when the full suite passes, ends with a mutation check, and flags change-detector tests.
 - `diagnosing-bugs` asks what you already tried, rules out the environment and uncommitted work, and fixes nothing until the causal chain has no gaps. It escalates to you after 2-3 dead hypotheses or 3 failed fixes.
@@ -199,7 +199,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[domain-modeling](./skills/domain-modeling/SKILL.md)** | Actively build and sharpen a project's domain model by challenging terms, stress-testing with scenarios, and updating `GLOSSARY.md` and ADRs inline. |
 | **[codebase-design](./skills/codebase-design/SKILL.md)** | Shared discipline and vocabulary for designing deep modules: small interfaces, clean seams, testable through the interface. |
 | **[qa](./skills/qa/SKILL.md)** | QA a change in the running program before code review: write a scenario for every requested behavior, drive a terminal program through tmux or a web app through a browser, and report each scenario as pass, fail, or blocked with the evidence observed. |
-| **[code-review](./skills/code-review/SKILL.md)** | Three-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?), **Spec** (does it faithfully implement the originating issue/spec?), and **Adversarial** (how does it fail in production?), run as parallel sub-agents and closed with a verdict. When Claude Code runs the review, the Adversarial axis goes to `codex` if it is installed; when Codex runs it, the axis goes to `claude`. |
+| **[code-review](./skills/code-review/SKILL.md)** | Three-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?), **Spec** (does it faithfully implement the originating issue/spec?), and **Adversarial** (how does it fail in production?), each read in parallel by a sub-agent and by a second model, closed with a verdict. When Claude Code runs the review, the second model is `codex` if it is installed; when Codex runs it, the second model is `claude`. The model that did not raise a finding validates it. |
 | **[pr](./skills/pr/SKILL.md)** | The shape of a pull request body: a summary diagram or diff sketch, before/after evidence, and the merge danger (one-way or two-way door, blast radius). |
 | **[dependency-vetting](./skills/dependency-vetting/SKILL.md)** | Verify a package or tool is authentic before installing, adding, upgrading, or recommending it, by following the link from the upstream project to its install command. |
 | **[resolving-merge-conflicts](./skills/resolving-merge-conflicts/SKILL.md)** | Work through an in-progress git merge or rebase conflict hunk by hunk, resolving by intent traced to each side's primary source, run the project's checks, then finish the operation, never `--abort`. |
