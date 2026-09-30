@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-30
+
+### Changed
+
+- `orchestrate`: the argument is now the number of parallel lanes, not a cap on merged issues: `/orchestrate 3` works the first three workable issues at once and runs until the queue is empty. Each lane has its own herdr pane (the first right of the orchestrator, the rest stacked below it) and its own git worktree under `.claude/worktrees/`, and restarts its worker in place, so the layout holds. Before it ships, a lane rebases onto the default branch, one lane at a time; conflicts go to `resolving-merge-conflicts`, followed by a new QA pass. A lane that hits a stop condition parks with its own notification while the others go on.
+
 ## [0.10.0] - 2026-09-30
 
 ### Changed
@@ -421,7 +427,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.10.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/svyatov/supermatt/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/svyatov/supermatt/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/svyatov/supermatt/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/svyatov/supermatt/compare/v0.8.2...v0.9.0
