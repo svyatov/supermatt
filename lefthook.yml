@@ -22,6 +22,6 @@ pre-push:
   jobs:
     - name: tests
       glob: "{scripts,tests,skills}/*"
-      run: for t in tests/*.test.sh; do sh "$t" || exit 1; done
+      run: for t in tests/*.test.sh; do sh "$t" || exit 1; done && node --test tests/
     - name: plugin-validate
       run: claude plugin validate --strict . && claude plugin validate --strict ./skills
