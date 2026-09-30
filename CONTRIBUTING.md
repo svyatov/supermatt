@@ -35,10 +35,10 @@ sh tests/link-skills.test.sh
 sh tests/mutate.test.sh
 sh tests/release.test.sh
 sh tests/directory-branch.test.sh
-node --test tests/
+node --test tests/next-issue.test.mjs
 ```
 
-`node --test tests/` runs `tests/next-issue.test.mjs`, which tests the `orchestrate` skill's issue picker; `bun test tests/` runs the same file, and the pre-push hook uses it. `tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. `tests/mutate.test.sh` tests the `tdd` skill's mutation runner. `tests/release.test.sh` and `tests/directory-branch.test.sh` test the maintainer's `scripts/release.sh` and `scripts/directory-branch.sh`. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
+`tests/next-issue.test.mjs` tests the `orchestrate` skill's issue picker; `bun test tests/` runs the same file, and the pre-push hook uses it. `tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. `tests/mutate.test.sh` tests the `tdd` skill's mutation runner. `tests/release.test.sh` and `tests/directory-branch.test.sh` test the maintainer's `scripts/release.sh` and `scripts/directory-branch.sh`. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
 
 ## Rules for a change
 
