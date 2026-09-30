@@ -12,6 +12,11 @@ trap 'tmux kill-server 2>/dev/null || true; rm -rf "$TMP"' EXIT
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
+# The default tmux socket is shared by every session on the machine, so tui.sh
+# refuses to run until the caller gives it a server of its own.
+out="$(env -u TMUX_TMPDIR sh "$TUI" show qa-t 2>&1)" && fail "tui.sh ran without TMUX_TMPDIR"
+case $out in *TMUX_TMPDIR*) ;; *) fail "tui.sh did not name TMUX_TMPDIR: $out" ;; esac
+
 # The program shows its first screen late, so a wait that does not poll reads
 # it blank. The folder icon is U+F07B, and the tab must reach the screen as
 # spaces.
@@ -93,5 +98,33 @@ sh "$TUI" stop qa-p
 sh "$TUI" start qa-c 40 10 sh -c 'i=0; while :; do i=$((i + 1)); echo "$i"; sleep 0.05; done'
 sh "$TUI" press qa-c x >/dev/null 2>&1 && fail "press passed on a screen that never settled"
 sh "$TUI" stop qa-c
+
+# resize changes the window, then prints the screen once the program's late
+# redraw has settled, so the step needs no sleep.
+cat > "$TMP/size.sh" <<'EOF'
+trap 'sleep 0.1; printf "\033[2J\033[H"; stty size' WINCH
+stty size
+while :; do sleep 0.05; done
+EOF
+sh "$TUI" start qa-z 40 10 sh "$TMP/size.sh"
+sh "$TUI" wait qa-z "10 40" 5 >/dev/null || fail "the sizing program did not start"
+out="$(sh "$TUI" resize qa-z 30 5)" || fail "resize exited nonzero: $out"
+[ "$out" = "5 30" ] || fail "resize printed the screen before the redraw settled: $out"
+sh "$TUI" stop qa-z
+
+# colors prints each run of text with its foreground color, one run per line,
+# and names an icon as show does.
+cat > "$TMP/colors.sh" <<'EOF'
+printf 'top\n\033[38;2;235;219;178mlit \357\201\273\033[0m plain \033[1;33mwarn\033[0m\n'
+sleep 5
+EOF
+sh "$TUI" start qa-o 40 10 sh "$TMP/colors.sh"
+sh "$TUI" wait qa-o warn 5 >/dev/null || fail "the colored program did not start"
+out="$(sh "$TUI" colors qa-o)" || fail "colors exited nonzero: $out"
+[ "$out" = '1 default "top"
+2 #ebdbb2 "lit [U+F07B]"
+2 default " plain "
+2 c3+bold "warn"' ] || fail "unexpected colors: $out"
+sh "$TUI" stop qa-o
 
 echo "ok"

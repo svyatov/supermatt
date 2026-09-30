@@ -41,4 +41,4 @@ Whatever the depth, run each check whose surface the diff touches:
 
 ## Each finding
 
-State the input or state that triggers it, what goes wrong, and the fix. A finding with no concrete trigger is speculation, so drop it.
+State the input or state that triggers it, what goes wrong, and the fix. A finding with no concrete trigger is speculation, so drop it. A value that a store, a file, or another writer accepts is a concrete trigger, even when the UI or a parser refuses it.

@@ -26,4 +26,4 @@ About 15 minutes and 5 tool calls per finding, in the order given. A finding you
 
 ## Output
 
-One line per finding: its number, the verdict, and one sentence of reason grounded in what you inspected. A rejection also names its evidence: the `file:line` and quote that refutes the finding, or the command you ran and its result.
+One line per finding: its number, the verdict, and one sentence of reason grounded in what you inspected. A rejection also names its evidence: the `file:line` and quote that refutes the finding, or the command you ran and its result. A command refutes a finding only when it ran the finding's exact trigger: a mutation of one half of a claim leaves the other half `unresolved`.
