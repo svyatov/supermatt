@@ -14,6 +14,10 @@ The destination varies per effort, and naming it is the first act of charting: i
 
 Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the first working version can be built. Decisions that only matter once it runs belong to the implementation, not the map. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. An effort can override this in its **Notes**, carrying execution into the map itself, but absent that, produce decisions, not deliverables.
 
+## Asking questions
+
+Before the first user decision or confirmation, call the Skill tool with "grilling" in the main conversation if it is not already loaded. Apply its **Asking questions** rules to every user question here, including naming the destination, the smallest-version check, the clear-route handoff, and the final choice after challenging an answer. Keep the live exchange in the main conversation; subagents return facts or candidate answers for it. Record a human decision or resolve a HITL ticket only after the user answers.
+
 ## Refer by name
 
 Every map and ticket is an issue, so it has a **name**: its title. In everything the human reads (narration, the map's Decisions-so-far), refer to it by that name, never by a bare id, number, or slug. A wall of `#42, #43, #44` is illegible; names read at a glance. The id and URL don't vanish; a name wraps its link, but they ride _inside_ the name, never stand in for it.
