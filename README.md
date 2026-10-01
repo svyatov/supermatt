@@ -129,7 +129,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Smallest version first
 
-- `grilling` offers the smallest option first and asks at most four questions a round, only ones that change what gets built.
+- `grilling` includes the smallest option and asks at most four questions a round, within the native question tool's limits, only ones that change what gets built. It uses native Codex and Claude Code question dialogs when available, with chat as the fallback.
 - `wayfinder` names the smallest version before it charts the work, has a sub-agent argue for the smallest answer, and counts a map as done when the first working version can be built.
 
 ### Codex is a first-class host
