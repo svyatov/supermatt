@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.12.2] - 2026-10-01
+
+### Fixed
+
+- `grilling`: uses native Codex question tools (`request_user_input`, or `request_user_input_async` when exposed and permitted) and Claude Code's `AskUserQuestion` before falling back to chat. Rounds respect the selected tool's lower question limit, native questions still work in a round that also needs chat, and open questions use free text where supported. The smallest option remains available while the recommendation comes first in native dialogs. An asynchronous call returning, a preselected option, a timeout, or a cancellation does not settle a decision.
+- `wayfinder`: applies `grilling`'s question-delivery rules to every direct choice and confirmation, including the smallest-version check, the clear-route handoff, and the final answer choice. Human decisions stay in the main conversation and require the user's answer before recording or resolving a HITL ticket.
+
 ## [0.12.1] - 2026-09-30
 
 ### Fixed
@@ -455,7 +462,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.12.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.12.2...HEAD
+[0.12.2]: https://github.com/svyatov/supermatt/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/svyatov/supermatt/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/svyatov/supermatt/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/svyatov/supermatt/compare/v0.10.0...v0.11.0
