@@ -1,15 +1,15 @@
 ---
 name: orchestrate
-description: "Work through a repository's GitHub issues unattended in parallel lanes, driving worker Claude Code sessions in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo."
+description: "Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo."
 argument-hint: "[parallel runs]"
 disable-model-invocation: true
-compatibility: Designed for Claude Code. Requires herdr, gh, and Bun or Node.js 18.17 or later (built-in modules only). The notification uses osascript, so it shows on macOS only.
+compatibility: Designed for Claude Code and Codex. Requires the host harness CLI, herdr, gh, and Bun or Node.js 18.17 or later (built-in modules only). The notification uses osascript, so it shows on macOS only.
 license: MIT
 ---
 
 # orchestrate
 
-You are the orchestrator. You do not write code. You pick issues, drive worker Claude Code sessions, and check their results. The work runs in LANES parallel lanes: each lane is a herdr pane beside yours and a git worktree of its own, and works one issue at a time. A spec whose tickets are all closed comes first: one worker session **V** checks the whole spec against the code (see [SPEC.md](SPEC.md)). Bugs come next, then the other tickets. Each ticket runs through up to four worker sessions, each with a fresh context:
+You are the orchestrator. You do not write code. You pick issues, drive workers in the same harness that runs you, and check their results. The work runs in LANES parallel lanes: each lane is a herdr pane beside yours and a git worktree of its own, and works one issue at a time. A spec whose tickets are all closed comes first: one worker session **V** checks the whole spec against the code (see [SPEC.md](SPEC.md)). Bugs come next, then the other tickets. Each ticket runs through up to four worker sessions, each with a fresh context:
 
 1. **T**: `/triage #N`, only for a bug that is not triaged yet, to make it ready for an agent.
 2. **A**: `/implement #N`, which QAs, reviews, and fixes its own work, then any fixes it left.
@@ -22,16 +22,20 @@ Repeat until a stop condition is met. Never ask the user anything, through a que
 
 1. Run `test "${HERDR_ENV:-}" = 1`. If it fails, say you are not inside herdr and stop.
 2. PROJECT is the repo folder name (`basename "$(git rev-parse --show-toplevel)"`) made into a valid herdr agent name: lowercase it, change each character outside `a-z`, `0-9`, `_` and `-` to `-`, drop leading characters that are not letters, and keep at most 20 characters. K is the lowest number from 1 up that no live agent in `herdr agent list` uses in the name `PROJECT-orch-K`, so several orchestrators in one project stay apart. Now, before any check that can stop, run `herdr agent rename "$HERDR_PANE_ID" PROJECT-orch-K` and `herdr pane report-metadata "$HERDR_PANE_ID" --source orchestrate --display-agent orchestrator`.
-3. PREFIX is `supermatt:` when this skill's directory is inside `~/.claude/plugins/` (the installed plugin, whose skills are namespaced), and empty otherwise (skills linked into `~/.claude/skills`). Every skill you send a worker below, written `/name`, goes out as `/PREFIXname`: `/supermatt:implement #N` or `/implement #N`. A bare `/code-review` from the installed plugin would run Claude Code's bundled review instead of this one.
+3. Set KIND from the harness running this skill: `codex` for Codex, `claude` for Claude Code. Use the current session's harness identity first; when it is unavailable, `CLAUDE_CODE_CHILD_SESSION=1` identifies Claude Code, and any of `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID` identifies Codex. `CLAUDECODE` alone is insufficient because IDE terminals can inherit it. If the harness is unknown or `command -v KIND` fails, say so and stop. Every worker and restart uses KIND; a failed launch parks its lane instead of switching harnesses. For Claude Code, SESSION_ROOT is `$CLAUDE_CONFIG_DIR/projects/`, or `~/.claude/projects/` when unset. For Codex, it is `$CODEX_HOME/sessions/`, or `~/.codex/sessions/` when unset. Send skills using the notation below.
 4. Run `herdr --skill` and follow its rules. Parse every ID from JSON output. Never close a tab or pane you did not create.
 5. Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If either is missing, or the tracker is not GitHub, say so and stop. READY, BUG, and TRIAGE are the label strings that `triage-labels.md` maps to the ready-for-agent, bug, and needs-triage roles.
 6. Your working directory is the repo's main checkout. It stays on DEFAULT for the whole run; the workers work in the lanes' worktrees. DEFAULT is the output of `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`. Run `git switch DEFAULT && git pull --ff-only`. The tree must be clean. If it is not, stop. If `git check-ignore -q .claude/worktrees/x` fails, append the line `.claude/worktrees/` to `.git/info/exclude`, so the worktrees stay out of `git status`.
 7. LANES is the number in the arguments, or 1 when there is none. RUN_START is `date -u +%Y-%m-%dT%H:%M:%SZ`. RUN is `bun` when `command -v bun` finds it, else `node`. Run `RUN <this skill's directory>/scripts/next-issue.mjs READY BUG TRIAGE` and print the queue it lists, so the operator sees what will run.
 8. Open the lanes (see Lanes).
 
+### Skill notation
+
+Every `/name` skill reference below and in the linked procedures is notation: translate it before sending a worker prompt. Claude Code uses `/supermatt:name` when this skill comes from the installed Claude plugin, or `/name` when linked into its skill directory. A bare `/code-review` from that plugin would run Claude Code's bundled review instead of this one. Codex always uses `$name`, including from its plugin: `$implement #N`, `$qa`, `$retro`. Preserve the arguments. Shell-quote Codex prompts so `$name` reaches the worker literally, for example `herdr agent prompt WORKER '$implement #123' --wait`. Native commands such as `/exit` keep their spelling in both harnesses.
+
 ## Lanes
 
-Lane L, from 1 to LANES, has a pane, a worker agent named `PROJECT-work-K-L`, and a worktree at `<repo root>/.claude/worktrees/orch-K-L`, inside the repo so Claude Code's folder trust carries over. Below, PANE, WORKER, and WT are the current lane's, and every git command about the lane's work runs as `git -C WT`. IN_FLIGHT is the set of issues the lanes hold, parked lanes included.
+Lane L, from 1 to LANES, has a pane, a worker agent named `PROJECT-work-K-L`, and a worktree at `<repo root>/.claude/worktrees/orch-K-L`, inside the repo so Claude Code's folder trust carries over. Codex uses the same worktree location. Below, PANE, WORKER, and WT are the current lane's, and every git command about the lane's work runs as `git -C WT`. IN_FLIGHT is the set of issues the lanes hold, parked lanes included.
 
 - **Open the lanes** once, at setup, as shell panes stacked in one column right of yours, with equal heights. Lane 1: `herdr pane split "$HERDR_PANE_ID" --direction right --no-focus --cwd "$PWD"`. Lane L above 1: `herdr pane split <lane L-1's pane> --direction down --ratio R --no-focus --cwd "$PWD"`, where R is 1/(LANES-L+2), the share lane L-1 keeps. Save each `.result.pane.pane_id`. The panes stay for the whole run.
 - **Create the worktree** on branch B: `git fetch origin && git worktree add -b B WT origin/DEFAULT`, or `git worktree add --detach WT origin/DEFAULT` with no branch. Then copy each `.env*` file at the repo root from the main checkout to WT, when one exists: it is ignored, so a new worktree lacks it.
@@ -48,7 +52,7 @@ Each lane runs the Loop on its own issue. Start by running Pick the issue for la
 
 ## Worker
 
-Each session runs its own model and effort:
+Claude Code sessions use these models and efforts:
 
 | Session | Phases | Model | Effort |
 |---|---|---|---|
@@ -58,12 +62,14 @@ Each session runs its own model and effort:
 | B | refactor, ship | `opus` | `high` |
 | C | retro, lessons | `opus` | `high` |
 
-- **Start the worker**: `herdr pane run PANE "cd WT"`, then `herdr agent start WORKER --kind claude --pane PANE -- --model MODEL --effort EFFORT`, with MODEL and EFFORT from the current session's row, and `herdr pane report-metadata PANE --source orchestrate --display-agent "worker L"`. The shell can still be starting, or the last worker still exiting: if `agent start` returns `agent_pane_busy` or says the name is in use, run `sleep 3` and start it again, up to five times. If it returns `agent_not_ready`, a startup dialog such as folder trust holds the worker: answer it (see Answer a dialog).
-- **Stop the worker**: add `herdr agent get WORKER` `.result.agent.agent_session.value` to SESSIONS (the issue's list of worker session IDs, for the retro), then `herdr agent prompt WORKER "/exit"`. The pane stays.
+Codex sessions keep the model and reasoning effort from their Codex configuration. Start them without Claude Code's model aliases or effort flags.
+
+- **Start the worker**: `herdr pane run PANE "cd WT"`, then start the selected harness: for `claude`, `herdr agent start WORKER --kind claude --pane PANE -- --model MODEL --effort EFFORT`, with MODEL and EFFORT from the current session's row; for `codex`, `herdr agent start WORKER --kind codex --pane PANE`. Then run `herdr pane report-metadata PANE --source orchestrate --display-agent "worker L"`. The shell can still be starting, or the last worker still exiting: if `agent start` returns `agent_pane_busy` or says the name is in use, run `sleep 3` and start it again, up to five times. If it returns `agent_not_ready`, a startup dialog such as folder trust holds the worker: answer it (see Answer a dialog).
+- **Stop the worker**: add `herdr agent get WORKER` `.result.agent.agent_session.value` to SESSIONS (the issue's list of worker sessions, for the retro), with its transcript path under SESSION_ROOT when found, then `herdr agent prompt WORKER "/exit"`. The pane stays.
 - **Restart the worker**: stop it, then start it.
 - **Show phase P**: at the start of each phase below, set the lane's phase to `#N P` and run `herdr tab rename "$HERDR_TAB_ID" "<each busy lane's phase, joined by ' | '>"`.
 - **Wait for the worker**: run every `herdr agent prompt ... --wait` as a background command, so the other lanes go on meanwhile. When it returns, run `herdr agent wait WORKER --until idle --until done --until blocked` in the background and let it notify you. The wait can return `done` between two turns while sub-agents are still running, so then run `sleep 15` and `herdr agent get WORKER`: if it is `working`, wait for the worker again. If the worker is `blocked`, answer the dialog (see Answer a dialog) and wait for the worker again.
-- **Read the worker's reply**: `herdr agent read WORKER --source recent-unwrapped --lines <n>`. If that does not show the reply (the pane is scrolled up and shows a "new message" marker), read the last assistant text blocks from `~/.claude/projects/*/<session>.jsonl`, where `<session>` is `.result.agent.agent_session.value` from `herdr agent get WORKER`.
+- **Read the worker's reply**: `herdr agent read WORKER --source recent-unwrapped --lines <n>`. If that does not show the reply (the pane is scrolled up and shows a "new message" marker), locate its transcript under SESSION_ROOT by `.result.agent.agent_session.value` from `herdr agent get WORKER`, and read its last assistant text. Claude Code uses `<session>.jsonl`; Codex rollout filenames include the session ID and live in dated subdirectories. If no matching transcript is available, ask the idle worker to write its last reply to a temporary file and return the path, then read that file.
 
 ## Answers
 
@@ -131,7 +137,7 @@ Other lanes may have merged since this branch started. Wait for the ship slot (s
 ### 9. Retro (session C)
 
 1. Show phase `retro`. Restart the worker.
-2. Prompt `/retro the sessions <SESSIONS>, each at ~/.claude/projects/*/<id>.jsonl` (`--wait`, no timeout) and wait for the worker.
+2. Prompt `/retro the sessions <SESSIONS>, with transcripts under SESSION_ROOT` (`--wait`, no timeout), using the resolved session paths when recorded, and wait for the worker.
 3. Prompt `Apply every surviving candidate, most severe first, a check before a rule, including those whose source is outside this repo. Do not commit. Then list each candidate, one per line, as applied or not applied, with its target file and, if not applied, why.` (`--wait`) and wait for the worker.
 4. Add each applied candidate whose target file is outside the checkout to OUTSIDE (the run's list of outside changes: file, issue, one line on what changed). Add each candidate not applied to the friction log.
 

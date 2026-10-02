@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-02
+
+### Added
+
+- `orchestrate`: supports Codex hosts with Codex workers in every lane and phase. Workers follow the host harness, use `$name` skill prompts in Codex with literal shell quoting, and read session transcripts from the selected harness's own storage. Codex workers retain their configured model and reasoning effort; Claude Code keeps its phase-specific models and efforts. An unknown host or a missing CLI stops setup, and a failed launch never switches harnesses.
+
+### Changed
+
+- `ask-supermatt`: routes unattended work from either Claude Code or Codex and states that workers use the host harness.
+
 ## [0.12.2] - 2026-10-01
 
 ### Fixed
@@ -462,7 +472,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.12.2...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/svyatov/supermatt/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/svyatov/supermatt/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/svyatov/supermatt/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/svyatov/supermatt/compare/v0.11.0...v0.12.0
