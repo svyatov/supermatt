@@ -35,6 +35,8 @@ The route most work travels. You have an idea and want it built.
 
 When the issues are triaged and you want the queue worked without you, **`/orchestrate`** runs the main flow per issue, from inside a herdr pane in Claude Code or Codex. Its workers use the same harness that started it: Claude Code starts Claude Code, and Codex starts Codex. `/orchestrate 3` (`$orchestrate 3` in Codex) works three issues in parallel, each in its own pane and git worktree, and a branch that conflicts with one merged before it goes through `/resolving-merge-conflicts`. It opens a worker session in the lane's pane for each phase: `/triage` for an untriaged bug, `/implement`, `/fix-findings` for what the review left, `/refactor` and `/ship-pr`, then `/retro` and a merged lessons PR. It answers the workers' questions and dialogs itself (through `/what-would-you-do`), verifies each spec once its tickets close, and notifies you only when the queue is done or it needs you.
 
+Codex workers select their model by phase, with a fresh review session after implementation. See `/orchestrate`'s Worker section for the model and effort map.
+
 ### Context hygiene
 
 Keep steps 1-3 in **one unbroken context window** (don't compact or clear until after `/to-tickets`) so the grilling, spec, and tickets all build on the same thinking. Each `/implement` then starts fresh, working from the ticket.
