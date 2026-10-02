@@ -10,6 +10,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - `orchestrate`: selects Codex models by phase, using `gpt-6.1-sol` at medium effort for implementation and QA and `gpt-6-astra` at high effort for verification, triage, review, fixes, refactoring, and retrospective work. Codex implementation defers review to a fresh Astra session. The `ask-supermatt` router describes this selection.
 
+### Fixed
+
+- `orchestrate`: reads the visible viewport while a worker is active and captures history only after it settles. A history read that returns `agent_not_idle` switches to the visible viewport and continues, so a recoverable read-mode mismatch no longer parks a lane.
+- `qa`: checks browser profile, socket, and local-server access before driving scenarios. Archived base builds use private dependencies and generated caches, and a base comparison starts only after its normal screen renders.
+- `code-review`: scratch copies retain regular files and symlinks while excluding runtime sockets and device files, so sandbox restrictions on special files no longer fail the snapshot.
+
 ## [0.13.0] - 2026-10-02
 
 ### Added
