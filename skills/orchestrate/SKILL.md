@@ -62,9 +62,20 @@ Claude Code sessions use these models and efforts:
 | B | refactor, ship | `opus` | `high` |
 | C | retro, lessons | `opus` | `high` |
 
-Codex sessions keep the model and reasoning effort from their Codex configuration. Start them without Claude Code's model aliases or effort flags.
+Codex sessions use these models and reasoning efforts:
 
-- **Start the worker**: `herdr pane run PANE "cd WT"`, then start the selected harness: for `claude`, `herdr agent start WORKER --kind claude --pane PANE -- --model MODEL --effort EFFORT`, with MODEL and EFFORT from the current session's row; for `codex`, `herdr agent start WORKER --kind codex --pane PANE`. Then run `herdr pane report-metadata PANE --source orchestrate --display-agent "worker L"`. The shell can still be starting, or the last worker still exiting: if `agent start` returns `agent_pane_busy` or says the name is in use, run `sleep 3` and start it again, up to five times. If it returns `agent_not_ready`, a startup dialog such as folder trust holds the worker: answer it (see Answer a dialog).
+| Session | Phases | Model | Effort |
+|---|---|---|---|
+| V | verify | `gpt-6-astra` | `high` |
+| T | triage | `gpt-6-astra` | `high` |
+| A | implement, QA restart in step 3 | `gpt-6.1-sol` | `medium` |
+| A | review restart in step 3, fix | `gpt-6-astra` | `high` |
+| B | refactor, ship | `gpt-6-astra` | `high` |
+| C | retro, lessons | `gpt-6-astra` | `high` |
+
+Select the row for the phase being started on every launch and restart. In Codex, defer the review inside `/implement` to the fresh review worker in step 3, so it runs on Astra. If findings reach step 4 from a Sol worker, restart on the fix row before prompting `/fix-findings`; include each finding's full text and the issue reference, since the fresh session has no record of them.
+
+- **Start the worker**: `herdr pane run PANE "cd WT"`, then start the selected harness: for `claude`, `herdr agent start WORKER --kind claude --pane PANE -- --model MODEL --effort EFFORT`; for `codex`, `herdr agent start WORKER --kind codex --pane PANE -- --model MODEL -c model_reasoning_effort=EFFORT`, with MODEL and EFFORT from that harness's current phase row. Then run `herdr pane report-metadata PANE --source orchestrate --display-agent "worker L"`. The shell can still be starting, or the last worker still exiting: if `agent start` returns `agent_pane_busy` or says the name is in use, run `sleep 3` and start it again, up to five times. If it returns `agent_not_ready`, a startup dialog such as folder trust holds the worker: answer it (see Answer a dialog).
 - **Stop the worker**: add `herdr agent get WORKER` `.result.agent.agent_session.value` to SESSIONS (the issue's list of worker sessions, for the retro), with its transcript path under SESSION_ROOT when found, then `herdr agent prompt WORKER "/exit"`. The pane stays.
 - **Restart the worker**: stop it, then start it.
 - **Show phase P**: at the start of each phase below, set the lane's phase to `#N P` and run `herdr tab rename "$HERDR_TAB_ID" "<each busy lane's phase, joined by ' | '>"`.
@@ -86,7 +97,7 @@ Take the first line whose number is not in IN_FLIGHT. If there is none, the lane
 ### 2. Implement (session A)
 
 1. Show phase `implement`. Start the worker.
-2. `herdr agent prompt WORKER "/implement #N" --wait` with no `--timeout`, then wait for the worker. This can take a long time.
+2. `herdr agent prompt WORKER "/implement #N" --wait` with no `--timeout`, then wait for the worker. For Codex, append to the translated prompt: `Complete implementation and QA, then stop before code-review. The orchestrator will run code-review and fix its findings in a fresh session.` This can take a long time.
 3. Run `git -C WT log --oneline origin/DEFAULT..HEAD`. If it is empty, ask the five-line question from step 3. If QUESTION is not NONE, answer it, wait for the worker, and run this check again. Otherwise read the pane, report what the worker said, and park the lane.
 
 ### 3. Check the worker
@@ -100,8 +111,8 @@ herdr agent read WORKER --source recent-unwrapped --lines 40
 
 - BUSY=yes: run `sleep 60` in the background, then ask again. If BUSY is still yes after 30 minutes, park the lane.
 - QUESTION is not NONE: answer it (see Answer a question).
-- QA=NONE: run `git -C WT log --format=%s origin/DEFAULT..HEAD`. If every subject has the type `refactor`, the branch changes nothing a user can see: QA is `skipped, refactor only`. Otherwise restart the worker, prompt it with `/qa origin/DEFAULT #N` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
-- REVIEW=NONE: restart the worker, prompt it with `/code-review` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
+- QA=NONE: run `git -C WT log --format=%s origin/DEFAULT..HEAD`. If every subject has the type `refactor`, the branch changes nothing a user can see: QA is `skipped, refactor only`. Otherwise show phase `qa`, restart the worker, prompt it with `/qa origin/DEFAULT #N` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
+- REVIEW=NONE: show phase `review`, restart the worker, prompt it with `/code-review` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
 
 ### 4. Fix findings
 

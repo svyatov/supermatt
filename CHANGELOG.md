@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-02
+
+### Changed
+
+- `orchestrate`: selects Codex models by phase, using `gpt-6.1-sol` at medium effort for implementation and QA and `gpt-6-astra` at high effort for verification, triage, review, fixes, refactoring, and retrospective work. Codex implementation defers review to a fresh Astra session. The `ask-supermatt` router describes this selection.
+
 ## [0.13.0] - 2026-10-02
 
 ### Added
@@ -472,7 +478,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.13.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/svyatov/supermatt/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/svyatov/supermatt/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/svyatov/supermatt/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/svyatov/supermatt/compare/v0.12.0...v0.12.1
