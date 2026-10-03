@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: "Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo."
+description: "Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and report lessons for the operator."
 argument-hint: "[parallel runs]"
 disable-model-invocation: true
 compatibility: Designed for Claude Code and Codex. Requires the host harness CLI, herdr, gh, and Bun or Node.js 18.17 or later (built-in modules only). The notification uses osascript, so it shows on macOS only.
@@ -14,7 +14,7 @@ You are the orchestrator. You do not write code. You pick issues, drive workers 
 1. **T**: `/triage #N`, only for a bug that is not triaged yet, to make it ready for an agent.
 2. **A**: `/implement #N`, which QAs, reviews, and fixes its own work, then any fixes it left.
 3. **B**: `/refactor`, then `/ship-pr` to merge.
-4. **C**: `/retro` over A and B, then the lessons it finds, merged into the repo so the next `/implement` starts from them.
+4. **C**: `/retro` over A and B, reporting candidates for the operator without applying them.
 
 Repeat until a stop condition is met. Never ask the user anything, through a question tool or otherwise: answer every question and dialog as below.
 
@@ -25,7 +25,7 @@ Repeat until a stop condition is met. Never ask the user anything, through a que
 3. Set KIND from the harness running this skill: `codex` for Codex, `claude` for Claude Code. Use the current session's harness identity first; when it is unavailable, `CLAUDE_CODE_CHILD_SESSION=1` identifies Claude Code, and any of `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID` identifies Codex. `CLAUDECODE` alone is insufficient because IDE terminals can inherit it. If the harness is unknown or `command -v KIND` fails, say so and stop. Every worker and restart uses KIND; a failed launch parks its lane instead of switching harnesses. For Claude Code, SESSION_ROOT is `$CLAUDE_CONFIG_DIR/projects/`, or `~/.claude/projects/` when unset. For Codex, it is `$CODEX_HOME/sessions/`, or `~/.codex/sessions/` when unset. Send skills using the notation below.
 4. Run `herdr --skill` and follow its rules. Parse every ID from JSON output. Never close a tab or pane you did not create.
 5. Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If either is missing, or the tracker is not GitHub, say so and stop. READY, BUG, and TRIAGE are the label strings that `triage-labels.md` maps to the ready-for-agent, bug, and needs-triage roles.
-6. Your working directory is the repo's main checkout. It stays on DEFAULT for the whole run; the workers work in the lanes' worktrees. DEFAULT is the output of `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`. Run `git switch DEFAULT && git pull --ff-only`. The tree must be clean. If it is not, stop. If `git check-ignore -q .claude/worktrees/x` fails, append the line `.claude/worktrees/` to `.git/info/exclude`, so the worktrees stay out of `git status`.
+6. Your working directory is the repo's main checkout. It stays on DEFAULT for the whole run; the workers work in the lanes' worktrees. DEFAULT is the output of `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`. Run `git switch DEFAULT && git -c pull.rebase=false pull --ff-only`. The command-local setting keeps a user's rebase default out of this fast-forward operation. The tree must be clean. If it is not, stop. If `git check-ignore -q .claude/worktrees/x` fails, append the line `.claude/worktrees/` to `.git/info/exclude`, so the worktrees stay out of `git status`.
 7. LANES is the number in the arguments, or 1 when there is none. RUN_START is `date -u +%Y-%m-%dT%H:%M:%SZ`. RUN is `bun` when `command -v bun` finds it, else `node`. Run `RUN <this skill's directory>/scripts/next-issue.mjs READY BUG TRIAGE` and print the queue it lists, so the operator sees what will run.
 8. Open the lanes (see Lanes).
 
@@ -38,8 +38,8 @@ Every `/name` skill reference below and in the linked procedures is notation: tr
 Lane L, from 1 to LANES, has a pane, a worker agent named `PROJECT-work-K-L`, and a worktree at `<repo root>/.claude/worktrees/orch-K-L`, inside the repo so Claude Code's folder trust carries over. Codex uses the same worktree location. Below, PANE, WORKER, and WT are the current lane's, and every git command about the lane's work runs as `git -C WT`. IN_FLIGHT is the set of issues the lanes hold, parked lanes included.
 
 - **Open the lanes** once, at setup, as shell panes stacked in one column right of yours, with equal heights. Lane 1: `herdr pane split "$HERDR_PANE_ID" --direction right --no-focus --cwd "$PWD"`. Lane L above 1: `herdr pane split <lane L-1's pane> --direction down --ratio R --no-focus --cwd "$PWD"`, where R is 1/(LANES-L+2), the share lane L-1 keeps. Save each `.result.pane.pane_id`. The panes stay for the whole run.
-- **Create the worktree** on branch B: `git fetch origin && git worktree add -b B WT origin/DEFAULT`, or `git worktree add --detach WT origin/DEFAULT` with no branch. Then copy each `.env*` file at the repo root from the main checkout to WT, when one exists: it is ignored, so a new worktree lacks it.
-- **Remove the worktree**: if WT exists, `git worktree remove WT`, and if branch B is still local, `git branch -D B`. A worktree with changes refuses: then park the lane.
+- **Create the worktree** on branch B: `git fetch origin && git worktree add -b B WT origin/DEFAULT`, or `git worktree add --detach WT origin/DEFAULT` with no branch. Leave `.env*` files uncopied by default. Have the worker try the repository's checks and local preview without credentials. Supply environment values only when a required operation reports that it needs them and existing user authorization permits access. Preserve user restrictions on reading, copying, linking, or loading environment files; if a required value cannot be supplied within those restrictions, park the lane with the exact requirement.
+- **Remove the worktree**: stop any live worker and confirm its harness process has exited, so its hooks no longer need WT. If WT exists, `git worktree remove WT`, and if branch B is still local, `git branch -D B`. A worker that has not exited or a worktree with changes parks the lane.
 - **Park the lane**: stop driving it, ignore its later notifications, and leave its pane, worker, and worktree as they are. Its issue stays in IN_FLIGHT. If it holds the ship slot, release it. Send the notification (see On stop) with the title `PROJECT lane L needs you` and the reason as its body, and add the reason to the friction log. The other lanes go on.
 
 ## Run the lanes
@@ -47,7 +47,7 @@ Lane L, from 1 to LANES, has a pane, a worker agent named `PROJECT-work-K-L`, an
 Each lane runs the Loop on its own issue. Start by running Pick the issue for lanes 1 to LANES in order, so lane 1 takes the first issue in the queue. Then act on whichever lane's background wait notifies you, take that lane through its next steps up to its next wait, and wait again.
 
 - A lane whose Pick finds nothing goes idle. Whenever an issue closes or a lane goes back to Pick, run Pick for every idle lane too: a closed issue can unblock others.
-- The ship slot: one lane at a time runs from Sync to the end of Close out, and from the lessons sync to its merge, so no other merge lands between a branch's sync and its own merge. A lane that reaches Sync while another holds the slot waits for it.
+- The ship slot: one lane at a time runs from Sync to the end of Close out, so no other merge lands between a branch's sync and its own merge. A lane that reaches Sync while another holds the slot waits for it.
 - When every lane is idle or parked, stop (see Stop conditions).
 
 ## Worker
@@ -60,7 +60,7 @@ Claude Code sessions use these models and efforts:
 | T | triage | `opus` | `high` |
 | A | implement, the QA and review restarts in step 3, fix | `sonnet` | `high` |
 | B | refactor, ship | `opus` | `high` |
-| C | retro, lessons | `opus` | `high` |
+| C | retro | `opus` | `high` |
 
 Codex sessions use these models and reasoning efforts:
 
@@ -71,7 +71,7 @@ Codex sessions use these models and reasoning efforts:
 | A | implement, QA restart in step 3 | `gpt-6.1-sol` | `medium` |
 | A | review restart in step 3, fix | `gpt-6-astra` | `high` |
 | B | refactor, ship | `gpt-6-astra` | `high` |
-| C | retro, lessons | `gpt-6-astra` | `high` |
+| C | retro | `gpt-6-astra` | `high` |
 
 Select the row for the phase being started on every launch and restart. In Codex, defer the review inside `/implement` to the fresh review worker in step 3, so it runs on Astra. If findings reach step 4 from a Sol worker, restart on the fix row before prompting `/fix-findings`; include each finding's full text and the issue reference, since the fresh session has no record of them.
 
@@ -102,7 +102,7 @@ Take the first line whose number is not in IN_FLIGHT. If there is none, the lane
 
 ### 3. Check the worker
 
-Ask the worker, do not guess from scrollback:
+Keep the latest QA and review reports with their checked commits in the lane's state; request them from the worker if its handoff gives only verdicts. A fresh worker's `NONE` means that session has no result; it does not erase an earlier result or its open findings. Before reusing one, inspect changes since its checked commit: retain unaffected QA evidence and review dispositions, and pass the prior reports and intervening diff to any follow-up. Review is current only when the intervening diff is empty or a completed follow-up covers it. Missing reports or changes that invalidate coverage require verification. Ask the worker, do not guess from scrollback:
 
 ```bash
 herdr agent prompt WORKER "Reply with exactly five lines and nothing else. Line 1: BUSY=<yes if a background task or sub-agent you started is still running, else no>. Line 2: QA=<the verdict line of the last QA pass in this session, or NONE if none ran>. Line 3: REVIEW=<the verdict line of the code-review you ran in this session, or NONE if you did not run it>. Line 4: UNFIXED=<the code, or file:line if it has no code, of each verified finding and each QA fail that is still open: not fixed, and not settled by an answer to your question, or NONE>. Line 5: QUESTION=<a question you asked the user in this session that has no answer yet, or NONE>." --wait
@@ -111,12 +111,12 @@ herdr agent read WORKER --source recent-unwrapped --lines 40
 
 - BUSY=yes: run `sleep 60` in the background, then ask again. If BUSY is still yes after 30 minutes, park the lane.
 - QUESTION is not NONE: answer it (see Answer a question).
-- QA=NONE: run `git -C WT log --format=%s origin/DEFAULT..HEAD`. If every subject has the type `refactor`, the branch changes nothing a user can see: QA is `skipped, refactor only`. Otherwise show phase `qa`, restart the worker, prompt it with `/qa origin/DEFAULT #N` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
-- REVIEW=NONE: show phase `review`, restart the worker, prompt it with `/code-review` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
+- QA=NONE with no reusable lane result: run `git -C WT log --format=%s origin/DEFAULT..HEAD`. If every subject has the type `refactor`, the branch changes nothing a user can see: QA is `skipped, refactor only`. Otherwise show phase `qa`, restart the worker, prompt it with `/qa origin/DEFAULT #N` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
+- REVIEW=NONE with no reusable lane result: show phase `review`, restart the worker, prompt it with `/code-review` (`--wait`, no timeout), and wait for the worker. Ask it the same five-line question.
 
 ### 4. Fix findings
 
-If UNFIXED is not NONE, show phase `fix`, prompt the current worker with `/fix-findings <the UNFIXED value>` (`--wait`) and wait for the worker. Then ask the five-line question again, and answer any open question. A finding that `/fix-findings` settled with no edit, because the option it applied (its own recommendation, or what the issue asks for) keeps the code as it is, counts as fixed. If UNFIXED still names a finding that is open, park the lane. Then prompt `/commit` (`--wait`) and wait for the worker, so the tree is clean for session B.
+If UNFIXED is not NONE, show phase `fix`, prompt the current worker with `/fix-findings <the UNFIXED value>` (`--wait`), the prior reports and their checked commits, and instructions to use [implement's follow-up verification](../implement/SKILL.md#follow-up-verification). Wait for the worker. Then ask the five-line question again, and answer any open question. A finding that `/fix-findings` settled with no edit, because the option it applied (its own recommendation, or what the issue asks for) keeps the code as it is, counts as fixed. If UNFIXED still names a finding that is open, park the lane. Then prompt `/commit` (`--wait`) and wait for the worker, so the tree is clean for session B.
 
 ### 5. Refactor (session B)
 
@@ -141,29 +141,21 @@ Other lanes may have merged since this branch started. Wait for the ship slot (s
 ### 8. Close out
 
 1. If issue N is still open, run `gh issue close N --comment "Merged in <PR URL>."`. A closed issue unblocks the issues that wait on it.
-2. In the main checkout: `git pull --ff-only`. The tree must be clean.
-3. Remove the worktree (`/ship-pr` may have removed it already, to merge from the main checkout). Release the ship slot.
-4. Create the worktree on branch `chore/lessons-N`, for the retro's changes.
+2. Stop the worker and confirm its harness process has exited.
+3. In the main checkout: `git -c pull.rebase=false pull --ff-only`. The tree must be clean.
+4. Remove the clean worktree and release the ship slot.
+5. Create a detached worktree for the read-only retrospective.
 
 ### 9. Retro (session C)
 
-1. Show phase `retro`. Restart the worker.
-2. Prompt `/retro the sessions <SESSIONS>, with transcripts under SESSION_ROOT` (`--wait`, no timeout), using the resolved session paths when recorded, and wait for the worker.
-3. Prompt `Apply every surviving candidate, most severe first, a check before a rule, including those whose source is outside this repo. Do not commit. Then list each candidate, one per line, as applied or not applied, with its target file and, if not applied, why.` (`--wait`) and wait for the worker.
-4. Add each applied candidate whose target file is outside the checkout to OUTSIDE (the run's list of outside changes: file, issue, one line on what changed). Add each candidate not applied to the friction log.
+1. Show phase `retro`. Start the worker.
+2. Prompt `/retro the sessions <SESSIONS>, with transcripts under SESSION_ROOT. Report candidates only. Leave this repository and external sources unchanged; do not apply candidates, create checks, file issues, or publish a lessons PR.` (`--wait`, no timeout), using the resolved session paths when recorded, and wait for the worker.
+3. Record each surviving candidate in the friction log with its source and proposed fix. LESSONS is `none` or `<count> candidates reported`. Applying candidates is separate work for an explicit user request, not another step in this loop.
+4. Stop the worker and confirm its harness process has exited. Confirm `git -C WT status --porcelain` is empty. Unexpected changes park the lane for inspection; do not commit or discard them. Remove the clean worktree and go to Report.
 
-### 10. Store the lessons
+### 10. Report
 
-Show phase `lessons`. Run `git -C WT status --porcelain`.
-
-- Nothing changed: LESSONS is `none`. Remove the worktree and go to Report.
-- Anything changed: prompt `/commit lessons from #N` (`--wait`) and wait for the worker. Wait for the ship slot, then run the rebase of Sync step 1, and Sync step 2 on conflicts (no QA: lessons change no behavior). Prompt `/ship-pr lessons from #N` (`--wait`, no timeout) and wait for the worker. Do not add `[skip ci]`: a ruleset that requires checks blocks the merge of a PR whose checks never ran.
-
-Find the PR URL in the worker's last 60 lines and confirm with `gh pr view <url> --json state`. If it is not MERGED, park the lane with the reason. LESSONS is the PR URL. In the main checkout, run `git pull --ff-only`. Remove the worktree and release the ship slot.
-
-### 11. Report
-
-1. Stop the worker. Drop N from IN_FLIGHT.
+1. Drop N from IN_FLIGHT.
 2. Run `gh issue list --state all --search "created:>=RUN_START" --json number,title` and add each issue not yet in the friction log as `filed #M title`. Workers file bugs they find outside their issue; the next pick takes them first.
 3. Report one line: `lane L: #N -> <PR URL>, merged, QA <verdict>, review <verdict>, lessons <LESSONS>`.
 4. Go back to Pick the issue.
@@ -171,8 +163,8 @@ Find the PR URL in the worker's last 60 lines and confirm with `gh pr view <url>
 ## Operator
 
 - **Pause**: the operator can type into your pane while you work. A request to pause or stop means every busy lane finishes its current issue through Report and no lane picks a new one; then stop. A request to stop now means stop at once.
-- **Friction log**: keep a running list across issues, each entry with its lane and issue: each dialog and question you answered (phase, what you chose), each `--wait` that returned `timeout` or `agent_prompt_stalled`, each restart of the worker outside Refactor and Retro, each rebase conflict, each parked lane and its reason, each unapplied retro candidate, each triage outcome other than READY, and each issue filed during the run. Print it when you stop; it is the operator's input for tuning this skill.
-- **On stop**: send one macOS notification, then print the reason, the friction log, and OUTSIDE: each changed file with its issue and what changed, grouped by repo, then `git -C <repo> diff --stat` for each repo, so the operator can review and commit them. The operator is notified only here and when a lane parks: when the run is finished, or when it needs them.
+- **Friction log**: keep a running list across issues, each entry with its lane and issue: each dialog and question you answered (phase, what you chose), each `--wait` that returned `timeout` or `agent_prompt_stalled`, each restart of the worker outside Refactor and Retro, each rebase conflict, each parked lane and its reason, each reported retro candidate, each triage outcome other than READY, and each issue filed during the run. Print it when you stop; it is the operator's input for tuning this skill.
+- **On stop**: send one macOS notification, then print the reason and the friction log, including reported retrospective candidates. The operator is notified only here and when a lane parks: when the run is finished, or when it needs them.
   - No lane is parked: title `PROJECT done`, body `<count> issues merged, <count> filed`.
   - A lane is parked, or Setup failed: title `PROJECT needs you`, body the reason, or each parked lane with its issue and reason.
 
@@ -180,13 +172,13 @@ Find the PR URL in the worker's last 60 lines and confirm with `gh pr view <url>
 
 ## Stop conditions
 
-Park the lane when: triage left a bug untriaged, a spec found gaps on its second verification, `/implement` made no commits, a question stays open after three answer rounds, a dialog stays open after two answers, the worker asks to run an unsafe action, findings stay unfixed after `/fix-findings`, a rebase stays unfinished after `/resolving-merge-conflicts` or its QA fails, the PR or the lessons PR does not merge, a worktree with changes refuses removal, or a herdr, gh, or git command about the lane fails.
+Park the lane when: triage left a bug untriaged, a spec found gaps on its second verification, `/implement` made no commits, a question stays open after three answer rounds, a dialog stays open after two answers, the worker asks to run an unsafe action, findings stay unfixed after `/fix-findings`, a rebase stays unfinished after `/resolving-merge-conflicts` or its QA fails, the issue PR does not merge, the read-only retrospective changes files, a worktree with changes refuses removal, or a herdr, gh, or git command about the lane fails.
 
 Stop the run when every lane is idle or parked: the queue has nothing left that no lane holds, or the operator paused. Stop it at once when a Setup step fails or a herdr command about the run itself fails. On stop, close the panes of idle lanes, and leave the panes and worktrees of parked lanes open, so the operator can inspect them.
 
 ## Rules
 
-- One issue per lane, so at most LANES in flight. A lane starts its next issue only after its issue and lessons are merged.
+- One issue per lane, so at most LANES in flight. A lane starts its next issue after its issue is merged and its retrospective candidates are reported.
 - One lane at a time holds the ship slot.
 - Never remove a worktree the run did not create.
 - Run unattended. Never hand a question or dialog to the user; answer it as above.

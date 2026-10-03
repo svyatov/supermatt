@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.14.2] - 2026-10-02
+
+### Fixed
+
+- `ship-pr`: keeps the active worker's worktree through merge verification and reporting, leaving cleanup until the worker exits. Scratch hook runs require dependency resolution and runtime startup preflight before pushing.
+- `orchestrate`: stops workers before removing their worktrees and makes fast-forward pulls independent of the user's rebase default.
+- `code-review`: requires dependency preflight before scratch execution, with a shared Node/Bun resolution check that detects lost ancestor dependencies without executing packages.
+
+## [0.14.1] - 2026-10-02
+
+### Fixed
+
+- `qa`: keeps reports, scenarios, screenshots, and raw evidence in the OS temporary directory, including caller handoffs. Saving or committing QA artifacts in the repository requires an explicit user request. Cleanup retains cited evidence in its temporary location. Follow-ups reuse unaffected evidence and check the fixes and adjacent regressions. Browser runs reuse verified previews and working drivers, preserve startup details, and stop only their own processes.
+- `code-review`: handles exhausted host-reader slots with queued readers or an explicit same-family CLI fallback. Reader and validator prompts distinguish writable scratch execution from read-only review, send write-dependent reproductions to the host, and report permission failures as execution gaps without weakening the CLI sandbox. Follow-ups review changes since the previous reviewed commit and reuse valid checks and builds; test-only fixes keep existing browser QA.
+- `tdd`: runs affected-seam tests and scoped lint/typechecks during cycles, then the repository's full required gate for completed work. Several cycles can complete one behavior, and unchanged checks can be reused without bypassing repository rules or hooks.
+- `implement`: commits completed behaviors rather than every TDD cycle, runs missing or invalidated gate checks once, passes working preview details to independent QA, and carries prior reports into bounded fix verification.
+- `orchestrate`: keeps QA and review results across worker restarts and uses follow-up verification for fixes. Retrospectives report candidates without automatically applying them, editing external sources, or creating lessons PRs.
+- `ask-supermatt`: describes focused TDD cycles, bounded verification follow-ups, and report-only orchestration retrospectives.
+
 ## [0.14.0] - 2026-10-02
 
 ### Changed
@@ -484,7 +503,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.14.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.14.2...HEAD
+[0.14.2]: https://github.com/svyatov/supermatt/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/svyatov/supermatt/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/svyatov/supermatt/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/svyatov/supermatt/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/svyatov/supermatt/compare/v0.12.1...v0.12.2

@@ -7,10 +7,11 @@ An action is safe when everything it deletes, overwrites, or rewrites is inside 
 - Clear a cache that rebuilds itself: a subfolder of `~/.cache`, or a package manager's own clean command (`bun pm cache rm`, `npm cache clean`).
 - Remove a `mktemp -d` directory that the worker made in this run, under `$TMPDIR` or `/tmp`. Before you answer, read the path it names and list the directory.
 - Remove a git worktree of this repo whose tree is clean (`git -C <path> status --porcelain` prints nothing).
-- Push the issue branch or the lessons branch, `--force-with-lease` included, and delete it locally or on the remote after its PR merged.
-- In the retro phase, edit a file outside the checkout that a retro candidate names as its source (a skill, a global steering file such as `~/.claude/CLAUDE.md`), left uncommitted for the operator.
+- Push the issue branch, `--force-with-lease` included, and delete it locally or on the remote after its PR merged.
 
 Every other delete, overwrite, or rewrite outside the checkout is unsafe: files elsewhere in the home folder, another repo, system config, anything with `sudo`, a push to DEFAULT, or a force-push to any other branch.
+
+The retrospective is report-only. If its worker asks to apply a candidate, tell it to report the candidate and continue without editing or publishing, even when the proposed action would otherwise be safe.
 
 ## Answer a dialog
 
