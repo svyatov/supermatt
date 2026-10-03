@@ -30,6 +30,8 @@ Resolve the merge-base once with `git merge-base <fixed-point> HEAD`, create a f
 
 Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside six parallel readers.
 
+For a follow-up, use the last reviewed commit as the fixed point and include the prior aggregate report. All axes review the fix diff and the behavior it can affect; unchanged findings keep their recorded disposition. A new defect made reachable by the fix remains in scope. Reuse test results and built artifacts only when their relevant source, dependencies, configuration, and environment are unchanged. For a test-only fix, verify that the revised assertion fails for the reported break and passes on the corrected behavior; browser QA of unchanged runtime code remains valid, and no fresh application build is needed solely to review the assertion.
+
 ### 2. Identify the spec source
 
 Look for the originating spec, in this order:
@@ -77,7 +79,9 @@ If the spec is missing, skip the Spec axis and note this in the final report.
 
 **Adversarial prompt** is the contents of [ADVERSARIAL.md](ADVERSARIAL.md), then the finding rules, then the diff file path and commit list, then the test command this session ran and its result (the peer runs read-only and often cannot build), then, when the repo builds a program, the path of one built from `HEAD` so a reader can run a trigger instead of only tracing it, then "Under 400 words."
 
-Build that program in `$DIR` with the repo's own build command (a build binary already in the checkout may predate the change). The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under `$DIR` now, and name it in the Adversarial prompt. Write each axis prompt, with every path in it absolute, to `$DIR/<axis>.prompt.md` (`standards`, `spec`, `adversarial`), and write each fixture's contents the same way, with the file-writing tool (Claude Code: Write), keeping the shell for `mkdir`, `git`, and `ln`.
+When a fresh build is needed, build that program in `$DIR` with the repo's own build command; an existing artifact is usable only with evidence of the source and configuration that produced it. The peer cannot write anywhere, so it can only run a trigger whose state already exists: create any fixture, config, or first-run setup the program needs under `$DIR` now, and name it in the Adversarial prompt. Write each axis prompt, with every path in it absolute, to `$DIR/<axis>.prompt.md` (`standards`, `spec`, `adversarial`), and write each fixture's contents the same way, with the file-writing tool (Claude Code: Write), keeping the shell for `mkdir`, `git`, and `ln`.
+
+Before running a copied tree, complete the [scratch dependency preflight](SCRATCH.md). Include that procedure's absolute path in every reader and validator prompt that permits scratch execution.
 
 Save the state of the working tree with `git status --short > "$DIR/tree.before"` and `git diff HEAD >> "$DIR/tree.before"`, then start every reader at once:
 
@@ -87,6 +91,10 @@ Save the state of the working tree with `git status --short > "$DIR/tree.before"
   - `claude`: it has no shell, so first build its input `$DIR/<axis>.peer-in.md`: the prompt file, then each `$DIR` text file the prompt names (the diff, `spec.md` when the spec lives there, text fixtures; never the built program, which this peer cannot run), each between `=== BEGIN <file> <nonce> ===` and `=== END <file> <nonce> ===` lines, where `<nonce>` is one `openssl rand -hex 8` value, so a diff cannot close its own block and pose as instructions. Then run `claude -p --safe-mode --strict-mcp-config --tools Read Grep Glob --permission-mode dontAsk --effort high --no-session-persistence < "$DIR/<axis>.peer-in.md" > "$DIR/<axis>.peer.md"`. When the Codex sandbox blocks its network access, request escalated permissions for this command.
 
 Each flag set keeps the peer read-only, with no MCP servers, plugins, or approval escalation, so it cannot write through the user's own config. The `codex` flags also skip the user's `config.toml`, so that peer runs on the CLI's default model; `claude --safe-mode` keeps the user's model selection. Both run at high reasoning effort.
+
+**Capacity fallback.** When a host-reader slot is unavailable, queue that axis until a slot is free. If the harness cannot free a slot, use a fresh same-family CLI reader with the read-only flags above, the axis prompt, and the execution-access brief below instead of the host's scratch-copy instructions. Name it as a same-family fallback in the report, not as cross-model coverage. Apply the same fallback to host validators in step 7.
+
+**Execution access.** Include this brief in every reader and validator prompt: "Keep the repository and prepared evidence unchanged. Before a scratch trigger or mutation, verify that this run can write to its assigned scratch directory and a temporary directory inside it; set `TMPDIR` to that temporary directory for the trigger. A read-only run uses prepared evidence and read-only triggers. If reproduction needs writes, send the orchestrating host the exact trigger or mutation and required files. The host runs it in an isolated scratch copy and returns the command, exit status, and output for independent assessment. A permission failure is an execution gap, not a product failure or a passing test. If execution remains unavailable, report the limit and use only the evidence actually obtained." Preserve the CLI's read-only sandbox when using this path.
 
 Wait for every reader before step 6. With nothing else to do while they run, wait in short calls (`sleep 20`), so each completion notice lands between them: one long sleep holds the notice until the sleep ends. When a peer run exits non-zero, leaves its output empty, says it could not read or review the diff, or has not finished 15 minutes after it started, stop it: its axis keeps the host reader only, and the report notes the reason. A usage-limit failure stops the other peer runs too, since they share the limit. An axis is **incomplete** when neither of its readers finished it.
 
@@ -103,7 +111,7 @@ A `[both]` finding whose two readers gave the same severity is already confirmed
 - **Peer findings**: one host validator sub-agent.
 - **Host findings**: the peer. Write `$DIR/validate.prompt.md` and run the step 5 peer command on it, writing `$DIR/validate.peer.md`. When there is no peer, the host validator sub-agent takes these findings too, and the report notes that they were validated by the same model. When the peer run fails as in step 5, these findings are `not validated`.
 
-Each validator prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then its numbered findings with their axis, quote, and reasoning, then the diff file path and commit list.
+Each validator prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then the execution-access brief from step 5, then its numbered findings with their axis, quote, and reasoning, then the diff file path and commit list.
 
 Apply the verdicts to each finding on its own axis:
 

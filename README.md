@@ -106,7 +106,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 - `code-review` adds a third axis, **Adversarial**: how does the change fail in production? Its brief also runs security, public contract, migration, reliability, and concurrency checks on the parts of the diff they apply to. Every axis has two readers, a sub-agent and a second model (`codex` from Claude Code, `claude` from Codex), and a finding both raise is marked `[both]`. Findings carry P0-P3 severities and quote the lines they cite. The model that did not raise a P0, P1, or P2 finding validates it before the review ends with a verdict, and the Standards axis also checks that tests exercise the changed behavior. Upstream reviews on two axes, Standards and Spec.
 - `to-spec` checks the draft spec in a fresh-context sub-agent before it publishes it.
-- `tdd` checks that each test goes red for the reason it names, counts a cycle green only when the full suite passes, ends with a mutation check, and flags change-detector tests.
+- `tdd` checks that each test goes red for the reason it names, runs affected-seam checks during cycles and the full required gate for completed work, ends with a mutation check, and flags change-detector tests.
 - `diagnosing-bugs` asks what you already tried, rules out the environment and uncommitted work, and fixes nothing until the causal chain has no gaps. It escalates to you after 2-3 dead hypotheses or 3 failed fixes.
 - `improve-architecture` assesses the codebase first and stops when it is healthy. It finds hot spots by change count over the last year, maps the structure before it looks for friction, visits every module in the map, and skips modules that are shallow by design. `refactor` and `improve-tests` gate on an assessment the same way.
 - `qa`, new in SuperMatt, runs the changed program the way its user would (a terminal program in tmux, a web app in a browser) and checks every requested behavior before `code-review` reads the code.
@@ -114,11 +114,11 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Skills hand off to each other
 
-- `implement` runs the full suite before every commit, runs `qa` in a fresh sub-agent and fixes every fail test-first, passes the spec to `code-review`, fixes the verified P0 and P1 findings, and closes each issue once the review is clean.
+- `implement` completes the full required gate before committing each finished behavior, reuses checks whose inputs are unchanged, runs `qa` in a fresh sub-agent and fixes every fail test-first, then passes the spec to `code-review`. Follow-ups check the fix diff and affected behavior. Every verified finding is fixed or raised as a question; the issue stays open until merge.
 - `diagnosing-bugs` writes the regression test through `tdd` and reviews the fix with `code-review`, using the bug report as the spec.
 - Test seams agreed in `to-spec` or `triage` travel through `to-tickets` into `implement` and `tdd`, so no skill asks about them twice.
 - Each planning skill ends by pointing to the next step: `ideate` to `/grill-with-docs`, `improve-architecture` to `/to-spec` or `/implement`, and `wayfinder` to `/to-spec`.
-- `orchestrate`, new in SuperMatt, chains `triage`, `implement`, `fix-findings`, `refactor`, `ship-pr`, and `retro` across fresh worker sessions, and verifies each spec with `qa` and `code-review` once its tickets close.
+- `orchestrate`, new in SuperMatt, chains `triage`, `implement`, `fix-findings`, `refactor`, `ship-pr`, and a report-only `retro` across fresh worker sessions, and verifies each spec with `qa` and `code-review` once its tickets close. It reports retrospective candidates without applying or shipping them.
 - `ask-supermatt` routes across all of these flows and is kept in sync with every skill change.
 
 ### Refactors keep behavior
@@ -175,7 +175,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[improve-architecture](./skills/improve-architecture/SKILL.md)** | Assess a codebase's architecture and stop when it is healthy; otherwise map the structure, list deepening opportunities, grill and design the one you pick, and hand a plan to `/implement`. |
 | **[refactor](./skills/refactor/SKILL.md)** | Refactor code at method, file, or project scope without changing behavior. Assesses first and stops when the code is clean, and gates edits on test coverage. |
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
-| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and store the lessons of each run in the repo. |
+| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and report lessons for the operator. |
 | **[commit](./skills/commit/SKILL.md)** | Commit all changes on the current branch, main included, after a scan for secrets. |
 | **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, wait for green CI, then squash merge and close the issues it finishes. |
 | **[fix-findings](./skills/fix-findings/SKILL.md)** | Apply every finding from the most recent review, audit, verification, or check, at the root cause and without widening scope. |

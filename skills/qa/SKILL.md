@@ -12,7 +12,7 @@ QA hunts for the fail. The author of a change grades it too kindly, so when this
 
 QA runs before `code-review`: once QA shows the change does what was asked, the review can spend itself on how the code is written and how it fails.
 
-QA reports to its caller and leaves the code and the issue tracker as it found them: it files, comments on, and labels no issue, since a fail in unmerged work is the caller's to fix, not a ticket. Scratch state goes in `$DIR`, a fresh `mktemp -d`. The caller fixes each fail, test-first, and runs QA again.
+QA reports to its caller and leaves the code and the issue tracker as it found them: it files, comments on, and labels no issue, since a fail in unmerged work is the caller's to fix, not a ticket. Scratch state, scenario lists, reports, screenshots, and raw evidence go in `$DIR`, a fresh `mktemp -d` in the OS temporary directory outside the repository. Return the report to the caller with paths to retained evidence there. Saving or committing QA artifacts in the repository requires an explicit user request; callers keep the same storage rule when handing off or shipping the work. The caller fixes each fail, test-first, and runs QA again.
 
 ## Process
 
@@ -22,9 +22,11 @@ The change is the diff since a fixed point: the one the caller or user names; el
 
 The request is what the change was meant to do: the spec or issue the caller passes, else the issue its commits reference, else the request settled in this conversation. With none, ask.
 
+For a follow-up with a prior report and its tested commit, inspect the intervening diff. Rerun the earlier fails, scenarios affected by the fix, and one adjacent regression flow. Carry forward unaffected passes and blocked scenarios with their original evidence and tested commit; a gap stays blocked until observed. Expand only where the diff, a new failure, or an explicit repository requirement makes earlier evidence invalid. Without a usable prior report, run the full pass. A test-only or report-only diff with unchanged runtime code and configuration keeps the earlier browser verdict.
+
 ### 2. Write the scenarios
 
-A **scenario** is one thing a user does and the result they should then see: the steps, and the expected result taken from the request. Write the list to `$DIR/scenarios.md` before you launch anything, covering:
+A **scenario** is one thing a user does and the result they should then see: the steps, and the expected result taken from the request. Write the list to `$DIR/scenarios.md` before you launch anything, distinguishing reruns from carried-forward evidence on a follow-up. A full pass covers:
 
 - every requirement in the request;
 - every user-reachable path the diff changes that the request never names (a new flag, a reworded message, a moved button);
@@ -42,7 +44,7 @@ Done when every requirement and every changed user-reachable path maps to at lea
 
 ### 3. Launch the program
 
-Build and start it from the working tree with the repo's own commands (its README, `package.json` scripts, `Makefile`, or `--help`). Point it at scratch state: a directory under `$DIR`, a test database, a seeded test account, a local server. A scenario that can only run against real user data, a production service, or a live account is **blocked**: name what it needs and move on.
+Use the repository's own build and start commands (its README, `package.json` scripts, `Makefile`, or `--help`) when a current build or preview is not already available and verified. Point it at scratch state: a directory under `$DIR`, a test database, a seeded test account, a local server. A scenario that can only run against real user data, a production service, or a live account is **blocked**: name what it needs and move on.
 
 Pick the driver by the program's interface:
 
@@ -50,15 +52,15 @@ Pick the driver by the program's interface:
 - A web app: read [BROWSER.md](BROWSER.md).
 - A library or HTTP API with no UI: call its public interface from a scratch script in `$DIR`, or with `curl`, the way its caller would.
 
-### 4. Run every scenario
+### 4. Run the required scenarios
 
-Do each step as the user would: type the command, press the keys, click, fill in the form, submit. After each step, read what the program shows and compare it with the expected result. Check the logs, stderr, and browser console for errors on every scenario, passing ones too.
+Run every scenario on an initial pass; on a follow-up, run those selected in step 1 and retain the others with their prior evidence. Do each step as the user would: type the command, press the keys, click, fill in the form, submit. After each step, read what the program shows and compare it with the expected result. Check the logs, stderr, and browser console for errors on every scenario you run, passing ones too.
 
 Judge each result with the FEW HICCUPPS oracles as well as the request. A result that matches the request still fails when it contradicts the rest of the product (a sibling command names its flags, keys, or exit codes another way), the program's own claims (`--help`, the README, its error text), or the conventions of its platform and of comparable tools (`NO_COLOR`, `-` for stdin, a 4xx status for a bad request). An error message passes when it names the bad input and what to do next.
 
 A screen that says "Saved" shows only that the program claims the write. Confirm each write at its store: read back the file, the database row, or the API, then restart or reload and read it again.
 
-Record each scenario in `scenarios.md` as **pass**, **fail**, or **blocked**, with its evidence: the captured screen, the output, a screenshot path, the error. Evidence is what the tool wrote: redirect or `tee` output into a file in `$DIR` and cite that file, so a retyped summary never stands in for it. A fail also records the steps that reproduce it, the expected result, and the observed one. Before you record a fail, spend a few steps on it:
+Record each scenario in `$DIR/scenarios.md` as **pass**, **fail**, or **blocked**, with its evidence: the captured screen, the output, a screenshot path, the error. Evidence is what the tool wrote: redirect or `tee` output into a file in `$DIR` and cite that file, so a retyped summary never stands in for it. A fail also records the steps that reproduce it, the expected result, and the observed one. Before you record a fail, spend a few steps on it:
 
 - **Isolate**: cut the steps to the fewest that still fail.
 - **Maximize**: follow the same path to a worse outcome, such as a crash or lost data.
@@ -67,13 +69,13 @@ Record each scenario in `scenarios.md` as **pass**, **fail**, or **blocked**, wi
 
 A fail ends that scenario, not the run.
 
-Once every scripted scenario has a status, run one exploratory charter on the riskiest part of the change: "Explore <target> with <resources> to discover <information>", for about twenty actions. Add each problem it finds to `scenarios.md` as a new scenario with its status.
+Once every scripted scenario has a status, run one exploratory charter on the riskiest part of the change: "Explore <target> with <resources> to discover <information>", for about twenty actions. On a follow-up, keep exploration within the fix and its adjacent regression flow. Add each problem it finds to `$DIR/scenarios.md` as a new scenario with its status.
 
 Done when every scenario has a status and its evidence.
 
 ### 5. Clean up and report
 
-Stop everything you started: each tmux session with `tui stop qa-<name>` (the run's tmux server exits with its last session), then servers and browser tabs. Delete `$DIR` and every other scratch directory by its literal path, typed out as the earlier call printed it, keeping only the evidence files the report cites: an `rm -rf` on a variable or a command substitution, such as `"$(cat /tmp/qa-dir)"`, is denied. Done when `tmux ls` lists none of your sessions and `$DIR` holds nothing but those evidence files. A cleanup command that fails or is blocked goes in the report as leftover state, with the command to remove it.
+Stop everything you started: each tmux session with `tui stop qa-<name>` (the run's tmux server exits with its last session), then servers and browser tabs. Keep the evidence files the report cites in `$DIR`, and delete the remaining scratch state. Use literal paths, typed out as the earlier call printed them: an `rm -rf` on a variable or a command substitution, such as `"$(cat /tmp/qa-dir)"`, is denied. Done when `tmux ls` lists none of your sessions and `$DIR` holds nothing but those evidence files. A cleanup command that fails or is blocked goes in the report as leftover state, with the command to remove it.
 
 Report one line per scenario (status, what it checked, the evidence or its path), then every fail in full, then:
 
