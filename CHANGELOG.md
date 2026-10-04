@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-04
+
+### Added
+
+- `improve-file-structure`: assesses file organization, stops when the layout is healthy, and designs a behavior-preserving migration plan for `/implement`, with source-backed guidance for TypeScript, Go, Python, and Ruby.
+
+### Changed
+
+- `ask-supermatt`: routes file organization work to `improve-file-structure` and distinguishes it from architecture and code-level refactoring.
+
 ## [0.14.2] - 2026-10-02
 
 ### Fixed
@@ -503,7 +513,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.14.2...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/svyatov/supermatt/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/svyatov/supermatt/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/svyatov/supermatt/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/svyatov/supermatt/compare/v0.13.0...v0.14.0

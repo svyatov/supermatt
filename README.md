@@ -144,7 +144,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 |---|---|
 | **Kept** | The engineering and productivity skills, plus `retro` and `pr` from upstream's in-progress set. |
 | **Dropped** | Upstream's `misc` skills and the rest of its in-progress set. |
-| **Added** | `ideate`, `qa`, `orchestrate`, `refactor`, `improve-tests`, `commit`, `ship-pr`, `fix-findings`, `what-would-you-do`, `jury`, and `dependency-vetting`. |
+| **Added** | `ideate`, `qa`, `orchestrate`, `refactor`, `improve-tests`, `improve-file-structure`, `commit`, `ship-pr`, `fix-findings`, `what-would-you-do`, `jury`, and `dependency-vetting`. |
 | **Renamed** | `ask-matt` is `ask-supermatt`, `improve-codebase-architecture` is `improve-architecture`, `setup-matt-pocock-skills` is `setup-supermatt-skills`, and `CONTEXT.md` is `GLOSSARY.md`. |
 
 ### Borrowed ideas
@@ -173,6 +173,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[triage](./skills/triage/SKILL.md)** | Move issues and external PRs through a state machine of triage roles: categorise, verify, grill if needed, and write agent-ready briefs. |
 | **[ideate](./skills/ideate/SKILL.md)** | Generate grounded ideas for what to build next, critique every one, and rank the survivors in a Markdown file, each with a prompt that takes it into `/grill-with-docs`. |
 | **[improve-architecture](./skills/improve-architecture/SKILL.md)** | Assess a codebase's architecture and stop when it is healthy; otherwise map the structure, list deepening opportunities, grill and design the one you pick, and hand a plan to `/implement`. |
+| **[improve-file-structure](./skills/improve-file-structure/SKILL.md)** | Assess file organization and stop when it is healthy; otherwise design a clearer layout and a behavior-preserving migration plan for `/implement`, with TypeScript, Go, Python, and Ruby guidance. |
 | **[refactor](./skills/refactor/SKILL.md)** | Refactor code at method, file, or project scope without changing behavior. Assesses first and stops when the code is clean, and gates edits on test coverage. |
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
 | **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and report lessons for the operator. |
