@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-10-04
+
+### Fixed
+
+- `orchestrate`: reserves orchestration numbers held by live workers and retained worktrees, and checks execution permissions before accessing Herdr, GitHub, or Git metadata.
+
 ## [0.15.0] - 2026-10-04
 
 ### Added
@@ -513,7 +519,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.15.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.15.1...HEAD
+[0.15.1]: https://github.com/svyatov/supermatt/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/svyatov/supermatt/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/svyatov/supermatt/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/svyatov/supermatt/compare/v0.14.0...v0.14.1
