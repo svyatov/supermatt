@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 
 - `orchestrate`: reserves orchestration numbers held by live workers and retained worktrees, and checks execution permissions before accessing Herdr, GitHub, or Git metadata.
+- `qa`: reads large diffs in bounded windows within each tool response's combined output limit, recovering truncated ranges before continuing.
 
 ## [0.15.0] - 2026-10-04
 
