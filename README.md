@@ -85,16 +85,21 @@ flowchart LR
   grill["grill-with-docs<br>sharpen the idea"] --> spec["to-spec<br>publish the spec"]
   spec --> tickets["to-tickets<br>split into tickets"]
   spec -. fits one session .-> implement
-  tickets --> implement["implement<br>tdd, qa, then code-review"]
+  tickets -->|per ticket| implement["implement<br>tdd, qa, then code-review"]
+  tickets -->|whole spec| implementSpec["implement-spec<br>parallel worktrees, one branch<br>tdd, qa, then code-review"]
   implement --> ship["refactor, ship-pr<br>clean up, merge"]
+  implementSpec --> ship
   ship --> done(["merged, closed issue"])
+  done --> retro["retro<br>review the session"]
 ```
 
 1. `grill-with-docs` sharpens the idea by interview.
 2. `to-spec` turns the conversation into a spec on your issue tracker.
 3. `to-tickets` splits the spec into tickets. Skip it when the work fits in one session.
-4. `implement` builds each ticket through `tdd`, checks it in the running program with `qa`, then closes it out with `code-review`.
+4. Use `implement` for each ticket, or `implement-spec` for the whole spec on one integration branch. Both build through `tdd`, check the running program with `qa`, and finish with `code-review`; `implement-spec` checks the combined result across tickets.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` merges it once CI is green.
+
+Run `retro` before clearing the session, or provide the session log later. After a bug fix, use it to identify what would have prevented the bug; use `improve-architecture` when the finding is a missing test seam.
 
 With triaged issues on GitHub, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside herdr. Workers use the harness that started it: Claude Code, Codex, or OMP.
 
@@ -177,7 +182,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[improve-file-structure](./skills/improve-file-structure/SKILL.md)** | Assess file organization and stop when it is healthy; otherwise design a clearer layout and a behavior-preserving migration plan for `/implement`, with TypeScript, Go, Python, and Ruby guidance. |
 | **[refactor](./skills/refactor/SKILL.md)** | Refactor code at method, file, or project scope without changing behavior. Assesses first and stops when the code is clean, and gates edits on test coverage. |
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
-| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and report lessons for the operator. |
+| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code, Codex, or OMP, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and report lessons for the operator. |
 | **[commit](./skills/commit/SKILL.md)** | Commit all changes on the current branch, main included, after a scan for secrets. |
 | **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, wait for green CI, then squash merge and close the issues it finishes. |
 | **[fix-findings](./skills/fix-findings/SKILL.md)** | Apply every finding from the most recent review, audit, verification, or check, at the root cause and without widening scope. |
