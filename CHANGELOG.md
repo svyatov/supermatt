@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-05
+
+### Added
+
+- `orchestrate`: supports OMP hosts with same-harness workers, `/skill:name` prompts, the shared Codex phase model policy, and a launch-only overlay that keeps restarts fresh. Retains native transcript paths for retrospective evidence and handles visible multi-question forms and safe plan execution approvals.
+
+### Changed
+
+- `ask-supermatt`: routes unattended work from OMP, documents its skill notation, and points to the shared Codex/OMP phase policy.
+
 ## [0.15.1] - 2026-10-04
 
 ### Fixed
@@ -520,7 +530,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.15.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/svyatov/supermatt/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/svyatov/supermatt/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/svyatov/supermatt/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/svyatov/supermatt/compare/v0.14.1...v0.14.2
