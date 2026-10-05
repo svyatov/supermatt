@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-10-05
+
+### Added
+
+- `implement-spec`: adapts upstream v1.3.1's whole-spec workflow to native parallel subagents, isolated ticket worktrees, and one integration branch. Serializes merges, checks the combined spec with QA and code review, keeps issues open until the default-branch merge, and preserves worker evidence before cleanup.
+
+### Changed
+
+- `ask-supermatt`: routes whole-spec builds to `implement-spec`, recommends retrospectives after bug fixes and before clearing context, and points missing test seams to `improve-architecture`.
+- `domain-modeling`: triggers on codebase terminology discussions and edits to existing ADRs as well as new domain decisions.
+
 ## [0.16.0] - 2026-10-05
 
 ### Added
@@ -530,7 +541,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.16.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/svyatov/supermatt/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/svyatov/supermatt/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/svyatov/supermatt/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/svyatov/supermatt/compare/v0.14.2...v0.15.0
