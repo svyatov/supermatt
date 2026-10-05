@@ -85,22 +85,27 @@ flowchart LR
   grill["grill-with-docs<br>sharpen the idea"] --> spec["to-spec<br>publish the spec"]
   spec --> tickets["to-tickets<br>split into tickets"]
   spec -. fits one session .-> implement
-  tickets --> implement["implement<br>tdd, qa, then code-review"]
+  tickets -->|per ticket| implement["implement<br>tdd, qa, then code-review"]
+  tickets -->|whole spec| implementSpec["implement-spec<br>parallel worktrees, one branch<br>tdd, qa, then code-review"]
   implement --> ship["refactor, ship-pr<br>clean up, merge"]
+  implementSpec --> ship
   ship --> done(["merged, closed issue"])
+  done --> retro["retro<br>review the session"]
 ```
 
 1. `grill-with-docs` sharpens the idea by interview.
 2. `to-spec` turns the conversation into a spec on your issue tracker.
 3. `to-tickets` splits the spec into tickets. Skip it when the work fits in one session.
-4. `implement` builds each ticket through `tdd`, checks it in the running program with `qa`, then closes it out with `code-review`.
+4. Use `implement` for each ticket, or `implement-spec` for the whole spec on one integration branch. Both build through `tdd`, check the running program with `qa`, and finish with `code-review`; `implement-spec` checks the combined result across tickets.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` merges it once CI is green.
+
+Run `retro` before clearing the session, or provide the session log later. After a bug fix, use it to identify what would have prevented the bug; use `improve-architecture` when the finding is a missing test seam.
 
 With triaged issues on GitHub, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside herdr. Workers use the harness that started it: Claude Code, Codex, or OMP.
 
 ## How it differs from mattpocock/skills
 
-SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) at commit `c55ee46` and keeps its idea: small, composable skills that stay under your control. The main change is that each skill checks its own work and hands the result to the next skill, so the set runs as one flow from an idea to a reviewed, closed issue.
+SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) at commit `c55ee46`, with selected v1.3.1 updates, and keeps its idea: small, composable skills that stay under your control. The main change is that each skill checks its own work and hands the result to the next skill, so the set runs as one flow from an idea to a reviewed, closed issue.
 
 ### Skills check their own work
 
@@ -115,6 +120,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 ### Skills hand off to each other
 
 - `implement` completes the full required gate before committing each finished behavior, reuses checks whose inputs are unchanged, runs `qa` in a fresh sub-agent and fixes every fail test-first, then passes the spec to `code-review`. Follow-ups check the fix diff and affected behavior. Every verified finding is fixed or raised as a question; the issue stays open until merge.
+- `implement-spec`, adapted from upstream v1.3.1, builds a whole spec through native subagents in ticket worktrees and integrates it into one branch for a single PR. It runs QA and review on the combined spec, serializes merges, and keeps issues open until shipping. Use it for one feature reviewed together; use `orchestrate` to ship a queue of issues separately through Herdr.
 - `diagnosing-bugs` writes the regression test through `tdd` and reviews the fix with `code-review`, using the bug report as the spec.
 - Test seams agreed in `to-spec` or `triage` travel through `to-tickets` into `implement` and `tdd`, so no skill asks about them twice.
 - Each planning skill ends by pointing to the next step: `ideate` to `/grill-with-docs`, `improve-architecture` to `/to-spec` or `/implement`, and `wayfinder` to `/to-spec`.
@@ -142,7 +148,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 | Change | What |
 |---|---|
-| **Kept** | The engineering and productivity skills, plus `retro` and `pr` from upstream's in-progress set. |
+| **Kept** | The engineering and productivity skills, including `retro` and `pr` taken from upstream's in-progress set, and `implement-spec` adapted from v1.3.1. |
 | **Dropped** | Upstream's `misc` skills and the rest of its in-progress set. |
 | **Added** | `ideate`, `qa`, `orchestrate`, `refactor`, `improve-tests`, `improve-file-structure`, `commit`, `ship-pr`, `fix-findings`, `what-would-you-do`, `jury`, and `dependency-vetting`. |
 | **Renamed** | `ask-matt` is `ask-supermatt`, `improve-codebase-architecture` is `improve-architecture`, `setup-matt-pocock-skills` is `setup-supermatt-skills`, and `CONTEXT.md` is `GLOSSARY.md`. |
@@ -176,7 +182,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[improve-file-structure](./skills/improve-file-structure/SKILL.md)** | Assess file organization and stop when it is healthy; otherwise design a clearer layout and a behavior-preserving migration plan for `/implement`, with TypeScript, Go, Python, and Ruby guidance. |
 | **[refactor](./skills/refactor/SKILL.md)** | Refactor code at method, file, or project scope without changing behavior. Assesses first and stops when the code is clean, and gates edits on test coverage. |
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
-| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code or Codex, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and report lessons for the operator. |
+| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through a repository's GitHub issues unattended in parallel lanes, driving workers in the host harness, Claude Code, Codex, or OMP, in herdr panes and git worktrees to verify specs, triage bugs, implement, refactor, and merge each issue, and report lessons for the operator. |
 | **[commit](./skills/commit/SKILL.md)** | Commit all changes on the current branch, main included, after a scan for secrets. |
 | **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, wait for green CI, then squash merge and close the issues it finishes. |
 | **[fix-findings](./skills/fix-findings/SKILL.md)** | Apply every finding from the most recent review, audit, verification, or check, at the root cause and without widening scope. |
@@ -184,6 +190,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[to-spec](./skills/to-spec/SKILL.md)** | Turn the current conversation into a spec and publish it to the issue tracker. |
 | **[to-tickets](./skills/to-tickets/SKILL.md)** | Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, as text in one file per ticket locally or as native blocking links on a real tracker. |
 | **[implement](./skills/implement/SKILL.md)** | Build the work described by a spec, tickets, or triaged issues, driving `/tdd` at pre-agreed seams, then committing, checking it with `/qa`, and closing out with `/code-review`. |
+| **[implement-spec](./skills/implement-spec/SKILL.md)** | Build a whole spec through native parallel subagents in ticket worktrees, integrate into one branch, and verify the combined result with `/qa` and `/code-review` before shipping. |
 | **[retro](./skills/retro/SKILL.md)** | Run a retrospective on a coding session and get ranked suggestions for the agent's environment: automated checks, context pointers, coding-standards rules, stale or contradictory instructions, and a leaner `AGENTS.md`. |
 | **[wayfinder](./skills/wayfinder/SKILL.md)** | Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear. |
 
