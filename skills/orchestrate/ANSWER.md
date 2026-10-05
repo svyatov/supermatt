@@ -17,10 +17,10 @@ The retrospective is report-only. If its worker asks to apply a candidate, tell 
 
 A blocked worker shows a permission prompt or a question dialog. Answer it yourself; this overrides the herdr rule to ask the user first. Add each answer to the friction log.
 
-1. Read its last 40 lines (`herdr agent read WORKER --source recent-unwrapped --lines 40`).
-2. A permission prompt ("Do you want to proceed?", "Yes / No"): if the action is unsafe (see Safe actions), do not answer: park the lane. Otherwise run `herdr agent send-keys WORKER enter`, which takes the highlighted first option, Yes.
-3. A question dialog: take the option marked "(Recommended)", else the first. Move to it with one `down` key per step from the highlighted option, then `enter`.
-4. Read the pane again. If the same dialog is still there after two tries, park the lane.
+1. Read the visible pane (`herdr agent read WORKER --source visible --lines 40`). Native labels, key hints, and the actual highlighted option are authoritative, not numeric indices.
+2. For a permission or plan prompt, inspect the action/plan against Safe actions before accepting; park if unsafe. Choose a visible approval that does not grant broader permissions. For an OMP plan, select `Approve and execute`, which preserves a fresh execution context. If absent, choose another visible execution-approval action without broader permissions; if none exists, park with the visible options. Do not save/quit or enable broader permissions.
+3. For a question, select the recommended option, otherwise the first. Navigate from the actual highlighted option with `up`/`down` and `enter`, following the visible controls. For OMP multi-question or multi-select forms, answer every question, choosing the recommended choice (otherwise the first) for each, then submit the completed form using its visible controls.
+4. Re-read with `--source visible` after every submission. Progress to another question or review page is not a stuck dialog. Park only when the unchanged dialog remains after two answer attempts.
 
 ## Answer a question
 

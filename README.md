@@ -96,7 +96,7 @@ flowchart LR
 4. `implement` builds each ticket through `tdd`, checks it in the running program with `qa`, then closes it out with `code-review`.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` merges it once CI is green.
 
-With triaged issues on GitHub, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside herdr. Workers use the harness that started it: Claude Code or Codex.
+With triaged issues on GitHub, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside herdr. Workers use the harness that started it: Claude Code, Codex, or OMP.
 
 ## How it differs from mattpocock/skills
 
