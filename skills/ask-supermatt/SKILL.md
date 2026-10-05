@@ -10,7 +10,7 @@ license: MIT
 
 You don't remember every skill, so ask.
 
-Skills are named here as `/name`. In Codex, type `$name` instead. From the Claude Code plugin, type `/supermatt:name`: a bare `/code-review` runs Claude Code's bundled review, not this one.
+Skills are named here as `/name`. In Codex, type `$name` instead; in OMP, type `/skill:name`, preserving arguments. From the Claude Code plugin, type `/supermatt:name`: a bare `/code-review` runs Claude Code's bundled review, not this one.
 
 A **flow** is a path through the skills. Most paths run along one **main flow**, and two **on-ramps** merge onto it. Everything else is standalone, or a vocabulary layer that runs underneath.
 
@@ -33,9 +33,9 @@ The route most work travels. You have an idea and want it built.
 
 ### Unattended: `/orchestrate`
 
-When the issues are triaged and you want the queue worked without you, **`/orchestrate`** runs the main flow per issue, from inside a herdr pane in Claude Code or Codex. Its workers use the same harness that started it: Claude Code starts Claude Code, and Codex starts Codex. `/orchestrate 3` (`$orchestrate 3` in Codex) works three issues in parallel, each in its own pane and git worktree, and a branch that conflicts with one merged before it goes through `/resolving-merge-conflicts`. It opens a worker session in the lane's pane for each phase: `/triage` for an untriaged bug, `/implement`, `/fix-findings` for what the review left, `/refactor` and `/ship-pr`, then a report-only `/retro`. Retrospective candidates return to the operator; applying them is separate work, with no automatic lessons PR or external edits. It answers the workers' questions and dialogs itself (through `/what-would-you-do`), verifies each spec once its tickets close, and notifies you only when the queue is done or it needs you.
+When the issues are triaged and you want the queue worked without you, **`/orchestrate`** runs the main flow per issue, from inside a herdr pane in Claude Code, Codex, or OMP. Its workers and every restart use the same harness that started it. `/orchestrate 3` (`$orchestrate 3` in Codex, `/skill:orchestrate 3` in OMP) works three issues in parallel, each in its own pane and git worktree, and a branch that conflicts with one merged before it goes through `/resolving-merge-conflicts`. It opens a worker session in the lane's pane for each phase: `/triage` for an untriaged bug, `/implement`, `/fix-findings` for what the review left, `/refactor` and `/ship-pr`, then a report-only `/retro`. Retrospective candidates return to the operator; applying them is separate work, with no automatic lessons PR or external edits. It answers the workers' questions and dialogs itself (through `/what-would-you-do`), verifies each spec once its tickets close, and notifies you only when the queue is done or it needs you.
 
-Codex workers select their model by phase, with a fresh review session after implementation. See `/orchestrate`'s Worker section for the model and effort map. Shipping keeps the active worktree through merge verification and reporting; the orchestrator stops the worker before removing that worktree.
+Codex and OMP workers share the phase model policy, with a fresh review session after implementation. See `/orchestrate`'s Worker section for the model and effort map. OMP requires Herdr's native integration for session evidence and discoverable SuperMatt skills. Shipping keeps the active worktree through merge verification and reporting; the orchestrator stops the worker before removing that worktree.
 
 ### Context hygiene
 
