@@ -556,7 +556,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.17.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.18.0...HEAD
 [0.18.0]: https://github.com/svyatov/supermatt/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/svyatov/supermatt/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/svyatov/supermatt/compare/v0.15.1...v0.16.0
