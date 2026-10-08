@@ -65,4 +65,5 @@ test("release projection omits only dev directories and survives source removal"
 test("process failures and timeouts cannot pass", async () => {
   await assert.rejects(run(process.execPath, ["-e", "process.exit(7)"]), /exit 7/);
   await assert.rejects(run(process.execPath, ["-e", "setInterval(() => {}, 1000)"], { timeout: 50 }), /timed out/);
+  await assert.rejects(run(process.execPath, ["-e", "console.log('x'.repeat(10000))"], { maxBytes: 100 }), /output limit/);
 });

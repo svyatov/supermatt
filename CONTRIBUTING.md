@@ -35,10 +35,38 @@ sh tests/link-skills.test.sh
 sh tests/mutate.test.sh
 sh tests/release.test.sh
 sh tests/directory-branch.test.sh
-node --test tests/next-issue.test.mjs
+bun test tests/
 ```
 
-`tests/next-issue.test.mjs` tests the `orchestrate` skill's issue picker; `bun test tests/` runs the same file, and the pre-push hook uses it. `tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. `tests/mutate.test.sh` tests the `tdd` skill's mutation runner. `tests/release.test.sh` and `tests/directory-branch.test.sh` test the maintainer's `scripts/release.sh` and `scripts/directory-branch.sh`. Skill behavior has no automated tests yet, so describe in the pull request how you ran the changed skill and what it did.
+`bun test tests/` runs the JavaScript tests, including orchestration, scratch dependencies, plugin discovery, and evaluation controls. CI runs them with Node's built-in test runner. `tests/link-skills.test.sh` tests `scripts/link-skills.sh` and syntax-checks the shell templates in `skills/`. `tests/mutate.test.sh` tests the `tdd` skill's mutation runner. `tests/release.test.sh` and `tests/directory-branch.test.sh` test the maintainer's `scripts/release.sh` and `scripts/directory-branch.sh`.
+
+### Codex discovery and behavioral evaluation
+
+These opt-in checks use the installed Codex CLI and Git; behavioral evaluation also requires Node for fixture execution. Bun is the preferred driver. They never install or upgrade a tool, modify your installed plugins, or publish a report. Claude checks remain separate; unavailable Claude coverage must be recorded as pending.
+
+```sh
+bun scripts/test-plugin-discovery.mjs
+bun scripts/evaluate-skills.mjs --model MODEL --baseline BASE_COMMIT --dry-run
+bun scripts/evaluate-skills.mjs --model MODEL --baseline BASE_COMMIT
+```
+
+Discovery uses a temporary home without credentials. It builds the release projection, checks native discovery and every installed resource, removes the temporary source carrier, and checks again. Installed invocation metadata is verified byte-for-byte; current Codex discovery does not expose runtime invocation-policy enforcement. Discovery starts no model turn and does not prove execution.
+
+Behavioral evaluation makes paid model calls using your existing native Codex authentication. Both source snapshots are frozen before the first call. The default is three runs of each case under supportive, neutral, and competing prompts, on both baseline and candidate: use `--dry-run` to see the call count. `--cases report-only,handoff`, `--variants neutral`, `--runs 1`, and `--timeout 300` bound a diagnostic run. `--candidate REVISION` selects a committed candidate; the default snapshots tracked and unignored working files. Use the same explicit model for a comparison; reasoning effort is medium. Record a missing reported model as unknown, not as a verified provider pin.
+
+Each model receives an isolated fixture and a read-only installed plugin. A native permissions profile restricts commands to the fixture, its temporary artifact directory, required runtime paths, and plugin resources. The preflight checks denied reads and writes, an allowed fixture write, Git and Node startup, and a denied connection to a live loopback listener with a positive control. It stops before model calls when that boundary cannot be verified. This qualifies native command isolation, not a general hostile-plugin sandbox. Fixtures and plugin code must be trusted. Existing authentication is available to the parent CLI, outside model-tool grants; shell environments omit credentials. Effective configuration is checked for enabled MCP servers, integrations, hooks, memory, and tool network access. The fixture shell uses explicit tool paths, no Bun transpiler cache, and an empty OpenSSL configuration; these probes do not qualify application TLS behavior.
+
+The corpus contains scoped behavior probes, not complete tracker, Herdr, browser, or release workflows. Mechanical checks cover target exposure, completed execution, file state, and required outputs. Semantic conclusions require review of the saved trace, artifacts, and each case's rubric. A successful process or a matching phrase alone never earns a pass. Do not put expected answers or adjudications in the readable fixture.
+
+Reports, the harness sources, redacted traces and observations remain in the printed OS temporary directory after execution state is removed. Binary cache files are represented by size and digest, not treated as textual evidence. Symlinks are recorded without following them and block grading; capture errors preserve the trace and partial observation. The runner returns nonzero for `fail`, `blocked`, or `needs review`, and stops after a blocked model run. A passing candidate acceptance suite requires every selected condition and repetition to pass; a measured baseline failure does not fail candidate acceptance. Retain failed attempts when rerunning. Do not generalize a small observed difference into statistical proof of improvement.
+
+To adjudicate, write a JSON array outside the fixture. Each entry names a run `id`, its `evidenceDigest` from `report.json`, a `verdict` of `pass` or `fail`, `reviewer`, `rationale`, and `evidence` references such as `candidate-handoff-neutral-1/observation.json:12`. Inspect the actual evidence against every rubric item, including shell commands that could edit and then restore a file. Failed or blocked mechanical checks cannot be overridden. Then run:
+
+```sh
+bun scripts/evaluate-skills.mjs --adjudicate /absolute/report/directory --reviews /absolute/reviews.json
+```
+
+This writes a separate adjudicated report and preserves the original. An incomplete run stays blocked. Deterministic evaluator controls run in CI; authenticated behavioral comparisons and native discovery run explicitly on a maintainer machine. If authentication, permissions, or the selected model is unavailable, report that gap without weakening the boundary.
 
 ## Rules for a change
 

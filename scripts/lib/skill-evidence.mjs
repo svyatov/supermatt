@@ -63,24 +63,33 @@ export async function snapshot(repo, revision, destination) {
   }
 }
 
-export function run(command, args, { timeout = 60000, input, binary = false, ...options } = {}) {
+export function run(command, args, { timeout = 60000, input, binary = false, maxBytes = 64 * 1024 * 1024, ...options } = {}) {
   return new Promise((resolveResult, reject) => {
     const child = spawn(command, args, { ...options, detached: process.platform !== "win32", stdio: ["pipe", "pipe", "pipe"] });
     const stdout = [], stderr = [];
-    let timedOut = false;
+    let timedOut = false, exceeded = false, interrupted = false, bytes = 0;
     const kill = signal => {
       try { if (process.platform === "win32") child.kill(signal); else process.kill(-child.pid, signal); } catch {}
     };
+    const interrupt = () => { interrupted = true; kill("SIGKILL"); };
+    process.once("SIGINT", interrupt); process.once("SIGTERM", interrupt);
+    const cleanup = () => { clearTimeout(timer); process.removeListener("SIGINT", interrupt); process.removeListener("SIGTERM", interrupt); };
     const timer = setTimeout(() => { timedOut = true; kill("SIGKILL"); }, timeout);
-    child.stdout.on("data", chunk => stdout.push(chunk));
-    child.stderr.on("data", chunk => stderr.push(chunk));
+    const capture = target => chunk => {
+      bytes += chunk.length;
+      if (bytes > maxBytes) { exceeded = true; kill("SIGKILL"); }
+      else target.push(chunk);
+    };
+    child.stdout.on("data", capture(stdout));
+    child.stderr.on("data", capture(stderr));
     child.stdin.on("error", () => {});
-    child.on("error", error => { clearTimeout(timer); reject(error); });
+    child.on("error", error => { cleanup(); reject(error); });
     child.on("close", code => {
-      clearTimeout(timer);
+      cleanup();
       const out = Buffer.concat(stdout), err = Buffer.concat(stderr).toString();
-      if (code !== 0 || timedOut) {
-        const error = new Error(`${command}: ${timedOut ? "timed out" : `exit ${code}`}\n${err}`);
+      if (code !== 0 || timedOut || exceeded || interrupted) {
+        const reason = timedOut ? "timed out" : exceeded ? "output limit exceeded" : interrupted ? "interrupted" : `exit ${code}`;
+        const error = new Error(`${command}: ${reason}\n${err}`);
         Object.assign(error, { stdout: out.toString(), stderr: err, code, timedOut });
         reject(error);
       } else resolveResult(binary ? out : out.toString());
@@ -102,7 +111,7 @@ export async function installPlugin(codex, source, options) {
   return JSON.parse(await run(codex, ["plugin", "add", "supermatt@supermatt", "--json"], options));
 }
 
-export async function listSkills(codex, options) {
+export async function listSkills(codex, options, includeConfiguration = false) {
   const child = spawn(codex, ["app-server", "--stdio"], { ...options, stdio: ["pipe", "pipe", "pipe"] });
   const pending = new Map();
   let nextId = 0, buffer = "", stderr = "";
@@ -135,7 +144,15 @@ export async function listSkills(codex, options) {
   try {
     await request("initialize", { clientInfo: { name: "supermatt-discovery", version: "1.0.0" }, capabilities: { experimentalApi: true } });
     child.stdin.write('{"method":"initialized"}\n');
-    return await request("skills/list", { cwds: [options.cwd], forceReload: true });
+    const skills = await request("skills/list", { cwds: [options.cwd], forceReload: true });
+    if (includeConfiguration) {
+      const { config } = await request("config/read", { cwd: options.cwd, includeLayers: false });
+      assert.ok(config && typeof config === "object", "Native configuration unavailable");
+      // Persist only capability switches, never server credentials or env maps.
+      skills.configuration = { mcpServers: Object.entries(config.mcp_servers ?? {}).filter(([, value]) => value.enabled !== false).map(([name]) => name),
+        webSearch: config.web_search, defaultPermissions: config.default_permissions, features: config.features };
+    }
+    return skills;
   } finally { clearTimeout(timer); child.kill(); }
 }
 
