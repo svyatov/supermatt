@@ -4,7 +4,7 @@ import { lstatSync, readFileSync, readlinkSync, readdirSync } from "node:fs";
 import { digest } from "./skill-evidence.mjs";
 
 export function collectState(root) {
-  const state = {}, errors = [];
+  const state = Object.create(null), errors = [];
   let total = 0;
   const walk = prefix => {
     for (const name of readdirSync(resolve(root, prefix)).sort()) {
@@ -49,6 +49,7 @@ export function parseTrace(text) {
   let events;
   try { events = text.split("\n").filter(line => line.trim()).map(line => JSON.parse(line)); }
   catch { throw new Error("Malformed JSON trace"); }
+  assert.ok(events.every(e => e && typeof e.type === "string" && (!e.type.startsWith("item.") || typeof e.item?.type === "string")), "Malformed trace event");
   assert.ok(!events.some(e => ["error", "turn.failed"].includes(e.type)), "Trace contains an error");
   assert.equal(events.filter(e => e.type === "turn.completed").length, 1, "Trace must contain one complete turn");
   const last = events.filter(e => e.type === "item.completed").at(-1)?.item;
@@ -61,8 +62,14 @@ export function grade(testCase, observation) {
   const findings = [];
   if (processResult.code !== 0 || processResult.timedOut) return { status: "blocked", findings: ["Process did not complete successfully"] };
   const items = events.filter(e => e.type === "item.completed").map(e => e.item);
-  const firstWork = items.find(i => !["agent_message", "reasoning", "todo_list"].includes(i.type));
-  if (firstWork?.type !== "command_execution" || firstWork.exit_code !== 0 || !onlySkillRead(firstWork.command, skill.path) || !firstWork.aggregated_output?.includes(skill.body.trim())) {
+  const workEvent = event => ["item.started", "item.updated", "item.completed"].includes(event.type)
+    && !["agent_message", "reasoning", "todo_list"].includes(event.item?.type);
+  const exposure = events.findIndex(e => e.type === "item.completed" && e.item?.type === "command_execution"
+    && e.item.exit_code === 0 && onlySkillRead(e.item.command, skill.path) && e.item.aggregated_output?.includes(skill.body.trim()));
+  const read = events[exposure]?.item;
+  const premature = events.slice(0, exposure).some(e => workEvent(e)
+    && (e.type === "item.completed" || e.item.id !== read?.id || e.item.command !== read?.command));
+  if (exposure < 0 || premature) {
     return { status: "blocked", findings: ["Target skill was not read in full before work"] };
   }
   for (const [path, bytes] of Object.entries(before)) {
@@ -93,7 +100,7 @@ export function reviewResults(results, reviews) {
   for (const review of reviews) {
     const result = results.find(r => r.id === review.id);
     assert.ok(result, `Unknown run: ${review.id}`);
-    assert.equal(result.status, "needs review", "Cannot override failed or blocked checks");
+    assert.equal(result.status, "needs review", `Cannot override failed or blocked checks: ${review.id}`);
     assert.equal(review.evidenceDigest, result.evidenceDigest, "Adjudication digest mismatch");
     assert.ok(["pass", "fail"].includes(review.verdict), "Invalid adjudication verdict");
     for (const field of ["reviewer", "rationale"]) assert.ok(review[field]?.trim(), `Missing ${field}`);
@@ -106,6 +113,7 @@ export function reviewResults(results, reviews) {
 }
 
 export function verdict(results) {
+  if (results.some(r => !["pass", "fail", "blocked", "needs review"].includes(r.status))) return "blocked";
   if (!results.length || results.some(r => r.status === "blocked")) return "blocked";
   if (results.some(r => r.status === "fail")) return "fail";
   if (results.some(r => r.status === "needs review")) return "needs review";
@@ -113,10 +121,21 @@ export function verdict(results) {
 }
 
 export function comparisonStatus(report) {
-  if (report.error || report.completedRuns !== report.plannedModelCalls) return "blocked";
+  // Early development reports called CLI runs plannedModelCalls. They never
+  // measured the number of individual provider requests within a run.
+  const planned = report.plannedRuns ?? report.plannedModelCalls;
+  if (report.error || !Number.isSafeInteger(planned) || planned < 2 || planned % 2 !== 0
+    || report.completedRuns !== planned || report.results.length !== planned) return "blocked";
   if (report.results.some(r => r.status === "blocked")) return "blocked";
   // Baseline defects are measurements, not candidate acceptance failures.
   const candidate = report.results.filter(r => r.id.startsWith("candidate-"));
+  const baseline = report.results.filter(r => r.id.startsWith("baseline-"));
+  const ids = rows => rows.map(r => r.id.slice(r.id.indexOf("-") + 1)).sort();
+  if (candidate.length !== planned / 2 || baseline.length !== planned / 2
+    || new Set(report.results.map(r => r.id)).size !== planned
+    || JSON.stringify(ids(candidate)) !== JSON.stringify(ids(baseline))) return "blocked";
+  if (candidate.some(r => r.status === "fail")) return "fail";
+  if (verdict(report.results) === "blocked") return "blocked";
   if (report.results.some(r => r.status === "needs review")) return "needs review";
   return verdict(candidate);
 }

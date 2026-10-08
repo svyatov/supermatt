@@ -89,17 +89,30 @@ async function main() {
     const root = realpathSync(values.adjudicate);
     const report = JSON.parse(readFileSync(join(root, "report.json"), "utf8"));
     const reviews = JSON.parse(readFileSync(values.reviews, "utf8"));
+    const corpusPath = fileURLToPath(new URL("../tests/evals/cases.mjs", import.meta.url));
+    assert.equal(report.harnessFiles?.["tests/evals/cases.mjs"], digest(readFileSync(corpusPath)), "Corpus changed; use the matching corpus and evaluator or rerun");
     for (const result of report.results) {
       if (!result.evidenceDigest) continue;
       const bytes = readFileSync(join(root, result.id, "observation.json"));
       assert.equal(digest(bytes), result.evidenceDigest, "Saved evidence changed");
       const observation = JSON.parse(bytes);
-      assert.equal(digest(readFileSync(join(root, result.id, "trace.jsonl"))), observation.traceDigest, "Saved trace changed");
+      const trace = readFileSync(join(root, result.id, "trace.jsonl"), "utf8");
+      assert.equal(digest(trace), observation.traceDigest, "Saved trace changed");
+      const identity = result.id.match(/^(baseline|candidate)-(.+)-(supportive|neutral|competing)-\d+$/);
+      const testCase = cases.find(c => c.id === identity?.[2]);
+      assert.ok(testCase, "Unknown case in report");
+      let checked;
+      try {
+        checked = observation.captureErrors?.length ? { status: "blocked", findings: observation.captureErrors }
+          : grade(testCase, { ...observation, events: parseTrace(trace) });
+      } catch (error) { checked = { status: "blocked", findings: [error.message] }; }
+      if (["blocked", "fail"].includes(checked.status)) Object.assign(result, checked);
     }
     for (const review of reviews) for (const pointer of review.evidence ?? []) {
       const path = resolve(root, pointer.replace(/:\d+$/, ""));
       assert.ok(path.startsWith(root + "/") && existsSync(path), "Evidence pointer missing or outside report");
     }
+    report.graderDigest = digest(readFileSync(fileURLToPath(new URL("./lib/skill-evals.mjs", import.meta.url))));
     report.results = reviewResults(report.results, reviews);
     report.status = comparisonStatus(report);
     save(join(root, "adjudicated-report.json"), report);
@@ -115,14 +128,14 @@ async function main() {
   assert.ok(new Set(conditions).size === conditions.length && conditions.every(v => Object.hasOwn(variants, v)), "Unknown or duplicate variant");
   const planned = selected.length * conditions.length * repetitions * 2;
   if (values["dry-run"]) {
-    console.log(JSON.stringify({ model: values.model, cases: selected.map(c => c.id), variants: conditions, repetitions, plannedModelCalls: planned,
-      maxSecondsPerCall: timeout / 1000, baseline: values.baseline, candidate: values.candidate, note: "No price estimate; token use and provider pricing vary." }, null, 2));
+    console.log(JSON.stringify({ model: values.model, cases: selected.map(c => c.id), variants: conditions, repetitions, plannedRuns: planned,
+      maxSecondsPerRun: timeout / 1000, baseline: values.baseline, candidate: values.candidate, note: "Counts CLI runs, not provider requests. One run can make multiple requests. No price estimate; token use and provider pricing vary." }, null, 2));
     return;
   }
   const evidence = realpathSync(mkdtempSync(join(tmpdir(), "supermatt-evals-")));
   const work = join(evidence, "work"); mkdirSync(work);
-  const report = { status: "blocked", requestedModel: values.model, reportedModel: null, reasoningEffort: "medium", plannedModelCalls: planned,
-    modelCalls: 0, claude: "unavailable", corpusDigest: digest(JSON.stringify({ selected, variants })), results: [], snapshots: {} };
+  const report = { status: "blocked", requestedModel: values.model, reportedModel: null, reasoningEffort: "medium", plannedRuns: planned,
+    startedRuns: 0, providerRequests: null, claude: "unavailable", corpusDigest: digest(JSON.stringify({ selected, variants })), results: [], snapshots: {} };
   const secrets = [];
   const safeSave = (path, value) => writeFileSync(path, redact(JSON.stringify(value, null, 2) + "\n", secrets), { mode: 0o600 });
   try {
@@ -198,7 +211,7 @@ async function main() {
         const before = initial.state, start = Date.now();
         const args = ["exec", "--strict-config", "--ignore-rules", "--ephemeral", "--json", "--skip-git-repo-check", "--model", values.model, "--cd", cwd, "-"];
         let output = "", processResult = { code: 0 }, result;
-        report.modelCalls++;
+        report.startedRuns++;
         try { output = await run(codex, args, { cwd, env, input: prompt, timeout }); }
         catch (error) { output = error.stdout || ""; processResult = { code: error.code ?? null, timedOut: !!error.timedOut, error: redact(error.message, secrets) }; }
         const redactedTrace = redact(output, secrets);
@@ -231,7 +244,7 @@ async function main() {
     report.completedRuns = report.results.length;
     safeSave(join(evidence, "report.json"), report);
     rmSync(work, { recursive: true, force: true });
-    console.log(JSON.stringify({ status: report.status, modelCalls: report.modelCalls, completedRuns: report.completedRuns, error: report.error, evidence }, null, 2));
+    console.log(JSON.stringify({ status: report.status, startedRuns: report.startedRuns, completedRuns: report.completedRuns, error: report.error, evidence }, null, 2));
     if (report.status !== "pass") process.exitCode = 1;
   }
 }

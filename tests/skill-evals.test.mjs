@@ -21,6 +21,7 @@ const observation = { events, skill, before: { "code.mjs": "original" }, after: 
 test("trace requires a completed turn, a final answer and valid JSON", () => {
   assert.equal(parseTrace(trace(events)).length, 4);
   assert.throws(() => parseTrace("not json"), /JSON/);
+  assert.throws(() => parseTrace(trace([null, ...events])), /Malformed trace event/);
   assert.throws(() => parseTrace(trace(events.slice(0, -1))), /complete/);
   assert.throws(() => parseTrace(trace(events.filter(e => e.item?.type !== "agent_message"))), /answer/);
   assert.throws(() => parseTrace(trace([...events, { type: "error", message: "transport lost" }])), /error/);
@@ -53,6 +54,15 @@ test("trace order is retained and a late skill read cannot prove initial exposur
   assert.equal(grade(sample, { ...observation, events: wrapped }).status, "needs review");
 });
 
+test("work cannot start before exposure and finish after it", () => {
+  const started = { type: "item.started", item: { id: "edit", type: "file_change", changes: [{ path: "result.txt" }] } };
+  const finished = { ...started, type: "item.completed" };
+  assert.equal(grade({ ...sample, unchanged: false }, { ...observation, events: [started, ...events.slice(0, 2), finished, ...events.slice(2)] }).status, "blocked");
+  const reading = { type: "item.started", item: { ...events[1].item, id: "read", exit_code: null, aggregated_output: "" } };
+  const read = { type: "item.completed", item: { ...events[1].item, id: "read" } };
+  assert.equal(grade(sample, { ...observation, events: [events[0], reading, read, ...events.slice(2)] }).status, "needs review");
+});
+
 test("adjudication is bound to evidence and cannot override failed checks", () => {
   const results = [{ id: "one", status: "needs review", evidenceDigest: "abc", rubric: ["Check evidence"] }];
   const reviews = [{ id: "one", evidenceDigest: "abc", verdict: "pass", reviewer: "maintainer", rationale: "Observed the required outcome", evidence: ["one/trace.jsonl:2"] }];
@@ -83,9 +93,12 @@ test("collection records symlinks without following them and retains other evide
   t.after(() => rmSync(root, { recursive: true, force: true }));
   writeFileSync(join(root, "report.md"), "real evidence\n");
   writeFileSync(join(root, "cache.bin"), Buffer.from([0, 255]));
+  writeFileSync(join(root, "__proto__"), "must be captured\n");
   symlinkSync("/outside/secret", join(root, "escape"));
   const captured = collectState(root);
   assert.equal(captured.state["report.md"], "real evidence\n");
+  assert.equal(Object.hasOwn(captured.state, "__proto__"), true);
+  assert.equal(captured.state.__proto__, "must be captured\n");
   assert.deepEqual(captured.state.escape, { kind: "symlink", target: "/outside/secret" });
   assert.equal(captured.state["cache.bin"].kind, "binary");
   assert.match(captured.errors[0], /Unfollowed symlink/);
@@ -96,6 +109,10 @@ test("candidate acceptance permits a measured baseline failure but not incomplet
   assert.equal(comparisonStatus(report), "pass");
   assert.equal(comparisonStatus({ ...report, plannedModelCalls: 4 }), "blocked");
   assert.equal(comparisonStatus({ ...report, error: "cleanup failed" }), "blocked");
+  assert.equal(comparisonStatus({ ...report, results: [{ id: "baseline-one", status: "needs review" }, { id: "candidate-one", status: "fail" }] }), "fail");
+  assert.equal(comparisonStatus({ ...report, plannedModelCalls: undefined }), "blocked");
+  assert.equal(comparisonStatus({ ...report, results: [{ id: "candidate-one", status: "pass" }, { id: "candidate-one", status: "pass" }] }), "blocked");
+  assert.equal(verdict([{ status: "unknown" }]), "blocked");
 });
 
 test("CLI rejects a timeout above five minutes before launching a model", async () => {
@@ -105,11 +122,11 @@ test("CLI rejects a timeout above five minutes before launching a model", async 
 test("CLI adjudication preserves incomplete status and detects evidence mutation", async t => {
   const root = mkdtempSync(join(tmpdir(), "supermatt-adjudication-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const id = "candidate-example-neutral-1", directory = join(root, id); mkdirSync(directory);
+  const id = "candidate-report-only-neutral-1", directory = join(root, id); mkdirSync(directory);
   writeFileSync(join(directory, "trace.jsonl"), trace(events));
-  save(join(directory, "observation.json"), { traceDigest: digest(trace(events)) });
+  save(join(directory, "observation.json"), { ...observation, traceDigest: digest(trace(events)) });
   const hash = digest(readFileSync(join(directory, "observation.json")));
-  save(join(root, "report.json"), { plannedModelCalls: 2, completedRuns: 1, results: [{ id, status: "needs review", evidenceDigest: hash }] });
+  save(join(root, "report.json"), { plannedRuns: 2, completedRuns: 1, harnessFiles: { "tests/evals/cases.mjs": digest(readFileSync("tests/evals/cases.mjs")) }, results: [{ id, status: "needs review", evidenceDigest: hash }] });
   save(join(root, "reviews.json"), [{ id, evidenceDigest: hash, verdict: "pass", reviewer: "test control", rationale: "Control only", evidence: [`${id}/observation.json:1`] }]);
   const args = [resolve("scripts/evaluate-skills.mjs"), "--adjudicate", root, "--reviews", join(root, "reviews.json")];
   await assert.rejects(run(process.execPath, args), /exit 1/);
