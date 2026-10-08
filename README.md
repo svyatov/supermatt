@@ -165,6 +165,7 @@ Some of the checks above are adapted from other skill sets:
 | Dex Horthy's [show-me](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md) | `pr` |
 | GitHub's [awesome-copilot](https://github.com/github/awesome-copilot) refactor skills | `refactor` |
 | Leonardo Flores's [reducing-entropy](https://github.com/softaworks/agent-toolkit/tree/main/skills/reducing-entropy) | `refactor` |
+| Affaan Mustafa's [ECC](https://github.com/affaan-m/ecc/tree/ef648e01899ba3e8dc6371642deaaf64b4477775) | Evidence practices in `research` and `handoff`, parallel resource ownership, contract verification, performance comparisons, and maintainer evaluation ideas. See [attribution](./THIRD-PARTY-NOTICES.md). |
 
 The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 

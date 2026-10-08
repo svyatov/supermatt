@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-10-08
+
+### Added
+
+- Maintainer tooling: Codex behavioral comparisons with isolated fixtures, pinned source and corpus evidence, independent outcome checks and explicit semantic adjudication; native plugin discovery and resource parity checks against the release projection. Claude runtime coverage remains pending.
+
+### Changed
+
+- `research`: distinguishes observed facts, inferences, and recommendations, checks contrary evidence and material versions, and treats retrieved instructions as source text.
+- `handoff`: preserves checked-state evidence, failed attempts, blockers, user stops, existing authorization, and one next action, with mutable-state rechecks for the receiver.
+- `implement-spec`: assigns shared mutable resources before parallel dispatch and verifies independently evolving provider/consumer boundaries against one owned contract.
+- `orchestrate`: carries verified resource ownership across lane dispatch, parking, and worker restarts, separately from the ship slot.
+- `to-spec`: identifies contract ownership and boundary verification where components evolve independently, retaining shared types for atomic builds.
+- `diagnosing-bugs`: adds bounded, correctness-first performance comparisons and a sequential state-overwrite example that checks the complete action sequence.
+
 ## [0.17.0] - 2026-10-05
 
 ### Added
@@ -541,7 +556,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.17.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/svyatov/supermatt/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/svyatov/supermatt/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/svyatov/supermatt/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/svyatov/supermatt/compare/v0.15.0...v0.15.1

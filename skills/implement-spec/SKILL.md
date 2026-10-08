@@ -24,7 +24,7 @@ Create each worker's worktree on its own new branch from the current integration
 
 ## 3. Build and integrate the frontier
 
-Dispatch frontier tickets in parallel where their edits can proceed independently; serialize tickets that need the same files. Give each implementer its ticket, relevant spec sections, worktree, starting SHA, and this contract:
+Before dispatching parallel workers, read [Parallel resources](../../references/parallel-resources.md) and record their resource ownership with the task graph. Dispatch frontier tickets only where their edits and mutable resources can proceed independently. Give each implementer its ticket, relevant spec sections, worktree, starting SHA, resource assignment, and this contract:
 
 - Work only in the assigned worktree. Call the Skill tool with "tdd" at the agreed test seams. For a refactor without tests, first pin current behavior with characterization tests in a separate commit.
 - Use focused checks during TDD cycles. Before committing a completed behavior, complete the repository's full required gate. Reuse passing checks only when their relevant files, dependencies, configuration, and environment are unchanged.
@@ -39,6 +39,8 @@ After the first successful merge, open a draft PR only if the tracker closes wor
 ## 4. Verify the whole spec
 
 Once every ticket is integrated, run the repository's full required gate on the final integration commit, reusing unchanged valid results. Then run these checks in order:
+
+For independently evolving providers and consumers, first identify the spec's authoritative contract and owner. Check actual serialized responses and consumer fixtures against that same artifact, including relevant errors, null values, mocks, and feature-flag paths. A matching mock or separately declared type alone does not verify the boundary. Missing ownership or contradictory contracts leave the affected acceptance criteria unresolved. Components changed and built atomically can use their existing shared type; add no contract tool without a demonstrated gap.
 
 1. In a fresh subagent, call the Skill tool with "qa" against `BASE` and the whole spec, including cross-ticket behavior. Pass working preview details and tell it to report without editing the repository or tracker. Without subagents, run QA yourself and state the independence limit. Fix each fail through "tdd", commit, and repeat QA with the prior report, tested SHA, and fix diff. Keep evidence in the OS temporary directory.
 2. Call the Skill tool with "code-review" against `BASE`, with the whole spec and ticket references. Wait for its aggregate verdict; an individual reader's output is not the final review.

@@ -12,6 +12,10 @@ Include a "suggested skills" section in the document, naming which skills the ne
 
 Do not duplicate content already captured in other artifacts (specs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
 
+Preserve the working state the next agent cannot recover from those pointers: the objective, decisions, failed attempts and their outcomes, blockers, explicit user stops, and the scope of authorization already given. End with one concrete next action. Carry authorization forward without inventing new permission or asking for an approval already supplied.
+
+For repository work, inspect and record the repository, branch, commit, and dirty state. Tie each check or verdict to the state actually tested, including relevant configuration or environment; distinguish current evidence from an earlier claim. Missing or blocked checks stay incomplete. Tell the receiving agent to recheck mutable state before acting, including branch, worktree, running processes, and remote issue or PR state when relevant.
+
 Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
 
 If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
