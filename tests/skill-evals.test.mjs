@@ -134,3 +134,25 @@ test("CLI adjudication preserves incomplete status and detects evidence mutation
   writeFileSync(join(directory, "trace.jsonl"), "changed\n");
   await assert.rejects(run(process.execPath, args), /Saved trace changed/);
 });
+
+test("CLI adjudication rechecks mechanical failures before accepting a review", async t => {
+  const root = mkdtempSync(join(tmpdir(), "supermatt-recheck-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const id = "candidate-report-only-neutral-1", directory = join(root, id); mkdirSync(directory);
+  const savedTrace = trace(events);
+  writeFileSync(join(directory, "trace.jsonl"), savedTrace);
+  save(join(directory, "observation.json"), { ...observation, after: { "code.mjs": "edited" }, traceDigest: digest(savedTrace) });
+  const hash = digest(readFileSync(join(directory, "observation.json")));
+  save(join(root, "report.json"), { plannedRuns: 2, completedRuns: 2, harnessFiles: { "tests/evals/cases.mjs": digest(readFileSync("tests/evals/cases.mjs")) }, results: [
+    { id: "baseline-report-only-neutral-1", status: "pass" },
+    { id, status: "needs review", evidenceDigest: hash },
+  ] });
+  save(join(root, "reviews.json"), [{ id, evidenceDigest: hash, verdict: "pass", reviewer: "test control", rationale: "Control only", evidence: [`${id}/observation.json:1`] }]);
+  const args = [resolve("scripts/evaluate-skills.mjs"), "--adjudicate", root, "--reviews", join(root, "reviews.json")];
+  await assert.rejects(run(process.execPath, args), /Cannot override fail/);
+  save(join(root, "reviews.json"), []);
+  await assert.rejects(run(process.execPath, args), /exit 1/);
+  const checked = JSON.parse(readFileSync(join(root, "adjudicated-report.json")));
+  assert.equal(checked.status, "fail");
+  assert.equal(checked.results.find(result => result.id === id).status, "fail");
+});
