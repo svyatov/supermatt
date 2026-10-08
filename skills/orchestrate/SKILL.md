@@ -50,6 +50,8 @@ Lane L, from 1 to LANES, has a pane, a worker agent named `PROJECT-work-K-L`, an
 
 Each lane runs the Loop on its own issue. Start by running Pick the issue for lanes 1 to LANES in order, so lane 1 takes the first issue in the queue. Then act on whichever lane's background wait notifies you, take that lane through its next steps up to its next wait, and wait again.
 
+Before dispatching concurrent lanes, read [Parallel resources](../../references/parallel-resources.md). Keep resource ownership with lane state, pass the assignment on every worker launch and restart, and recheck it when a phase introduces a new resource. A parked lane retains resources its live processes still use. This resource gate is separate from the ship slot below.
+
 - A lane whose Pick finds nothing goes idle. Whenever an issue closes or a lane goes back to Pick, run Pick for every idle lane too: a closed issue can unblock others.
 - The ship slot: one lane at a time runs from Sync to the end of Close out, so no other merge lands between a branch's sync and its own merge. A lane that reaches Sync while another holds the slot waits for it.
 - When every lane is idle or parked, stop (see Stop conditions).

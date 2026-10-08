@@ -137,7 +137,7 @@ Tool preference:
 
 A tagged probe that prints nothing was most likely never reached. Before you change how it prints, grep the tag to confirm it sits in the test the loop runs, above the call that fails.
 
-**Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
+**Perf branch.** For performance regressions, read [Performance comparisons](PERFORMANCE.md) before comparing changes. Establish a measured baseline with a timing harness, profiler, or query plan, then test one causal hypothesis at a time.
 
 **Heisenbug.** If the bug goes away when you add a log or attach a debugger, the probe changed the timing or ordering: that is evidence, and the bug is still there. Suspect races, async ordering, and unflushed I/O. Observe from outside the path instead (in-memory buffer dumped after the failure, sampling profiler, `strace`/`dtrace`). A real fix still holds with the probe put back.
 

@@ -64,6 +64,8 @@ A list of implementation decisions that were made. This can include:
 - API contracts
 - Specific interactions
 
+When a provider and consumer evolve or deploy independently, name one authoritative contract, its owner, and how each side will be checked against it. Include actual serialization and consumer fixtures in the testing decision, with relevant error, null, mock, and feature-flag paths. For components changed and built atomically, an existing shared type can be that contract; require an additional schema or generator only for a concrete gap.
+
 Name modules and their interfaces, not source file paths or code snippets: those go stale fast. Two kinds of path are durable and belong in the spec: a document the spec builds on (a behavioural spec, an ADR), and the existing tests named as prior art.
 
 Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype, citing its `prototype/<name>` branch. Trim to the decision-rich parts, not a working demo, just the important bits.
