@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-10-09
+
+### Changed
+
+- `ship-pr`: diagnoses CI failures, permits two verified repair cycles and one evidence-backed transient rerun per shipping operation, and verifies post-merge workflows through follow-up repair PRs without weakening merge gates.
+- `orchestrate`: carries CI recovery evidence and budgets across sessions, holds further merges while default-branch recovery is unresolved, and parks only after recovery stops or another shipping blocker remains.
+- `ask-supermatt`: routes shipping through bounded CI recovery and post-merge verification.
+
 ## [0.18.1] - 2026-10-08
 
 ### Fixed
@@ -563,7 +571,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.18.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/svyatov/supermatt/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/svyatov/supermatt/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/svyatov/supermatt/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/svyatov/supermatt/compare/v0.16.0...v0.17.0
