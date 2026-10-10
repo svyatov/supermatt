@@ -43,8 +43,8 @@ Lane L, from 1 to LANES, has a pane, a worker agent named `PROJECT-work-K-L`, an
 
 - **Open the lanes** once, at setup, as shell panes stacked in one column right of yours, with equal heights. Lane 1: `herdr pane split "$HERDR_PANE_ID" --direction right --no-focus --cwd "$PWD"`. Lane L above 1: `herdr pane split <lane L-1's pane> --direction down --ratio R --no-focus --cwd "$PWD"`, where R is 1/(LANES-L+2), the share lane L-1 keeps. Save each `.result.pane.pane_id`. The panes stay for the whole run.
 - **Create the worktree** on branch B: `git fetch origin && git worktree add -b B WT origin/DEFAULT`, or `git worktree add --detach WT origin/DEFAULT` with no branch. Leave `.env*` files uncopied by default. Have the worker try the repository's checks and local preview without credentials. Supply environment values only when a required operation reports that it needs them and existing user authorization permits access. Preserve user restrictions on reading, copying, linking, or loading environment files; if a required value cannot be supplied within those restrictions, park the lane with the exact requirement.
-- **Remove the worktree**: stop any live worker and confirm its harness process has exited, so its hooks no longer need WT. If WT exists, `git worktree remove WT`, and if branch B is still local, `git branch -D B`. A worker that has not exited or a worktree with changes parks the lane.
-- **Park the lane**: stop driving it, ignore its later notifications, and leave its pane, worker, and worktree as they are. Its issue stays in IN_FLIGHT. If it holds the ship slot, release it. Send the notification (see On stop) with the title `PROJECT lane L needs you` and the reason as its body, and add the reason to the friction log. The other lanes go on.
+- **Remove the worktree**: stop any live worker and confirm its harness process has exited, so its hooks no longer need WT. If WT exists, `git worktree remove WT`, and delete each still-local branch recorded for this lane only after its PR is confirmed merged and its local head matches the recorded PR head (B plus any CI repair branches). Retain unmerged or externally changed branches for inspection. A worker that has not exited or a worktree with changes parks the lane.
+- **Park the lane**: stop driving it, ignore its later notifications, and leave its pane, worker, and worktree as they are. Its issue stays in IN_FLIGHT. If it holds the ship slot, release it; a failed or blocked post-merge workflow keeps the separate default-branch merge hold set. Send the notification (see On stop) with the title `PROJECT lane L needs you` and the reason as its body, and add the reason to the friction log. The other lanes go on.
 
 ## Run the lanes
 
@@ -53,7 +53,7 @@ Each lane runs the Loop on its own issue. Start by running Pick the issue for la
 Before dispatching concurrent lanes, read [Parallel resources](../../references/parallel-resources.md). Keep resource ownership with lane state, pass the assignment on every worker launch and restart, and recheck it when a phase introduces a new resource. A parked lane retains resources its live processes still use. This resource gate is separate from the ship slot below.
 
 - A lane whose Pick finds nothing goes idle. Whenever an issue closes or a lane goes back to Pick, run Pick for every idle lane too: a closed issue can unblock others.
-- The ship slot: one lane at a time runs from Sync to the end of Close out, so no other merge lands between a branch's sync and its own merge. A lane that reaches Sync while another holds the slot waits for it.
+- The ship slot: one lane at a time runs from Sync through CI recovery, post-merge workflow verification, and Close out. A lane that reaches Sync while another holds the slot waits for it. A failed or blocked default-branch workflow sets a separate merge hold; releasing a parked lane's slot does not clear that hold. Other lanes may finish work through Refactor, but start no new issue and perform no Sync or merge while the hold remains. If recovery parks, retain those waiting lanes for inspection and stop once every other busy lane reaches that boundary.
 - When every lane is idle or parked, stop (see Stop conditions).
 
 ## Worker
@@ -144,9 +144,9 @@ Other lanes may have merged since this branch started. Wait for the ship slot (s
 
 ### 7. Ship
 
-1. Show phase `ship`. Prompt the current worker with `/ship-pr QA of this branch stands: <the QA line from Sync, or else from step 3>` (`--wait`, no timeout), then wait for the worker. Session B holds no record of the QA pass of session A and otherwise runs it again.
-2. Read its last 60 lines. Find the PR URL and whether it merged.
-3. Confirm with `gh pr view <url> --json state,mergedAt`. If the state is not MERGED (red CI, refused push, anything else), park the lane with the reason. Do not retry and do not fix.
+1. Show phase `ship`. Prompt the current worker with `/ship-pr QA of this branch stands: <the QA line from Sync, or else from step 3>` (`--wait`, no timeout), including the prior QA/review reports and checked commits, current resource assignment, and any existing shipping record. First apply Check the worker's evidence-reuse rules to the final head after Refactor and Sync, including a clean rebase: complete affected follow-up QA and review when changes invalidate their coverage, and pass the resulting reports. Session B otherwise has no record of session A's QA. Let it complete the bounded [CI recovery](../ship-pr/CI.md) procedure, including follow-up PRs and post-merge verification; keep the ship slot throughout. A failed check during that procedure is progress to diagnose, not an immediate park condition.
+2. Read its report and shipping record. Retain all original/repair PR URLs, branch names, merge and checked commits, run IDs/attempts, recovery counters, and the latest QA/review reports in lane state. Show phase `repair` while recovery is active. A new session or dispatch carries the same record and budget, never a fresh allowance. Record each diagnosis, rerun, repair and outcome in the friction log. Set the default-branch merge hold as soon as a failed or blocked post-merge workflow is reported.
+3. Independently confirm each reported merge with `gh pr view <url> --json state,mergedAt,mergeCommit` and the reported CI outcomes with `gh`. Proceed only when the original and any repair PRs are MERGED and the applicable post-merge workflows at the latest repair merge (the original merge when no repair was needed) have succeeded, or configuration proves none apply. A verified repair resolves the historical failure; retain its failed run without requiring a rerun or changing its recorded result. Clear the merge hold only with that evidence for current DEFAULT. If the worker returned only the original merge result, have it finish post-merge verification with the existing record. Park when CI recovery stops with an unresolved failure or blocker, or a push/merge is refused. Preserve successful merges separately from failed recovery; do not restart an exhausted repair loop.
 
 ### 8. Close out
 
@@ -167,7 +167,7 @@ Other lanes may have merged since this branch started. Wait for the ship slot (s
 
 1. Drop N from IN_FLIGHT.
 2. Run `gh issue list --state all --search "created:>=RUN_START" --json number,title` and add each issue not yet in the friction log as `filed #M title`. Workers file bugs they find outside their issue; the next pick takes them first.
-3. Report one line: `lane L: #N -> <PR URL>, merged, QA <verdict>, review <verdict>, lessons <LESSONS>`.
+3. Report one line: `lane L: #N -> <PR URLs, including repairs>, merged, post-merge CI <outcome>, QA <verdict>, review <verdict>, lessons <LESSONS>`. Retain recovery evidence before cleanup.
 4. Go back to Pick the issue.
 
 ## Operator
@@ -182,9 +182,9 @@ Other lanes may have merged since this branch started. Wait for the ship slot (s
 
 ## Stop conditions
 
-Park the lane when: triage left a bug untriaged, a spec found gaps on its second verification, `/implement` made no commits, a question stays open after three answer rounds, a dialog stays open after two answers, the worker asks to run an unsafe action, findings stay unfixed after `/fix-findings`, a rebase stays unfinished after `/resolving-merge-conflicts` or its QA fails, the issue PR does not merge, the read-only retrospective changes files, a worktree with changes refuses removal, or a herdr, gh, or git command about the lane fails.
+Park the lane when: triage left a bug untriaged, a spec found gaps on its second verification, `/implement` made no commits, a question stays open after three answer rounds, a dialog stays open after two answers, the worker asks to run an unsafe action, findings stay unfixed after `/fix-findings`, a rebase stays unfinished after `/resolving-merge-conflicts` or its QA fails, CI recovery stops with an unresolved failure or blocker, a push or merge is refused, the read-only retrospective changes files, a worktree with changes refuses removal, or a herdr, gh, or git control command about the lane fails outside a handled recovery path. A nonzero CI check result follows CI recovery instead of this command-failure stop.
 
-Stop the run when every lane is idle or parked: the queue has nothing left that no lane holds, or the operator paused. Stop it at once when a Setup step fails or a herdr command about the run itself fails. On stop, close the panes of idle lanes, and leave the panes and worktrees of parked lanes open, so the operator can inspect them.
+Stop the run when every lane is idle or parked (including lanes retained at the merge hold after another lane's recovery stopped): the queue has nothing left that no lane holds, or the operator paused. Stop it at once when a Setup step fails or a herdr command about the run itself fails. On stop, close the panes of idle lanes, and leave the panes and worktrees of parked lanes open, so the operator can inspect them.
 
 ## Rules
 
