@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 
-- `research`: assigns one report writer and a destination before dispatch, makes the caller save read-only scouts' findings, and requires reading back the cited report and returning its path before completion.
+- `research`: makes the caller save missing cited reports from completed research, read them back, and return the saved path before declaring completion.
 
 ## [0.20.1] - 2026-10-14
 
