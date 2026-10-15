@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.20.2] - 2026-10-15
+
+### Fixed
+
+- `research`: assigns one report writer and a destination before dispatch, makes the caller save read-only scouts' findings, and requires reading back the cited report and returning its path before completion.
+
 ## [0.20.1] - 2026-10-14
 
 ### Fixed
@@ -609,7 +615,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.20.1...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.20.2...HEAD
+[0.20.2]: https://github.com/svyatov/supermatt/compare/v0.20.1...v0.20.2
 [0.20.1]: https://github.com/svyatov/supermatt/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/svyatov/supermatt/compare/v0.19.1...v0.20.0
 [0.19.1]: https://github.com/svyatov/supermatt/compare/v0.19.0...v0.19.1
