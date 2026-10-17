@@ -110,9 +110,11 @@ Within one axis, two findings that name the same defect at the same `file:line` 
 A `[both]` finding whose two readers gave the same severity is already confirmed only when distinct model families found it independently. Number every other quoted P0, P1, and P2 finding, including a `[both]` finding whose readers disagreed on severity. When there are none, skip to step 8. Otherwise validate both groups at once:
 
 - **External findings**: one host validator subagent.
-- **Host findings**: the same selected external adapter, using `$DIR/validate.peer-in.md` from step 5 and the same capability, confirmation, isolation, argument, timeout, stdout, stderr, nonce, integrity, and failure rules. With no external adapter, a host validator takes these findings and the report states that validation is same-family. A failed external validator leaves those findings `not validated`.
+- **Host findings**: the same selected external adapter, using `$DIR/validate.peer-in.md` prepared below and the same capability, confirmation, isolation, argument, timeout, stdout, stderr, nonce, integrity, and failure rules. With no external adapter, a host validator takes these findings and the report states that validation is same-family. A failed external validator leaves those findings `not validated`.
 
 Each validator prompt is the contents of [VALIDATOR.md](VALIDATOR.md), then the execution-access brief from step 5, then its numbered findings with their axis, quote, and reasoning, then the diff file path and commit list.
+
+Write the external validator prompt for **Host findings** to `$DIR/validate.peer.prompt.md`. Prepare `$DIR/validate.peer-in.md` from that unchanged prompt with the complete diff and every named text evidence file, using Step 5's nonce-delimited peer-input procedure. Run the selected adapter with that input and save its nonempty result to `$DIR/validate.peer.md`, with stdout and stderr kept separate as Step 5 requires.
 
 Apply the verdicts to each finding on its own axis:
 

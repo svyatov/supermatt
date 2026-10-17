@@ -13,9 +13,15 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 
 - Harness contract: validates repository peer settings, keeps `auto` on hardened Claude and Codex adapters, requires runtime confirmation for explicit Cursor and OMP calls, and defines capability-aware fallback and reporting.
-- `code-review`: applies the repository peer policy to readers and validators, supports four explicit adapters with their actual isolation limits, keeps process output streams separate, and makes `host-only` avoid every external peer subprocess.
+- `code-review`: applies the repository peer policy to readers and validators, supports four explicit adapters with their actual isolation limits, keeps process output streams separate, prepares the external validator's complete evidence bundle, and makes `host-only` avoid every external peer subprocess.
 - `jury`: applies the same repository peer policy to vote and review seats, keeps process output streams separate, uses host seats on fallback, and reports configured adapter details and exact failures.
 - `ask-supermatt`: routes setup, review, and jury through the repository peer policy.
+
+### Fixed
+
+- `codebase-design`: loads both references required for alternative-interface design directly from the main skill.
+- `refactor`: replaces the missing *Out of the Tar Pit* reference with a working PDF.
+- `retro`: resolves OMP XDG session roots and persisted active-leaf markers using OMP's current layout and replay semantics.
 
 ## [0.21.0] - 2026-10-15
 

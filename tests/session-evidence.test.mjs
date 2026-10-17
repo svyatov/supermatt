@@ -139,6 +139,51 @@ test("OMP follows the active branch and includes associated child transcripts", 
   assert.equal(output.sessions[0].records.find(({ text }) => text === "OMP failed tool").kind, "tool-error");
 });
 
+test("OMP accepts sessions from its XDG data root", (t) => {
+  const home = workspace(t);
+  const xdgData = join(home, "xdg-data");
+  const main = join(xdgData, "omp/sessions/-workspace-project/session.jsonl");
+  copy("omp-main.jsonl", main);
+
+  const result = run(["--host", "omp", "--cwd", "/workspace/project", "--session", main], {
+    HOME: home,
+    XDG_DATA_HOME: xdgData,
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(JSON.parse(result.stdout).sessions[0].path, realpathSync(main));
+});
+
+test("OMP treats an explicit null active leaf as cleared history", (t) => {
+  const home = workspace(t);
+  const sessionRoot = join(home, ".omp/agent/sessions");
+  const main = join(sessionRoot, "-workspace-project/session.jsonl");
+  copy("omp-null-leaf.jsonl", main);
+
+  const result = run(["--host", "omp", "--cwd", "/workspace/project", "--session", main], {
+    HOME: home,
+    PI_CODING_AGENT_SESSION_DIR: sessionRoot,
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /unsupported OMP transcript schema/);
+});
+
+test("OMP falls back when a persisted active leaf no longer exists", (t) => {
+  const home = workspace(t);
+  const sessionRoot = join(home, ".omp/agent/sessions");
+  const main = join(sessionRoot, "-workspace-project/session.jsonl");
+  copy("omp-missing-leaf.jsonl", main);
+
+  const result = run(["--host", "omp", "--cwd", "/workspace/project", "--session", main], {
+    HOME: home,
+    PI_CODING_AGENT_SESSION_DIR: sessionRoot,
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(texts(JSON.parse(result.stdout)), ["Fallback OMP user", "Fallback OMP answer"]);
+});
+
 test("OMP rejects an associated child transcript from another workspace", (t) => {
   const home = workspace(t);
   const sessionRoot = join(home, ".omp/agent/sessions");

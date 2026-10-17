@@ -84,7 +84,15 @@ function cursorSession(path) {
 
 function activeEntries(entries) {
   const indexed = new Map(entries.filter(({ value }) => value?.id).map((entry) => [entry.value.id, entry]));
-  let current = entries.findLast(({ value }) => value?.id && value.type !== "session");
+  const last = entries.findLast(({ value }) => value?.id && value.type !== "session");
+  let leafId = last?.value.type === "model_usage" && last.value.activeLeafId !== undefined
+    ? last.value.activeLeafId
+    : last?.value.id;
+  if (typeof leafId === "string" && !indexed.has(leafId)) {
+    leafId = entries.findLast(({ value }) => value?.id && value.type !== "session"
+      && (value.type !== "model_usage" || value.activeLeafId === undefined || value.activeLeafId === value.id))?.value.id;
+  }
+  let current = typeof leafId === "string" ? indexed.get(leafId) : undefined;
   const active = new Set();
   while (current && !active.has(current.value.id)) {
     active.add(current.value.id);
@@ -208,10 +216,14 @@ function rootList(host, cwd) {
     const configured = [process.env.PI_CODING_AGENT_SESSION_DIR, process.env.OMP_SESSION_DIR, process.env.OMP_SESSION_ROOT, process.env.PI_SESSION_DIR].filter(Boolean);
     if (process.env.PI_CODING_AGENT_DIR) configured.push(join(process.env.PI_CODING_AGENT_DIR, "sessions"));
     configured.push(join(home, ".omp", "agent", "sessions"));
-    if (process.env.XDG_DATA_HOME) configured.push(join(process.env.XDG_DATA_HOME, "omp", "agent", "sessions"));
-    if (process.env.XDG_STATE_HOME) configured.push(join(process.env.XDG_STATE_HOME, "omp", "agent", "sessions"));
-    if (process.env.XDG_CONFIG_HOME) configured.push(join(process.env.XDG_CONFIG_HOME, "omp", "agent", "sessions"));
-    for (const profile of [process.env.OMP_PROFILE, process.env.PI_PROFILE].filter(Boolean)) {
+    const profile = process.env.OMP_PROFILE !== undefined ? process.env.OMP_PROFILE : process.env.PI_PROFILE;
+    if (process.env.XDG_DATA_HOME) {
+      const dataRoot = profile && profile !== "default"
+        ? join(process.env.XDG_DATA_HOME, "omp", "profiles", profile)
+        : join(process.env.XDG_DATA_HOME, "omp");
+      configured.push(join(dataRoot, "sessions"));
+    }
+    if (profile) {
       if (isAbsolute(profile)) configured.push(join(profile, "sessions"));
       else configured.push(join(home, ".omp", "profiles", profile, "agent", "sessions"));
     }
