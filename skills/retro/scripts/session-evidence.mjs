@@ -96,7 +96,7 @@ function activeEntries(entries) {
 function ompRecords(path, main = false, cwd) {
   const entries = jsonl(path);
   const header = entries.find(({ value }) => value?.type === "session")?.value;
-  if (!header || (main && resolve(header.cwd) !== cwd)) fail(`unsupported or mismatched OMP transcript at ${path}`);
+  if (!header || resolve(header.cwd) !== cwd) fail(`unsupported or mismatched OMP transcript at ${path}`);
   const records = [];
   for (const { line, value } of activeEntries(entries)) {
     if (["compaction", "branch_summary", "summary"].includes(value?.type)) {
@@ -124,20 +124,84 @@ function ompSession(path, cwd) {
   return sessions;
 }
 
-function genericRecords(path, host, main = false) {
+function failedOutput(value) {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const failure = failedOutput(item);
+      if (failure) return failure;
+    }
+    return "";
+  }
+  if (!value || typeof value !== "object") return "";
+  if ((Number.isInteger(value.exit_code) && value.exit_code !== 0) || ["error", "failed", "rejected"].includes(value.status)) {
+    return typeof value.output === "string" && value.output ? value.output : JSON.stringify(value);
+  }
+  for (const item of Object.values(value)) {
+    const failure = failedOutput(item);
+    if (failure) return failure;
+  }
+  return "";
+}
+
+function codexToolError(item) {
+  if (item?.type === "item_completed" && item.item?.type === "CommandExecution"
+    && (item.item.exit_code !== 0 || ["error", "failed", "rejected"].includes(item.item.status))) {
+    return item.item.aggregated_output || JSON.stringify(item.item);
+  }
+  if (!["custom_tool_call_output", "function_call_output"].includes(item?.type)) return "";
+  const output = text(item.output);
+  if (item.is_error || item.isError || ["error", "failed", "rejected"].includes(item.status)) return output;
+  const blocks = Array.isArray(item.output) ? item.output : [{ text: output }];
+  for (const block of blocks) {
+    if (typeof block?.text !== "string") continue;
+    try {
+      const failure = failedOutput(JSON.parse(block.text));
+      if (failure) return failure;
+    } catch {
+      // Non-JSON tool output has no machine-readable failure status.
+    }
+  }
+  return "";
+}
+
+function genericRecords(path, host, main, cwd) {
   const records = [];
-  for (const { line, value } of jsonl(path)) {
-    const item = value?.payload?.type === "message" ? value.payload : value;
+  const entries = jsonl(path);
+  const workspaces = host === "claude"
+    ? entries.flatMap(({ value }) => typeof value?.cwd === "string" ? [value.cwd] : [])
+    : entries.flatMap(({ value }) => value?.type === "session_meta" && typeof value.payload?.cwd === "string" ? [value.payload.cwd] : []);
+  if (!workspaces.length || workspaces.some((workspace) => resolve(workspace) !== cwd)) {
+    fail(`unsupported or mismatched ${host} transcript at ${path}`);
+  }
+  for (const { line, value } of entries) {
+    const item = value?.payload && typeof value.payload === "object" ? value.payload : value;
     const message = item?.message && typeof item.message === "object" ? item.message : item;
+    const failure = host === "codex" ? codexToolError(item) : "";
+    if (failure) records.push({ line, kind: "tool-error", text: failure });
     const role = message?.role;
-    const spoken = text(message?.content) || (typeof item?.message === "string" ? item.message : "");
+    const content = message?.content;
+    if (Array.isArray(content)) {
+      for (const result of content.filter(({ type, is_error, isError } = {}) => type === "tool_result" && (is_error || isError))) {
+        const output = text([result]);
+        if (output) records.push({ line, kind: "tool-error", text: output });
+      }
+    }
+    const spoken = text(Array.isArray(content) ? content.filter(({ type } = {}) => type !== "tool_result") : content)
+      || (typeof item?.message === "string" ? item.message : "");
     if (spoken && ["user", "developer"].includes(role)) records.push({ line, kind: "user", text: spoken });
     else if (spoken && role === "assistant") records.push({ line, kind: "assistant", text: spoken });
     else if (spoken && role === "tool" && (message?.is_error || message?.isError)) records.push({ line, kind: "tool-error", text: spoken });
     else if (typeof item?.summary === "string" && /summary|compact/.test(item.type ?? value.type ?? "")) records.push({ line, kind: "summary", text: item.summary });
   }
-  if (!records.length || (main && !records.some(({ kind }) => kind === "user"))) fail(`unsupported ${host} transcript schema at ${path}`);
-  return records;
+  const seenErrors = new Set();
+  const normalized = records.filter(({ kind, text }) => {
+    if (kind !== "tool-error") return true;
+    if (seenErrors.has(text)) return false;
+    seenErrors.add(text);
+    return true;
+  });
+  if (!normalized.length || (main && !normalized.some(({ kind }) => kind === "user"))) fail(`unsupported ${host} transcript schema at ${path}`);
+  return normalized;
 }
 
 function rootList(host, cwd) {
@@ -200,11 +264,11 @@ function evidence(host, cwd, requests) {
   const sessions = paths.flatMap((path) => {
     if (host === "cursor") return cursorSession(path);
     if (host === "omp") return ompSession(path, cwd);
-    const found = [{ path, records: genericRecords(path, host, true) }];
+    const found = [{ path, records: genericRecords(path, host, true, cwd) }];
     if (host === "claude") {
       const childRoot = path.slice(0, -extname(path).length);
       for (const child of files(join(childRoot, "subagents"), (file) => extname(file) === ".jsonl")) {
-        found.push({ path: child, records: genericRecords(child, host) });
+        found.push({ path: child, records: genericRecords(child, host, false, cwd) });
       }
     }
     return found;

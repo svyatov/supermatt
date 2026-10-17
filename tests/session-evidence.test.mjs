@@ -32,6 +32,61 @@ function texts(output) {
   return output.sessions.flatMap(({ records }) => records.map(({ text }) => text));
 }
 
+test("Claude normalizes failed tool results", (t) => {
+  const home = workspace(t);
+  const session = join(home, ".claude", "projects", "-workspace-project", "claude-session.jsonl");
+  copy("claude-main.jsonl", session);
+
+  const result = run(["--host", "claude", "--cwd", "/workspace/project", "--session", session], { HOME: home });
+
+  assert.equal(result.status, 0, result.stderr);
+  const records = JSON.parse(result.stdout).sessions[0].records;
+  assert.deepEqual(records.map(({ kind, text }) => ({ kind, text })), [
+    { kind: "user", text: "Claude user marker" },
+    { kind: "assistant", text: "Claude assistant marker" },
+    { kind: "tool-error", text: "Claude failed tool" },
+  ]);
+});
+
+test("Claude rejects a transcript from another workspace", (t) => {
+  const home = workspace(t);
+  const session = join(home, ".claude", "projects", "-workspace-other", "claude-session.jsonl");
+  copy("claude-other.jsonl", session);
+
+  const result = run(["--host", "claude", "--cwd", "/workspace/project", "--session", session], { HOME: home });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /mismatched claude transcript/);
+});
+
+test("Codex normalizes failed tool results", (t) => {
+  const home = workspace(t);
+  const session = join(home, ".codex", "sessions", "codex-session.jsonl");
+  copy("codex-main.jsonl", session);
+
+  const result = run(["--host", "codex", "--cwd", "/workspace/project", "--session", session], { HOME: home });
+
+  assert.equal(result.status, 0, result.stderr);
+  const records = JSON.parse(result.stdout).sessions[0].records;
+  assert.deepEqual(records.map(({ kind, text }) => ({ kind, text })), [
+    { kind: "user", text: "Codex user marker" },
+    { kind: "assistant", text: "Codex assistant marker" },
+    { kind: "tool-error", text: "Codex failed tool" },
+  ]);
+  assert.equal(records.find(({ kind }) => kind === "tool-error").line, 4);
+});
+
+test("Codex rejects a transcript from another workspace", (t) => {
+  const home = workspace(t);
+  const session = join(home, ".codex", "sessions", "codex-session.jsonl");
+  copy("codex-other.jsonl", session);
+
+  const result = run(["--host", "codex", "--cwd", "/workspace/project", "--session", session], { HOME: home });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /mismatched codex transcript/);
+});
+
 test("Cursor reads only the verified workspace session and its child evidence", (t) => {
   const home = workspace(t);
   const session = "cursor-session";
@@ -81,6 +136,22 @@ test("OMP follows the active branch and includes associated child transcripts", 
   ]);
   assert.equal(texts(output).includes("OMP abandoned answer"), false);
   assert.equal(output.sessions[0].records.find(({ text }) => text === "OMP failed tool").kind, "tool-error");
+});
+
+test("OMP rejects an associated child transcript from another workspace", (t) => {
+  const home = workspace(t);
+  const sessionRoot = join(home, ".omp/agent/sessions");
+  const main = join(sessionRoot, "-workspace-project/session.jsonl");
+  copy("omp-main.jsonl", main);
+  copy("omp-child-other.jsonl", join(sessionRoot, "-workspace-project/session/child.jsonl"));
+
+  const result = run(["--host", "omp", "--cwd", "/workspace/project", "--session", main], {
+    HOME: home,
+    PI_CODING_AGENT_SESSION_DIR: sessionRoot,
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /mismatched OMP transcript/);
 });
 
 test("Cursor rejects paths outside the verified workspace", (t) => {
