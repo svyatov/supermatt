@@ -193,15 +193,8 @@ function genericRecords(path, host, main, cwd) {
     else if (spoken && role === "tool" && (message?.is_error || message?.isError)) records.push({ line, kind: "tool-error", text: spoken });
     else if (typeof item?.summary === "string" && /summary|compact/.test(item.type ?? value.type ?? "")) records.push({ line, kind: "summary", text: item.summary });
   }
-  const seenErrors = new Set();
-  const normalized = records.filter(({ kind, text }) => {
-    if (kind !== "tool-error") return true;
-    if (seenErrors.has(text)) return false;
-    seenErrors.add(text);
-    return true;
-  });
-  if (!normalized.length || (main && !normalized.some(({ kind }) => kind === "user"))) fail(`unsupported ${host} transcript schema at ${path}`);
-  return normalized;
+  if (!records.length || (main && !records.some(({ kind }) => kind === "user"))) fail(`unsupported ${host} transcript schema at ${path}`);
+  return records;
 }
 
 function rootList(host, cwd) {

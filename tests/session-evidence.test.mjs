@@ -59,7 +59,7 @@ test("Claude rejects a transcript from another workspace", (t) => {
   assert.match(result.stderr, /mismatched claude transcript/);
 });
 
-test("Codex normalizes failed tool results", (t) => {
+test("Codex preserves distinct failed calls with identical output", (t) => {
   const home = workspace(t);
   const session = join(home, ".codex", "sessions", "codex-session.jsonl");
   copy("codex-main.jsonl", session);
@@ -72,8 +72,9 @@ test("Codex normalizes failed tool results", (t) => {
     { kind: "user", text: "Codex user marker" },
     { kind: "assistant", text: "Codex assistant marker" },
     { kind: "tool-error", text: "Codex failed tool" },
+    { kind: "tool-error", text: "Codex failed tool" },
   ]);
-  assert.equal(records.find(({ kind }) => kind === "tool-error").line, 4);
+  assert.deepEqual(records.filter(({ kind }) => kind === "tool-error").map(({ line }) => line), [4, 5]);
 });
 
 test("Codex rejects a transcript from another workspace", (t) => {

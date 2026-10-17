@@ -43,7 +43,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 
-- `retro`: normalizes failed tool results and verified Claude Code, Codex, Cursor, and OMP session evidence, follows only the active OMP branch, includes verified child and compaction records, validates every parent and child transcript against the requested workspace, and fails closed on malformed or mismatched transcripts.
+- `retro`: normalizes failed tool results and verified Claude Code, Codex, Cursor, and OMP session evidence, preserves distinct failed retries with identical output, follows only the active OMP branch, includes verified child and compaction records, validates every parent and child transcript against the requested workspace, and fails closed on malformed or mismatched transcripts.
 - Plugin validation: checks matching Claude Code, Codex, and Cursor package names, the single version authority, canonical skill discovery, and directory projection coverage.
 
 ## [0.20.2] - 2026-10-15
