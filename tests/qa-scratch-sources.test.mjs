@@ -182,6 +182,24 @@ test("prepare follows a link chain to its last hop and rejects it when that hop 
   assert.ok(writable(join(scratch, "kept.txt")), "a rejected preparation protects nothing");
 });
 
+test("prepare rejects a link chain with a dangling final target outside the copy", (t) => {
+  const { root, dir, scratch, run } = fixture(t, (repo, git) => {
+    writeFileSync(join(repo, ".gitignore"), "second-hop\n");
+    writeFileSync(join(repo, "kept.txt"), "kept\n");
+    symlinkSync("second-hop", join(repo, "first-hop"));
+    git("add", ".");
+    git("commit", "-qm", "init");
+  });
+  symlinkSync(join(root, "missing.txt"), join(scratch, "second-hop"));
+
+  const result = run("prepare");
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /first-hop -> .*missing\.txt/);
+  assert.ok(writable(join(scratch, "kept.txt")), "a rejected preparation protects nothing");
+  assert.ok(!existsSync(join(dir, "sources.lst")));
+  assert.ok(!existsSync(join(dir, "deleted.lst")));
+});
+
 test("prepare lists a dangling link that stays inside the copy as a source", (t) => {
   const { dir, run } = fixture(t, (repo, git) => {
     symlinkSync("not-yet-built.txt", join(repo, "dangling-link"));

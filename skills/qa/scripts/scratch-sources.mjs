@@ -64,8 +64,13 @@ if (mode === "prepare") {
   const realOrLexical = (path) => {
     try {
       return realpathSync(path);
-    } catch {
-      return join(realOrLexical(dirname(path)), basename(path));
+    } catch (error) {
+      if (error.code !== "ENOENT" && error.code !== "ENOTDIR") throw error;
+      const parent = realOrLexical(dirname(path));
+      const candidate = join(parent, basename(path));
+      return lstatOrNull(candidate)?.isSymbolicLink()
+        ? realOrLexical(resolve(parent, readlinkSync(candidate)))
+        : candidate;
     }
   };
 
