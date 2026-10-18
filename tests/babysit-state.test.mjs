@@ -90,7 +90,8 @@ function host({ prs = [], live = null } = {}) {
     }
     if (group === "api" && verb === `repos/acme/app/rules/branches/${encodeURIComponent(live.baseRefName)}`) {
       if (live.rules instanceof Error) throw live.rules;
-      return JSON.stringify(live.rules);
+      const pages = [live.rules.slice(0, 30), live.rules.slice(30)];
+      return JSON.stringify(args.includes("--slurp") ? (args.includes("--paginate") ? pages : [pages[0]]) : pages[0]);
     }
     throw new Error(`unexpected gh ${args.join(" ")}`);
   };
@@ -335,6 +336,29 @@ test("a reply in a thread the babysitter resolved comes back; a thread resolved 
   live.threads[1].comments.nodes.push(comment("TC2", "The rename broke the export."));
   live.threads[0].comments.nodes.push(comment("TC9", "Unrelated follow-up."));
   assert.deepEqual(look().feedback.map((f) => [f.id, f.resolved]), [["T1", true]]);
+});
+
+test("reopening a handled thread without changing comments keeps feedback pending until handled again", (t) => {
+  const { live, stateFile, look } = babysat(t, { threads: [thread("T1", comment("TC1", "Rename this."))] });
+  const [first] = look(NOW).feedback;
+  handled(stateFile, { id: first.id, fingerprint: first.fingerprint, disposition: "fixed" });
+  live.threads[0].isResolved = true;
+  look(NOW + 1_000);
+  assert.equal(look(NOW + 301_000).outcome, "ready");
+
+  live.threads[0].isResolved = false;
+  const reopened = look(NOW + 302_000);
+  assert.deepEqual(reopened.feedback.map((f) => f.id), ["T1"]);
+  assert.equal(reopened.outcome, null);
+  assert.equal(reopened.next[0], "feedback");
+  const repeated = look(NOW + 602_000);
+  assert.deepEqual(repeated.feedback.map((f) => f.id), ["T1"]);
+  assert.equal(repeated.outcome, null);
+
+  handled(stateFile, { id: "T1", fingerprint: repeated.feedback[0].fingerprint, disposition: "answered" });
+  live.threads[0].isResolved = true;
+  assert.deepEqual(look(NOW + 603_000).feedback, []);
+  assert.equal(look(NOW + 903_000).outcome, "ready");
 });
 
 test("a needs-human thread blocks until someone resolves it", async (t) => {
@@ -700,6 +724,21 @@ test("a missing required check is never green, and blocks once its grace period 
   assert.deepEqual(early.checks.missing, ["lint"]);
   assert.equal(early.outcome, null);
   assert.equal(look(NOW + 900_000).outcome, "blocked");
+});
+
+test("a required check on a later rules page prevents readiness until it passes", (t) => {
+  const rules = [
+    ...Array.from({ length: 30 }, () => ({ type: "deletion" })),
+    { type: "required_status_checks", parameters: { required_status_checks: [{ context: "lint" }] } },
+  ];
+  const { live, look } = babysat(t, { rules });
+  const early = look(NOW);
+  assert.deepEqual(early.checks.required, ["lint"]);
+  assert.deepEqual(early.checks.missing, ["lint"]);
+  assert.equal(look(NOW + 900_000).outcome, "blocked");
+  live.checks.push(checkRun("lint", "SUCCESS", 2));
+  assert.deepEqual(look(NOW + 901_000).checks.missing, []);
+  assert.equal(look(NOW + 1_201_000).outcome, "ready");
 });
 
 test("a closed PR and a spent monitoring window end the run", async (t) => {

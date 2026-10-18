@@ -401,7 +401,7 @@ function actionsJobs(gh, repo, runs) {
 const PLAN_WITHOUT_RULESETS = /Upgrade to GitHub Pro or make this repository public/;
 function branchRules(gh, repo, branch) {
   try {
-    return JSON.parse(gh(["api", `repos/${repo}/rules/branches/${encodeURIComponent(branch)}`]));
+    return JSON.parse(gh(["api", `repos/${repo}/rules/branches/${encodeURIComponent(branch)}`, "--paginate", "--slurp"])).flat();
   } catch (err) {
     if (PLAN_WITHOUT_RULESETS.test(String(err?.stderr ?? "") + String(err?.message ?? ""))) return [];
     throw err;
@@ -466,9 +466,6 @@ export function evaluate(state, seen, now) {
     state.ready_candidate = null;
   }
   state.handled ??= {};
-  // A resolved thread is feedback only when this babysitter handled it and it changed since:
-  // a reply or edit after the resolve. Threads others resolved stay closed.
-  const pending = seen.feedback.filter((f) => state.handled[f.id]?.fingerprint !== f.fingerprint && (!f.resolved || state.handled[f.id]));
   // Count each reopen of a thread, so a park can tell a resolve that followed it.
   state.threads ??= {};
   for (const f of seen.feedback.filter((x) => x.kind === "thread")) {
@@ -479,6 +476,14 @@ export function evaluate(state, seen, now) {
       known.resolved = f.resolved;
     }
   }
+  // A handled thread can reopen without a comment change. Keep that reopen pending until
+  // handled records it; needs-human threads retain their park-and-resolve lifecycle below.
+  const pending = seen.feedback.filter((f) => {
+    const h = state.handled[f.id];
+    const reopened = f.kind === "thread" && h && h.disposition !== "needs-human"
+      && state.threads[f.id].reopens > (h.reopens ?? 0);
+    return (h?.fingerprint !== f.fingerprint || reopened) && (!f.resolved || h);
+  });
   // A needs-human item stays parked until its thread is resolved after it was parked: it was
   // open when parked, or it was reopened since.
   const parked = seen.feedback.filter((f) => {
