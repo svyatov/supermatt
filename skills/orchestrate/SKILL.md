@@ -18,7 +18,7 @@ You are the orchestrator. You do not write code. You pick issues, drive workers 
 
 Repeat until a stop condition is met. Never ask the user anything, through a question tool or otherwise: answer every question and dialog as below.
 
-Before dispatching, read the [orchestrator dispatch contract](../../references/harnesses.md#orchestrator-dispatch). This explicit invocation delegates only its listed worker commands within this run. Pass the assigned issue, worktree, phase, approval scope, and relevant prior evidence with every fresh-worker prompt. Keep the called skills' invocation policies unchanged; park when a required human approval is outside the delegated scope.
+Before dispatching, read the [orchestrator dispatch contract](../../references/harnesses.md#orchestrator-dispatch). This explicit invocation delegates only its listed worker commands within this run. Use [Send the prompt](WORKER.md#dispatch-preamble) for every instruction prompt: it attaches the assigned issue, worktree, phase, approval scope, and relevant prior evidence at dispatch. Keep the called skills' invocation policies unchanged; park when a required human approval is outside the delegated scope.
 
 ## Setup
 

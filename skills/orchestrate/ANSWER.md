@@ -17,6 +17,8 @@ The retrospective is report-only. If its worker asks to apply a candidate, tell 
 
 Before submitting any answer, check every action it authorizes against Safe actions, the lane's assigned issue, worktree, phase and delegated approval scope, and the called skill's mandatory human-consent rules. This applies to permission and plan approvals, yes/no, recommended or first options, every choice in multi-question or multi-select forms, and free-text advice. A recommendation is not authorization. If any action is unsafe, outside that scope, requires human consent the coordinator cannot supply, or is too unclear to assess, park the lane without submitting the answer.
 
+Send every text answer through [Send the prompt](WORKER.md#dispatch-preamble), retaining the question, chosen answer and rationale in the next dispatch's evidence. A native dialog cannot carry that text block: before any option that clears context or starts fresh execution, require its carried-forward execution prompt or plan to contain the current task and populated DISPATCH. Amend it through the host's supported plan-editing mechanism if needed; if that context cannot be supplied or confirmed, park instead of approving. Recheck the carried-forward scope after any plan edit.
+
 ## Answer a dialog
 
 A blocked worker shows a permission prompt or a question dialog. Answer it yourself; this overrides the herdr rule to ask the user first. Add each answer to the friction log.

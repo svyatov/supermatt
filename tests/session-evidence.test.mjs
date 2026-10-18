@@ -515,6 +515,73 @@ for (const [host, metadata, message, envKey] of [
       ? ["Resumed Claude evidence", "Resumed Claude child"]
       : [host === "omp" ? "Resumed OMP evidence" : "Resumed Codex evidence"]);
   });
+
+  test(`${host} stops unrelated metadata lookup before a large malformed tail`, (t) => {
+    const home = workspace(t);
+    const root = join(home, "sessions");
+    const directory = host === "claude" ? join(root, "projects") : host === "codex" ? join(root, "sessions") : root;
+    mkdirSync(directory, { recursive: true });
+    const session = join(directory, "original-filename.jsonl");
+    const records = host === "claude" ? [{ ...metadata, ...message }] : [metadata, message];
+    const prefix = `${JSON.stringify({ padding: "é".repeat(40000) })}\r\n\r\n`;
+    writeFileSync(session, prefix + records.map((record) => JSON.stringify(record)).join("\n"));
+    const unrelated = join(directory, "resumed-session.jsonl");
+    for (const mismatch of ["identity", "workspace", ...(host === "claude" ? ["sidechain"] : [])]) {
+      const header = structuredClone(metadata);
+      const identity = host === "codex" ? header.payload : header;
+      if (mismatch === "identity") identity[host === "claude" ? "sessionId" : "id"] = "another-session";
+      else if (mismatch === "workspace") identity.cwd = "/workspace/other";
+      else identity.isSidechain = true;
+      writeFileSync(unrelated, `${JSON.stringify(header)}\n{${"malformed tail ".repeat(100000)}`);
+
+      const result = run(["--host", host, "--cwd", "/workspace/project", "--session", "resumed-session"], {
+        HOME: home,
+        [envKey]: root,
+      });
+
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(JSON.parse(result.stdout).sessions[0].path, realpathSync(session));
+    }
+  });
+
+  test(`${host} rejects duplicate metadata identities even with a malformed tail`, (t) => {
+    const home = workspace(t);
+    const root = join(home, "sessions");
+    const directory = host === "claude" ? join(root, "projects") : host === "codex" ? join(root, "sessions") : root;
+    mkdirSync(directory, { recursive: true });
+    const records = host === "claude" ? [{ ...metadata, ...message }] : [metadata, message];
+    writeFileSync(join(directory, "original.jsonl"), records.map((record) => JSON.stringify(record)).join("\n"));
+    writeFileSync(join(directory, "duplicate.jsonl"), `${JSON.stringify(metadata)}\n{malformed tail}`);
+
+    const result = run(["--host", host, "--cwd", "/workspace/project", "--session", "resumed-session"], {
+      HOME: home,
+      [envKey]: root,
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /cannot identify requested .* session/);
+    assert.equal(result.stdout, "");
+  });
+
+  test(`${host} fully validates selected transcripts after metadata lookup`, (t) => {
+    const home = workspace(t);
+    const root = join(home, "sessions");
+    const directory = host === "claude" ? join(root, "projects") : host === "codex" ? join(root, "sessions") : root;
+    mkdirSync(directory, { recursive: true });
+    const session = join(directory, "original-filename.jsonl");
+    const records = host === "claude" ? [{ ...metadata, ...message }] : [metadata, message];
+    writeFileSync(session, `${records.map((record) => JSON.stringify(record)).join("\n")}\n{malformed tail}`);
+    for (const request of ["resumed-session", session]) {
+      const result = run(["--host", host, "--cwd", "/workspace/project", "--session", request], {
+        HOME: home,
+        [envKey]: root,
+      });
+
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, new RegExp(`malformed JSONL at .*:${records.length + 1}`));
+      assert.equal(result.stdout, "");
+    }
+  });
 }
 
 test("metadata lookup rejects duplicate session identities", (t) => {

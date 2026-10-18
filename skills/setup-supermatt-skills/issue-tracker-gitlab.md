@@ -23,7 +23,7 @@ Infer the repo from `git remote -v`; `glab` does this automatically when run ins
 When set to `yes`, MRs run through the same labels and states as issues, using the `glab mr` equivalents:
 
 - **Read an MR**: `glab mr view <number> -F json` for details, `glab api projects/:id/merge_requests/<number>/notes --paginate` for all notes, and `glab mr diff <number>` for the diff. Consume every notes page.
-- **List external MRs for triage**: fetch every page of `glab mr list -F json` using the **List issues** pagination procedure, then keep only MRs whose author is not a project member/owner (a contributor's MR, not a maintainer's in-flight work).
+- **List external MRs for triage**: fetch every page of `glab mr list -F json` using the **List issues** pagination procedure. Before filtering, fetch all unfiltered pages of `glab api projects/:id/members/all --paginate` and retain each member's `id` and effective `access_level`; this includes inherited and invited memberships. Match every MR's author ID against those results: members at any role are internal. Treat an absent author as external only when pagination is complete and the authenticated caller is a project member, establishing visibility of invited private-group members. A failed or partial membership lookup, missing author ID or role, or unproven membership visibility makes classification unknown, not external; report that coverage gap. See the [project membership API](https://docs.gitlab.com/api/project_members/#list-all-members-of-a-project).
 - **Comment / label / close**: `glab mr note`, `glab mr update --label`/`--unlabel`, `glab mr close`.
 
 Unlike GitHub, GitLab numbers issues and MRs separately, so `#42` is unambiguous once you know which surface the maintainer means.

@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const script = resolve(dirname(fileURLToPath(import.meta.url)), "../skills/code-review/scripts/snapshot-tree.mjs");
 
 function git(root, ...args) {
-  const result = spawnSync("git", ["-C", root, ...args], { encoding: "utf8" });
+  const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr);
 }
 
@@ -109,6 +109,93 @@ test("records external and dangling symlinks without reading or executing their 
   unlinkSync(join(root, "external"));
   symlinkSync(join(outside, "other"), join(root, "external"));
   assert.notEqual(snapshot(root), before);
+});
+
+test("captures nested repository HEAD, dirty content, index, and untracked changes", (t) => {
+  const { root } = workspace(t);
+  const nested = join(root, "nested");
+  mkdirSync(nested);
+  git(nested, "init");
+  const newborn = snapshot(root);
+  assert.equal(snapshot(root), newborn);
+  writeFileSync(join(nested, "tracked.txt"), "baseline\n");
+  const unstaged = snapshot(root);
+  assert.notEqual(unstaged, newborn);
+  git(nested, "add", ".");
+  const initialIndex = snapshot(root);
+  assert.notEqual(initialIndex, unstaged);
+  assert.equal(JSON.parse(initialIndex).untracked[0].head, null);
+  git(nested, "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "-m", "nested baseline");
+  const clean = snapshot(root);
+  assert.notEqual(clean, newborn);
+  assert.equal(snapshot(root), clean);
+  git(nested, "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "new HEAD");
+  assert.notEqual(snapshot(root), clean);
+  writeFileSync(join(nested, "tracked.txt"), "first dirty value\n");
+  const dirty = snapshot(root);
+  writeFileSync(join(nested, "tracked.txt"), "second dirty value\n");
+  const dirtier = snapshot(root);
+  assert.equal(JSON.parse(dirtier).status, JSON.parse(dirty).status);
+  assert.equal(JSON.parse(dirtier).untracked[0].status, JSON.parse(dirty).untracked[0].status);
+  assert.notEqual(dirtier, dirty);
+  git(nested, "add", ".");
+  writeFileSync(join(nested, "tracked.txt"), "unchanged working value\n");
+  const staged = snapshot(root);
+  writeFileSync(join(nested, "tracked.txt"), "another staged value\n");
+  git(nested, "add", ".");
+  writeFileSync(join(nested, "tracked.txt"), "unchanged working value\n");
+  const restaged = snapshot(root);
+  assert.equal(JSON.parse(restaged).untracked[0].diff, JSON.parse(staged).untracked[0].diff);
+  assert.equal(JSON.parse(restaged).untracked[0].status, JSON.parse(staged).untracked[0].status);
+  assert.notEqual(restaged, staged);
+  writeFileSync(join(nested, "new.txt"), "first untracked value\n");
+  const untracked = snapshot(root);
+  writeFileSync(join(nested, "new.txt"), "second untracked value\n");
+  assert.notEqual(snapshot(root), untracked);
+});
+
+test("nested repositories retain byte-safe paths and do not read symlink targets or run Git helpers", (t) => {
+  const { base, root } = workspace(t);
+  const nested = Buffer.concat([Buffer.from(root + "/"), Buffer.from("nested ü\n\"")]);
+  mkdirSync(nested);
+  git(nested, "init");
+  writeFileSync(Buffer.concat([nested, Buffer.from("/tracked.txt")]), "baseline\n");
+  git(nested, "add", ".");
+  git(nested, "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "-m", "nested baseline");
+  const marker = join(base, "executed");
+  const helper = join(base, "helper.sh");
+  writeFileSync(helper, `#!/bin/sh\nprintf unsafe > '${marker}'\n`, { mode: 0o700 });
+  git(nested, "config", "core.fsmonitor", helper);
+  git(nested, "config", "diff.external", helper);
+  const target = join(base, "outside");
+  writeFileSync(target, "outside content\n");
+  symlinkSync(target, Buffer.concat([nested, Buffer.from("/external")]));
+  writeFileSync(Buffer.concat([nested, Buffer.from("/tracked.txt")]), "dirty\n");
+  const before = snapshot(root);
+  writeFileSync(target, "changed outside content\n");
+  assert.equal(snapshot(root), before);
+  assert.throws(() => readFileSync(marker), { code: "ENOENT" });
+  assert.equal(JSON.parse(before).untracked[0].path, Buffer.from("nested ü\n\"").toString("base64"));
+});
+
+test("nested repository metadata links and pointer files fail closed", (t) => {
+  const { base, root } = workspace(t);
+  const outside = join(base, "outside");
+  mkdirSync(outside);
+  git(outside, "init");
+  const nested = join(root, "nested");
+  mkdirSync(nested);
+  symlinkSync(join(outside, ".git"), join(nested, ".git"));
+  const linked = run(root);
+  assert.notEqual(linked.status, 0);
+  assert.equal(linked.stdout, "");
+  assert.match(linked.stderr, /Unsupported nested repository metadata/);
+  unlinkSync(join(nested, ".git"));
+  writeFileSync(join(nested, ".git"), `gitdir: ${join(outside, ".git")}\n`);
+  const pointer = run(root);
+  assert.notEqual(pointer.status, 0);
+  assert.equal(pointer.stdout, "");
+  assert.match(pointer.stderr, /Unsupported nested repository metadata/);
 });
 
 test("Git failures produce no successful snapshot", (t) => {

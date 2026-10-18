@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { closeSync, existsSync, openSync, readFileSync, readdirSync, readSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { StringDecoder } from "node:string_decoder";
 import { parseArgs } from "node:util";
 
 const HOSTS = new Set(["claude", "codex", "cursor", "omp"]);
@@ -37,6 +38,35 @@ function jsonl(path) {
       fail(`malformed JSONL at ${path}:${index + 1}`);
     }
   });
+}
+
+function* jsonlPrefix(path) {
+  const descriptor = openSync(path, "r");
+  const buffer = Buffer.alloc(64 * 1024);
+  const decoder = new StringDecoder("utf8");
+  let pending = "";
+  let line = 0;
+  try {
+    let size;
+    do {
+      size = readSync(descriptor, buffer, 0, buffer.length, null);
+      pending += size ? decoder.write(buffer.subarray(0, size)) : decoder.end();
+      let end;
+      while ((end = pending.indexOf("\n")) !== -1 || (!size && pending.length)) {
+        const source = end === -1 ? pending : pending.slice(0, end);
+        pending = end === -1 ? "" : pending.slice(end + 1);
+        line++;
+        if (!source.trim()) continue;
+        try {
+          yield JSON.parse(source);
+        } catch {
+          fail(`malformed JSONL at ${path}:${line}`);
+        }
+      }
+    } while (size);
+  } finally {
+    closeSync(descriptor);
+  }
 }
 
 function files(path, accept, depth = 3) {
@@ -335,16 +365,26 @@ function requestedFile(host, request, roots, cwd) {
     if (!verified(path)) return false;
     const named = basename(path) === `${request}.jsonl`;
     try {
-      const metadata = jsonl(path).flatMap(({ value }) => {
+      let identified = false;
+      let fallback = false;
+      for (const value of jsonlPrefix(path)) {
         const item = host === "codex" ? (value?.type === "session_meta" ? value.payload : null)
           : host === "omp" ? (value?.type === "session" ? value : null) : value;
-        return item && item.isSidechain !== true ? [item] : [];
-      });
-      const id = (item) => host === "claude" ? item.sessionId : item.id;
-      const identified = metadata.filter((item) => typeof id(item) === "string");
-      return (identified.length ? identified : named ? metadata : []).some((item) =>
-        (!identified.length || id(item) === request)
-        && typeof item.cwd === "string" && resolve(item.cwd) === cwd);
+        if (!item) continue;
+        const id = host === "claude" ? item.sessionId : item.id;
+        if (item.isSidechain === true) {
+          if (typeof id === "string") return false;
+          continue;
+        }
+        if (typeof id === "string") {
+          identified = true;
+          // The first complete identity ends discovery; selected transcripts are still parsed in full.
+          if (typeof item.cwd === "string") return id === request && resolve(item.cwd) === cwd;
+        } else if (named && typeof item.cwd === "string" && resolve(item.cwd) === cwd) {
+          fallback = true;
+        }
+      }
+      return !identified && fallback;
     } catch (error) {
       if (named) throw error;
       return false;

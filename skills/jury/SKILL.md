@@ -82,7 +82,7 @@ WOULD CHANGE MY MIND: <the one finding that would flip your choice>
 RISKIEST ASSUMPTION: <the assumption your choice depends on most>
 ```
 
-A usable block has exactly one of each field required by that round. `CHOICE` is an option label from the brief or `none:` followed by a nonempty better framing. `CONFIDENCE` is a number from 0 through 100. In a blind vote, `REASONS` contains one to three reasons, each supported by a fact or source reference; `WOULD CHANGE MY MIND` and `RISKIEST ASSUMPTION` are nonempty. In a review vote, `REVIEW` gives every supplied position a strongest and weakest point, `EVERYONE MISSED` is nonempty (an explicit "none" is valid), and `CHANGED FROM MAJORITY BECAUSE` supplies an argument or checked fact when the choice differs from the most common choice, or "none" otherwise. Validate host and external answers before using them; a missing, duplicate, or malformed required field makes the seat failed.
+A usable block has exactly one of each field required by that round. `CHOICE` is an option label from the brief or `none:` followed by a nonempty better framing. `CONFIDENCE` is a number from 0 through 100. In a blind vote, `REASONS` contains one to three reasons, each supported by a fact or source reference; `WOULD CHANGE MY MIND` and `RISKIEST ASSUMPTION` are nonempty. In a review vote, `REVIEW` gives every supplied position a strongest and weakest point, and `EVERYONE MISSED` is nonempty (an explicit "none" is valid). `CHANGED FROM MAJORITY BECAUSE` supplies an argument grounded in the supplied fact checks or a checked fact when the choice differs from the unique most common blind choice. If the blind top count is tied, every review choice requires such a reason; "none" is valid only when matching a unique most common blind choice. Validate host and external answers before using them; a missing, duplicate, or malformed required field makes the seat failed.
 
 Seats may return one at a time as background notifications. Wait for every seat without writing a message for each arrival, and treat a completion notice for a seat you already have as nothing to answer. Retry a host seat that fails or returns an unusable block once, including a host replacement for a failed external seat, then drop it and note the drop. If no valid blind votes remain, report "Jury unavailable: no valid blind votes", list the exact failures, and stop without a verdict. Otherwise, tally the choices. This is the **blind vote**.
 
@@ -115,14 +115,14 @@ REVIEW: <for each position, its strongest point and its weakest point>
 EVERYONE MISSED: <what no position considered>
 CHOICE: <one option label, or "none: <a better framing>">
 CONFIDENCE: <0-100>
-CHANGED FROM MAJORITY BECAUSE: <if your choice differs from the most common choice above, the argument or checked fact that decided it; otherwise "none">
+CHANGED FROM MAJORITY BECAUSE: <if the blind top count is tied or your choice differs from its unique most common choice, the argument grounded in the supplied fact checks or checked fact that decided it; otherwise "none">
 ```
 
 Apply Step 4's retry-and-drop rule to review seats. If no valid review votes remain, record "review unavailable: no valid review votes" and the exact failures, then use the blind vote in Step 6. Otherwise, tally the choices. This is the **review vote**.
 
 ## Step 6: Verdict
 
-The review vote decides, or the blind vote when Step 5 was skipped or produced no valid review votes. The blind vote stands instead when the review majority differs from it and no reviewer names the argument or fact behind the change: a change with no reason is agreement, not evidence.
+The review vote decides, or the blind vote when Step 5 was skipped or produced no valid review votes. A review result may replace a unique blind winner or resolve tied blind leaders only when a reviewer choosing that result supplies a checked supporting reason. Otherwise retain the blind tally and apply the tie-break below: a change with no reason is agreement, not evidence.
 
 You may overrule the majority only with a checked fact that defeats its main reason. Say so in the verdict. On a tie, pick the option whose main reason survived the fact checks. If that still ties, pick the option that is cheaper to undo.
 

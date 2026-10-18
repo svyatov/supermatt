@@ -4,10 +4,11 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
-const script = new URL("../references/check-scratch-containment.mjs", import.meta.url);
+const script = fileURLToPath(new URL("../references/check-scratch-containment.mjs", import.meta.url));
 const runtimeArgs = process.versions.bun ? ["--no-env-file"] : [];
-const run = (...args) => spawnSync(process.execPath, [...runtimeArgs, script.pathname, ...args], { encoding: "utf8" });
+const run = (...args) => spawnSync(process.execPath, [...runtimeArgs, script, ...args], { encoding: "utf8" });
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), "scratch containment "));
