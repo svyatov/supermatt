@@ -1,0 +1,127 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const script = resolve(dirname(fileURLToPath(import.meta.url)), "../skills/code-review/scripts/snapshot-tree.mjs");
+
+function git(root, ...args) {
+  const result = spawnSync("git", ["-C", root, ...args], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+}
+
+function workspace(t) {
+  const base = mkdtempSync(join(tmpdir(), "review-snapshot-"));
+  t.after(() => rmSync(base, { recursive: true, force: true }));
+  const root = join(base, "repo");
+  mkdirSync(root);
+  git(root, "init");
+  writeFileSync(join(root, "tracked.txt"), "tracked baseline\n");
+  writeFileSync(join(root, ".gitignore"), "ignored.txt\n");
+  git(root, "add", ".");
+  git(root, "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "-m", "baseline");
+  return { base, root };
+}
+
+function run(root) {
+  return spawnSync(process.execPath, [script, root], { encoding: "utf8" });
+}
+
+function snapshot(root) {
+  const result = run(root);
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout;
+}
+
+test("detects existing untracked content mutations while unchanged and ignored files stay stable", (t) => {
+  const { root } = workspace(t);
+  writeFileSync(join(root, "new.txt"), "before\n");
+  const before = snapshot(root);
+  assert.equal(snapshot(root), before);
+  writeFileSync(join(root, "ignored.txt"), "not part of review\n");
+  assert.equal(snapshot(root), before);
+  writeFileSync(join(root, "new.txt"), "after!\n");
+  assert.notEqual(snapshot(root), before);
+});
+
+test("retains tracked working-tree and index comparisons, including binary content", (t) => {
+  const { root } = workspace(t);
+  const baseline = snapshot(root);
+  writeFileSync(join(root, "tracked.txt"), Buffer.from([0, 1, 2, 255]));
+  const working = snapshot(root);
+  assert.notEqual(working, baseline);
+  git(root, "add", "tracked.txt");
+  const staged = snapshot(root);
+  assert.notEqual(staged, working);
+  assert.match(Buffer.from(JSON.parse(staged).diff, "base64").toString(), /GIT binary patch/);
+});
+
+test("detects staged-content changes without changing the working tree or porcelain state", (t) => {
+  const { root } = workspace(t);
+  const path = join(root, "tracked.txt");
+  writeFileSync(path, "first staged value\n");
+  git(root, "add", "tracked.txt");
+  writeFileSync(path, "unchanged working value\n");
+  const before = snapshot(root);
+  writeFileSync(path, "second staged value\n");
+  git(root, "add", "tracked.txt");
+  writeFileSync(path, "unchanged working value\n");
+  const after = snapshot(root);
+  assert.equal(JSON.parse(after).status, JSON.parse(before).status);
+  assert.equal(JSON.parse(after).diff, JSON.parse(before).diff);
+  assert.notEqual(after, before);
+});
+
+test("captures binary contents and filenames containing whitespace, quotes, and leading dashes", (t) => {
+  const { root } = workspace(t);
+  const names = [Buffer.from("- odd\n\tname.bin"), Buffer.from('quote" name.bin'), Buffer.from("line\nname.bin")];
+  for (const name of names) {
+    writeFileSync(Buffer.concat([Buffer.from(root + "/"), name]), Buffer.from([0, 255, 1]));
+  }
+  const before = snapshot(root);
+  const entries = JSON.parse(before).untracked;
+  assert.deepEqual(new Set(entries.map(entry => entry.path)), new Set(names.map(name => name.toString("base64"))));
+  writeFileSync(Buffer.concat([Buffer.from(root + "/"), names[0]]), Buffer.from([0, 254, 1]));
+  assert.notEqual(snapshot(root), before);
+});
+
+test("records external and dangling symlinks without reading or executing their targets", (t) => {
+  const { base, root } = workspace(t);
+  const outside = join(base, "outside");
+  mkdirSync(outside);
+  const target = join(outside, "target.sh");
+  const marker = join(outside, "executed");
+  writeFileSync(target, `#!/bin/sh\nprintf unsafe > '${marker}'\n`, { mode: 0o700 });
+  symlinkSync(target, join(root, "external"));
+  symlinkSync(outside, join(root, "directory-link"));
+  symlinkSync(join(outside, "missing"), join(root, "dangling"));
+  const before = snapshot(root);
+  writeFileSync(target, "changed outside the repository\n");
+  writeFileSync(join(outside, "new-child"), "outside child\n");
+  assert.equal(snapshot(root), before);
+  assert.throws(() => readFileSync(marker), { code: "ENOENT" });
+  const entries = JSON.parse(before).untracked;
+  assert.equal(entries.length, 3);
+  assert.equal(entries.every(entry => entry.type === "symlink" && !entry.sha256), true);
+  unlinkSync(join(root, "external"));
+  symlinkSync(join(outside, "other"), join(root, "external"));
+  assert.notEqual(snapshot(root), before);
+});
+
+test("Git failures produce no successful snapshot", (t) => {
+  const { base } = workspace(t);
+  const invalid = run(base);
+  assert.notEqual(invalid.status, 0);
+  assert.equal(invalid.stdout, "");
+  assert.match(invalid.stderr, /Working-tree snapshot failed/);
+  const empty = join(base, "empty");
+  mkdirSync(empty);
+  git(empty, "init");
+  const missingHead = run(empty);
+  assert.notEqual(missingHead.status, 0);
+  assert.equal(missingHead.stdout, "");
+  assert.match(missingHead.stderr, /Working-tree snapshot failed/);
+});

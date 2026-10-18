@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const script = new URL("../skills/code-review/scripts/check-scratch-dependencies.mjs", import.meta.url);
+const script = new URL("../references/check-scratch-dependencies.mjs", import.meta.url);
 const runtimeArgs = process.versions.bun ? ["--no-env-file"] : [];
 
 test("scratch preflight detects lost ancestor dependencies before execution", (t) => {
