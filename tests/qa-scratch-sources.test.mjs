@@ -123,6 +123,7 @@ test("verify reports a source link the copy pointed elsewhere", (t) => {
 test("verify detects lost executable bits while accepting source write protection", (t) => {
   const { scratch, run } = fixture(t, (repo, git) => {
     writeFileSync(join(repo, "run.sh"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
+    chmodSync(join(repo, "run.sh"), 0o755);
     git("add", ".");
     git("commit", "-qm", "init");
   });
