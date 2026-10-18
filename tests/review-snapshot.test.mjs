@@ -1,15 +1,18 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const script = resolve(dirname(fileURLToPath(import.meta.url)), "../skills/code-review/scripts/snapshot-tree.mjs");
+const gitEnv = { ...process.env };
+const localVariables = execFileSync("git", ["rev-parse", "--local-env-vars"], { encoding: "utf8" }).trim().split("\n");
+for (const key of [...localVariables, "GIT_NAMESPACE", "GIT_CEILING_DIRECTORIES", "GIT_DISCOVERY_ACROSS_FILESYSTEM"]) delete gitEnv[key];
 
 function git(root, ...args) {
-  const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
+  const result = spawnSync("git", args, { cwd: root, env: gitEnv, encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr);
 }
 
@@ -26,12 +29,12 @@ function workspace(t) {
   return { base, root };
 }
 
-function run(root) {
-  return spawnSync(process.execPath, [script, root], { encoding: "utf8" });
+function run(root, env = process.env) {
+  return spawnSync(process.execPath, [script, root], { env, encoding: "utf8" });
 }
 
-function snapshot(root) {
-  const result = run(root);
+function snapshot(root, env) {
+  const result = run(root, env);
   assert.equal(result.status, 0, result.stderr);
   return result.stdout;
 }
@@ -109,6 +112,45 @@ test("records external and dangling symlinks without reading or executing their 
   unlinkSync(join(root, "external"));
   symlinkSync(join(outside, "other"), join(root, "external"));
   assert.notEqual(snapshot(root), before);
+});
+
+test("snapshot uses the requested repository instead of inherited Git locations", (t) => {
+  const { root } = workspace(t);
+  const { root: other } = workspace(t);
+  writeFileSync(join(other, "tracked.txt"), "other repository\n");
+  git(other, "add", "tracked.txt");
+  git(other, "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "-m", "other history");
+  const expected = snapshot(root);
+  assert.equal(snapshot(root, {
+    ...process.env,
+    GIT_DIR: join(other, ".git"),
+    GIT_COMMON_DIR: join(other, ".git"),
+    GIT_WORK_TREE: root,
+    GIT_INDEX_FILE: join(other, ".git/index"),
+    GIT_OBJECT_DIRECTORY: join(other, ".git/objects"),
+  }), expected);
+});
+
+test("nested staged changes remain visible with an inherited alternate index", (t) => {
+  const { base, root } = workspace(t);
+  const nested = join(root, "nested");
+  mkdirSync(nested);
+  git(nested, "init");
+  const path = join(nested, "tracked.txt");
+  writeFileSync(path, "tracked baseline\n");
+  git(nested, "add", ".");
+  git(nested, "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "-m", "nested baseline");
+  const index = join(base, "stale-index");
+  writeFileSync(index, readFileSync(join(nested, ".git/index")));
+  const env = { ...process.env, GIT_INDEX_FILE: index };
+  writeFileSync(path, "unchanged working value\n");
+  const before = JSON.parse(snapshot(root, env));
+  writeFileSync(path, "new staged value\n");
+  git(nested, "add", "tracked.txt");
+  writeFileSync(path, "unchanged working value\n");
+  const after = JSON.parse(snapshot(root, env));
+  assert.equal(after.untracked[0].diff, before.untracked[0].diff);
+  assert.notEqual(after.untracked[0].staged, before.untracked[0].staged);
 });
 
 test("captures nested repository HEAD, dirty content, index, and untracked changes", (t) => {
