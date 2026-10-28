@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+
+- `codebase-design`: defines data contracts, state transitions, validation ownership, concurrent writes, and recovery after duplicate or interrupted execution in a focused reference.
+- `implement`: consults the shared state-contract guidance before changing data contracts, state transitions, shared mutable state, or retryable effects.
+- `implement-spec`: gives each worker the same conditional state-contract check as `implement`.
+- `code-review`: checks duplicate execution and interruption between durable effects against the intended recovery contract.
+- `ask-supermatt`: maps implementation flows to the shared state-contract guidance and recovery review.
+
 ## [0.23.0] - 2026-10-18
 
 ### Added
