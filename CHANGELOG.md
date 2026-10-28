@@ -11,7 +11,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `implement-spec`: gives each worker the same conditional state-contract check as `implement`.
 - `code-review`: checks duplicate execution and interruption between durable effects against the intended recovery contract.
 - `ask-supermatt`: maps implementation flows to the shared state-contract guidance and recovery review, and describes verified examples before mechanical sweeps.
-- `refactor`: verifies representative manual edits against automation in scratch before applying a mechanical sweep across all sites.
+- `refactor`: verifies complete, runnable manual examples against automation in scratch before applying a mechanical sweep, including coupled declarations and callers.
 
 ### Fixed
 
