@@ -163,6 +163,7 @@ Both implementation flows consult `codebase-design` for changes to data contract
 
 ### Refactors keep behavior
 
+- Before a mechanical sweep, `refactor` checks the automation against verified manual examples in scratch, one per distinct syntactic shape.
 - `implement` pins current behavior with characterization tests, written through `tdd` in their own `test:` commit.
 - `refactor:` commits never touch test files, and `code-review` runs a refactor check on them.
 - A review fix that changes behavior goes test-first.
@@ -195,7 +196,7 @@ Some of the checks above are adapted from other skill sets:
 | [Every's compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin) | `code-review`, `diagnosing-bugs`, `to-spec`, `ideate`, `babysit-pr`. See [attribution](./THIRD-PARTY-NOTICES.md). |
 | [Superpowers](https://github.com/obra/superpowers) | `tdd`, `diagnosing-bugs` |
 | Luke Ramsden's [software-design](https://github.com/lukeramsden/software-design-agent-skill) | `codebase-design` |
-| Robert C. Martin's [ub-mode](https://github.com/unclebob/ub-mode/blob/57a8bdd28e45ed41900ace0bafa2ff76dd9ed70f/SKILL.md) | Data contracts and recovery guidance in `codebase-design`, with recovery checks in `code-review`. |
+| Robert C. Martin's [ub-mode](https://github.com/unclebob/ub-mode/blob/57a8bdd28e45ed41900ace0bafa2ff76dd9ed70f/SKILL.md) | Data contracts and recovery in `codebase-design`, recovery checks in `code-review`, and verified transformation examples in `refactor`. |
 | Dex Horthy's [show-me](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md) | `pr` |
 | GitHub's [awesome-copilot](https://github.com/github/awesome-copilot) refactor skills | `refactor` |
 | Leonardo Flores's [reducing-entropy](https://github.com/softaworks/agent-toolkit/tree/main/skills/reducing-entropy) | `refactor` |
