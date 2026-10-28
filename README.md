@@ -150,7 +150,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Skills hand off to each other
 
-Both implementation flows consult `codebase-design` for changes to data contracts, state transitions, shared mutable state, or retryable effects. Adversarial review checks duplicate execution and recovery after interruption.
+Both implementation flows consult `codebase-design` for changes to data contracts, state transitions, shared mutable state, or retryable effects. Adversarial review checks duplicate execution and recovery after interruption. Replay requires verified test stores and endpoints; otherwise the review reports the verification gap.
 
 - `implement` completes the full required gate before committing each finished behavior, reuses checks whose inputs are unchanged, runs `qa` in a fresh subagent or session when available and fixes every fail test-first, then passes the spec to `code-review`. When fresh context is unavailable, QA reports the independence gap. Follow-ups check the fix diff and affected behavior. Every verified finding is fixed or raised as a question; the issue stays open until merge.
 - `implement-spec`, adapted from upstream v1.3.1, builds a whole spec through native subagents in ticket worktrees and integrates it into one branch for a single PR. It runs QA and review on the combined spec, serializes merges, and keeps issues open until shipping. Use it for one feature reviewed together; use `orchestrate` to ship a queue of issues separately through Herdr.
