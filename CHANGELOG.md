@@ -13,6 +13,11 @@ All notable changes to this project are documented here. The format follows [Kee
 - `ask-supermatt`: maps implementation flows to the shared state-contract guidance and recovery review, and describes verified examples before mechanical sweeps.
 - `refactor`: verifies representative manual edits against automation in scratch before applying a mechanical sweep across all sites.
 
+### Fixed
+
+- `qa`: accepts Node built-ins in the shared scratch dependency preflight, including built-in-only checks, while preserving package resolution and missing-package failures.
+- `retro`: recognizes OMP `skill-prompt` custom messages as user evidence with their original source lines while skipping other custom types and rejecting userless sessions.
+
 ## [0.23.0] - 2026-10-18
 
 ### Added
