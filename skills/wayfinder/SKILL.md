@@ -2,7 +2,7 @@
 name: wayfinder
 description: Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.
 disable-model-invocation: true
-argument-hint: "[loose idea, or map URL or number]"
+argument-hint: "[loose idea, or map identifier or URL]"
 license: MIT
 ---
 
@@ -78,7 +78,7 @@ A **claim** belongs to a unique session ID (the host's session ID or a generated
 
 **Single-coordinator protocol:** unless the tracker provides documented exclusive acquisition, record one live coordinator's session ID in the map's Notes (the charting session by default). All sessions request claims from that coordinator; never elect a second coordinator themselves. The coordinator serializes eligibility recheck, ownership write, readback, and grant, keeping at most one owner per ticket. A worker starts only after a grant naming its ticket and session ID; an unproven or failed claim starts no work. If the coordinator is absent or unreachable, stop and ask the user to designate one. Release an interrupted claim or replace a coordinator only after the user confirms the prior worker or coordinator has stopped; outstanding ticket ownership survives coordinator replacement.
 
-Blocking uses the tracker's **native** dependency relationship: essential because it renders the frontier _visually_ in the tracker's own UI, so the human sees what's takeable without opening the map. Only a tracker that lacks native blocking falls back to a body convention. A ticket is **unblocked** when every ticket blocking it is closed; the **frontier** is the open, unblocked, unclaimed children, the edge of the known.
+Blocking uses the tracker's **native** dependency relationship: essential because it renders the frontier _visually_ in the tracker's own UI, so the human sees what's takeable without opening the map. Only a tracker that lacks native blocking falls back to a body convention. A ticket is **unblocked** when every blocker satisfies the configured tracker's completion rule. On Linear, verify the `completed` state type of every linked blocker, including read-only blockers outside the configured project. Canceled, active, unknown, or unreadable blockers keep the ticket blocked. In every tracker, the **frontier** is the open, unblocked, unclaimed children, the edge of the known.
 
 The answer isn't part of the body; it's recorded on resolution (see [Work through the map](#work-through-the-map)). Assets created while resolving a ticket are linked from the issue, not pasted in.
 
