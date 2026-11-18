@@ -154,6 +154,8 @@ Record the current commit with `git rev-parse HEAD` before you change any code: 
 
 **Fix at the source.** Walk the causal chain back from the symptom to where the bad value or state first appears, and fix it there. A guard where the error shows leaves every other path from the source still broken.
 
+Once the cause is proven, search for other sites that make the same mistake. Check each site's inputs and expected behavior against the failing case. Apply the regression-test and fix steps below to every confirmed in-scope instance. Leave correct uses intact. Report any confirmed instance outside scope with its location and evidence.
+
 Write the regression test **before the fix**, but only if there is a **correct seam** for it.
 
 A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow (single-caller test when the bug needs multiple callers, unit test that can't replicate the chain that triggered the bug), a regression test there gives false confidence.
