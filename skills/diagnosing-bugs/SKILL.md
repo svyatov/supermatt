@@ -154,7 +154,7 @@ Record the current commit with `git rev-parse HEAD` before you change any code: 
 
 **Fix at the source.** Walk the causal chain back from the symptom to where the bad value or state first appears, and fix it there. A guard where the error shows leaves every other path from the source still broken.
 
-Once the cause is proven, search for other sites that make the same mistake. Check each site's inputs and expected behavior against the failing case. Apply the regression-test and fix steps below to every confirmed in-scope instance. Leave correct uses intact. Report any confirmed instance outside scope with its location and evidence.
+Once the cause is proven, search for other sites that make the same mistake. Check each site's inputs and expected behavior against the failing case. Leave correct uses intact. Report any confirmed instance outside scope with its location and evidence.
 
 Write the regression test **before the fix**, but only if there is a **correct seam** for it.
 
@@ -162,11 +162,12 @@ A correct seam is one where the test exercises the **real bug pattern** as it oc
 
 **If no correct seam exists, that itself is the finding.** Note it. The codebase architecture is preventing the bug from being locked down. Report it to the user in Phase 6, and tell them to run `/improve-architecture` in Claude linked installs or Cursor, `/supermatt:improve-architecture` from the Claude plugin, `$improve-architecture` in Codex, or `/skill:improve-architecture` in OMP to find where the seam should go.
 
-If a correct seam exists:
+For each confirmed in-scope instance with a correct seam:
 
 1. A seam is pre-agreed only if the spec or issue names it or the user explicitly confirmed it. Obtain confirmation for a newly discovered seam before writing tests. Then load and follow the `tdd` skill through the host's skill mechanism and turn the minimised repro into its failing test at that seam.
 2. Apply the fix, and only the fix. A refactor bundled in hides which change turned the loop green.
-3. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
+
+After applying all confirmed in-scope fixes, rerun the Phase 1 feedback loop against the original (un-minimised) scenario. Use that result to judge the combined fix.
 
 ### When the fix fails
 
