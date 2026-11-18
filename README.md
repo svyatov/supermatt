@@ -122,7 +122,7 @@ flowchart LR
 
 1. `grill-with-docs` sharpens the idea by interview.
 2. `to-spec` turns the conversation into a spec on your issue tracker.
-3. `to-tickets` splits the spec into independently green tickets. Skip it when the work fits in one session.
+3. `to-tickets` splits the spec into independently green tickets. On GitHub, it links each ticket as a sub-issue of its source issue when supported. Skip it when the work fits in one session.
 4. Use `implement` for each ticket, or `implement-spec` for the whole spec on one integration branch. Both build through `tdd`, check the running program with `qa`, and finish with `code-review`; `implement-spec` checks the combined result across tickets.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` repairs CI within bounded attempts through `recover-ci`, merges only on green checks, and verifies post-merge workflows. Failed post-merge workflows use follow-up repair PRs. To stop short of the merge, `babysit-pr` opens the PR when needed, handles review feedback and CI, and leaves a ready PR for you to merge.
 

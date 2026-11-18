@@ -64,7 +64,9 @@ Publish the approved tickets. **How** depends on the tracker `/setup-supermatt-s
 - **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's `Blocked by:` line lists the numbers it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file. Set `Status:` to the configured value for the canonical `ready-for-agent` role.
 - **A real issue tracker (GitHub, Linear, ...)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking relationship where it has one (the **Blocking** operation in `docs/agents/issue-tracker.md`); otherwise put the tracker's `Blocked by:` fallback line at the top of each ticket's body. Apply the configured label for the canonical `ready-for-agent` role; the tickets are agent-grabbable by construction. A label override must still map to that canonical role in `triage-labels.md`.
 
-Preserve an exact `## Parent` reference to the source spec in every child, including local files. Use the tracker's canonical issue reference or a usable Markdown path/link to the local spec. If the source was a spec carrying the canonical `ready-for-agent` role, remove that readiness using the configured label or local `Status:` field: its tickets are now the work, and the spec stays open as their parent. Leave the parent otherwise untouched.
+Preserve an exact `## Parent` reference to the source spec in every child, including local files. Use the tracker's canonical issue reference or a usable Markdown path/link to the local spec. For a GitHub parent issue, also attach each published ticket as a native sub-issue using [Attach a spec ticket](../setup-supermatt-skills/issue-tracker-github.md#attach-a-spec-ticket). Keep the text reference when native linking is unavailable. Parentage adds no blocking edge.
+
+If the source was a spec carrying the canonical `ready-for-agent` role, remove that readiness using the configured label or local `Status:` field: its tickets are now the work, and the spec stays open as their parent. Leave the parent otherwise untouched.
 
 Then stop. Tell the user to run `/implement` in Claude linked installs or Cursor, `/supermatt:implement` from the Claude plugin, `$implement` in Codex, or `/skill:implement` in OMP on a **frontier** ticket (one whose blockers are all closed) in a fresh context, one ticket per session.
 
@@ -94,7 +96,7 @@ Blocked by: #<n>, #<n> (only where the tracker has no native blocking; omit it w
 
 ## Parent
 
-A reference to the parent issue on the tracker (if the source was an existing issue, otherwise omit this section).
+The exact issue reference or Markdown path/link to the source spec (omit when there is no source spec).
 
 ## What to build
 
