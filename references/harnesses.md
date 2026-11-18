@@ -20,6 +20,8 @@ Claude Code, Codex, and Cursor enforce explicit-only skill metadata. OMP maps `d
 
 ### Orchestrator dispatch
 
+Herdr supports the four harnesses in the invocation table when the matching integration is available. Rex currently supports Codex, using the same invocation and dispatch scope. Qualify additional Rex harnesses with live parallel lanes, blocked prompts, turn completion, fresh restarts, transcript identity and parked-lane inspection before enabling them.
+
 An explicit human invocation of `orchestrate` delegates these user-invoked commands to that run's assigned workers: `triage`, `implement`, `fix-findings`, `commit`, `refactor`, `ship-pr`, `retro`, and `what-would-you-do`. Send them as explicit worker prompts using the human invocation forms above, not as implicit model-side dependencies. Keep their frontmatter and Codex invocation policies unchanged.
 
 Each dispatch stays within the run's assigned issue, worktree, phase, and approval scope. Pass that scope and relevant prior evidence to a fresh worker. This exception ends with the run and does not authorize other user-invoked skills, unrelated work, or dispatch by another caller.

@@ -10,13 +10,13 @@ All notable changes to this project are documented here. The format follows [Kee
 - `implement`: consults the shared state-contract guidance before changing data contracts, state transitions, shared mutable state, or retryable effects. Accepts Linear keys and checks blocker status before selecting work.
 - `implement-spec`: starts a fresh worker context for each ticket and gives each worker the same conditional state-contract check as `implement`. Uses native Linear sub-issues and dependency links.
 - `code-review`: checks duplicate execution and interruption between durable effects against the intended recovery contract. Requires verified test stores and endpoints before replay, otherwise reports a verification gap.
-- `ask-supermatt`: maps implementation flows to the shared state-contract guidance and recovery review, and describes verified examples before mechanical sweeps. Routes Linear users through setup and orchestration.
+- `ask-supermatt`: maps implementation flows to the shared state-contract guidance and recovery review, and describes verified examples before mechanical sweeps. Routes Linear users through setup and orchestration and Codex users to orchestration in Rex.
 - `refactor`: verifies complete, runnable manual examples against automation in scratch before applying a mechanical sweep, including coupled declarations and callers.
 - `diagnosing-bugs`: checks for the same proven defect at other sites and reruns the original reproduction after all confirmed in-scope fixes.
 - `to-tickets`: links GitHub tickets to their GitHub parent as native sub-issues and preserves the parent reference in each ticket body. Creates native Linear children and blocking relations in the configured project.
 - `setup-supermatt-skills`: documents how to attach existing GitHub tickets and verify the link before retrying. Adds a Linear MCP template for one dedicated project and a default team.
 
-- `orchestrate`: selects work across teams in a dedicated Linear project and checks linked blockers before dispatch.
+- `orchestrate`: selects work across teams in a dedicated Linear project and checks linked blockers before dispatch. Adds Codex workers in Rex with the same invocation and no separate setup.
 - `ship-pr`: verifies explicitly resolved Linear issues after post-merge checks and completes any still outstanding.
 - `to-spec`: links published specs to their Linear Wayfinder maps.
 - `triage`: uses Linear labels for triage roles and processes external GitHub PRs only when enabled.
