@@ -68,7 +68,7 @@ Then invoke setup once in each repository:
 | Cursor | `/setup-supermatt-skills` |
 | OMP | `/skill:setup-supermatt-skills` |
 
-It asks where you track issues (GitHub, GitLab, or local Markdown files), which triage labels to use, and whether reviews and juries may call an external peer. It then writes:
+Choose one tracker for this repository: GitHub Issues, GitLab Issues, Linear, or local Markdown files. For Linear, connect Linear MCP in your host, then select a dedicated project and a default team for new issues. Triage covers every team in the project. Setup also asks about triage labels and external reviewers, then writes:
 
 ```text
 CLAUDE.md or AGENTS.md          "## Agent skills" section
@@ -122,15 +122,17 @@ flowchart LR
 
 1. `grill-with-docs` sharpens the idea by interview.
 2. `to-spec` turns the conversation into a spec on your issue tracker.
-3. `to-tickets` splits the spec into independently green tickets. On GitHub, it links each ticket as a sub-issue of its source issue when supported. Skip it when the work fits in one session.
+3. `to-tickets` splits the spec into independently green tickets. On Linear, each ticket is a sub-issue of the spec. GitHub also supports this link when sub-issues are available. Skip it when the work fits in one session.
 4. Use `implement` for each ticket, or `implement-spec` for the whole spec on one integration branch. Both build through `tdd`, check the running program with `qa`, and finish with `code-review`; `implement-spec` checks the combined result across tickets.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` repairs CI within bounded attempts through `recover-ci`, merges only on green checks, and verifies post-merge workflows. Failed post-merge workflows use follow-up repair PRs. To stop short of the merge, `babysit-pr` opens the PR when needed, handles review feedback and CI, and leaves a ready PR for you to merge.
+
+For Linear, use an issue identifier such as `ENG-123` or its issue URL. Identify the issues a PR resolves in its description. After shipping checks pass, `ship-pr` verifies completion in Linear. External GitHub PR triage is opt-in.
 
 `babysit-pr` accepts a PR number or full URL and an optional duration, such as `$babysit-pr 96 90m` in Codex. It needs an authenticated `gh` CLI and Bun or Node.js 18.17 or later. The default watch lasts eight hours; resuming the same PR keeps its original deadline and recovery budget. A run reports `ready`, `blocked`, `budget-exhausted`, or `closed`. See its [instructions](./skills/babysit-pr/SKILL.md) for extending a watch and handling blockers.
 
 Run `retro` before clearing the session, or provide a verified session ID or path later. It reads local Claude Code, Codex, Cursor, and OMP transcript evidence and reports gaps instead of guessing from the newest file. After a bug fix, use it to identify what would have prevented the bug; use `improve-architecture` when the finding is a missing test seam.
 
-With triaged GitHub issues or local Markdown tickets, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside Herdr. Workers use the harness that started it: Claude Code, Codex, Cursor, or OMP. Cursor and OMP workers receive the authoritative active model ID when available, otherwise they keep the harness default. Local tracker files stay in the main checkout; code changes ship through GitHub PRs.
+With triaged GitHub issues, Linear issues, or local Markdown tickets, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside Herdr. Workers use the harness that started it: Claude Code, Codex, Cursor, or OMP. Cursor and OMP workers receive the authoritative active model ID when available, otherwise they keep the harness default. Local tracker files stay in the main checkout; code changes ship through GitHub PRs.
 
 An explicit `orchestrate` invocation delegates only its [listed worker commands](./references/harnesses.md#orchestrator-dispatch) within that run. Other user-invoked skills still require a human command; existing safety and approval gates remain in force.
 
@@ -218,7 +220,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[improve-file-structure](./skills/improve-file-structure/SKILL.md)** | Assess file organization and stop when it is healthy; otherwise design a clearer layout and a behavior-preserving migration plan for `/implement`, with TypeScript, Go, Python, and Ruby guidance. Multi-session specs retain the approved move map, linked from each affected ticket. |
 | **[refactor](./skills/refactor/SKILL.md)** | Refactor code at method, file, or project scope without changing behavior. Assesses first and stops when the code is clean, and gates edits on test coverage and a verified baseline. |
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
-| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through GitHub issues or local Markdown tickets unattended in parallel Claude Code, Codex, Cursor, or OMP lanes, with workers in Herdr panes and git worktrees. |
+| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through GitHub issues, Linear issues, or local Markdown tickets unattended in parallel Claude Code, Codex, Cursor, or OMP lanes, with workers in Herdr panes and git worktrees. |
 | **[commit](./skills/commit/SKILL.md)** | Commit all changes on the current branch, main included, after a scan for secrets. |
 | **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, repair CI within bounded attempts, then squash merge and verify post-merge workflows. |
 | **[babysit-pr](./skills/babysit-pr/SKILL.md)** | Watch a pull request until it is ready to merge: open it when the branch has none, handle review feedback before CI, recover CI within a bounded budget, keep the branch current, and stop without merging. |

@@ -10,7 +10,7 @@ license: MIT
 
 Move issues on the project issue tracker through a small state machine of triage roles.
 
-If this repo treats external pull requests as a request surface (see the issue-tracker config), triage covers them too: **a PR is an issue with attached code**, using the same roles, same states, and same machine, with a few deltas marked "for a PR" below. Resolve a bare `#42` to an issue or PR per the tracker config.
+If this repo treats external pull requests as a request surface (see the issue-tracker config), triage covers them too: **a PR is an issue with attached code**, using the same roles, same states, and same machine, with a few deltas marked "for a PR" below. Resolve a bare `#42` per the tracker config. In Linear mode, triage issues across every team in the configured project via MCP. Use the configured role labels for each issue's team, independently of its workflow state. Only when the repository opts into external GitHub PR triage, handle PRs directly on GitHub with its configured labels and comments. Do not create a matching Linear issue.
 
 Every comment or issue posted to the issue tracker during triage **must** start with this disclaimer:
 
@@ -61,7 +61,7 @@ When the maintainer explicitly delegates decisions for this run ("I am away", "d
 
 Use the configured listing operations, consuming every page, then obtain the same full fields as **Gather context** for every discovered issue or PR before classifying it. Preserve the reporter identity, creation timestamp, and every comment's author, body, and timestamps; a title/body-only projection is insufficient. Use the configured operations for custom trackers, supplementing incomplete list results with full reads. A failed or incomplete listing is not an empty bucket. If required metadata remains unavailable, report the affected items and the coverage gap rather than assigning invented values.
 
-Present three buckets, oldest creation timestamp first within each bucket across issues and PRs (ticket number breaks ties):
+Present three buckets, oldest creation timestamp first within each bucket across issues and PRs (ticket number breaks ties, then full identifier for different Linear teams):
 
 1. **Unlabeled**: carries no triage role.
 2. **`needs-triage`**: evaluation in progress.
@@ -69,7 +69,7 @@ Present three buckets, oldest creation timestamp first within each bucket across
 
 For the third bucket, find the latest `## Triage Notes` entry and compare comment creation timestamps: only a later comment by the original reporter counts. A newer maintainer comment or general item update does not. Missing reporter identity, timestamps, comments, or a triage-note baseline makes this classification unknown; report it separately rather than treating it as no reporter activity.
 
-When PRs are in scope, include external PRs in these buckets and tag each line `[PR]` or `[issue]`. Discovery surfaces only *external* PRs (the tracker config defines who counts as external), so a collaborator's in-flight PR is not triage work. This filter is discovery-only; an explicitly named PR is always triaged regardless of author.
+When PR triage is enabled, include external PRs in these buckets and tag each line `[PR]` or `[issue]`. Discovery surfaces only *external* PRs (the tracker config defines who counts as external), so a collaborator's in-flight PR is not triage work. When PR triage is enabled, an explicitly named PR may be triaged regardless of author.
 
 Leave out issues that other skills produced already triaged, recognisable by their templates: specs from `/to-spec` (a `## Problem Statement` and `## User Stories`), tickets from `/to-tickets` (a `## What to build`), and anything labelled `wayfinder:*`.
 
@@ -89,7 +89,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
    - `ready-for-agent`: agree with the maintainer the seams the tests go through, then post an agent brief comment that records them ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
    - `ready-for-human`: same structure as an agent brief, but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
    - `needs-info`: post triage notes (template below).
-   - For `wontfix`, close the issue, with the comment depending on *why*:
+   - For `wontfix`, close the issue using the configured rejection operation (on Linear use the team's `canceled` state type for a rejection). The comment depends on *why*:
      - **Already implemented**: the change already exists in the codebase. Point to where it lives; do **not** write to `.out-of-scope/` (that KB is for *rejected* requests, not built ones).
      - **Rejected (bug)**: give a polite explanation, then close.
      - **Rejected (enhancement)**: write to `.out-of-scope/`, link to it from a comment, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)).

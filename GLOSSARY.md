@@ -5,7 +5,7 @@ A collection of agent skills (slash commands and behaviors) loaded by coding age
 ## Language
 
 **Issue tracker**:
-The tool that hosts a repo's issues: GitHub Issues, GitLab Issues, Linear, a local `.scratch/` markdown convention, or similar. Skills like `to-tickets`, `to-spec`, and `triage` read from and write to it.
+The tool that hosts a repo's issues: GitHub Issues, GitLab Issues, Linear, a local `.scratch/` markdown convention, or similar. A repository selects one tracker. For Linear, a dedicated project defines its issue queue, and a default team owns new issues.
 _Avoid_: backlog manager, backlog backend, issue host
 
 **Issue**:
@@ -19,7 +19,7 @@ An **Issue** produced by `to-tickets`: one tracer-bullet slice of a spec, with i
 A `wayfinder` unit: a child **Issue** of a `wayfinder:map` holding a *question* whose resolution is a decision, not a slice of a build to execute. The **decision** qualifier is what keeps it distinct from a **Ticket**; `wayfinder` introduces the term, then uses "ticket".
 
 **Triage role**:
-A canonical label, either a category or a state in the triage state machine, applied to an **Issue** during triage (e.g. `needs-triage`, `ready-for-agent`). Each role maps to a real label string in the **Issue tracker** via `docs/agents/triage-labels.md`.
+A canonical label, either a category or a state in the triage state machine, applied to an **Issue** during triage (e.g. `needs-triage`, `ready-for-agent`). Each role maps to a real label string in the **Issue tracker** via `docs/agents/triage-labels.md`. In Linear these roles are labels. A blocker is satisfied only when its workflow status has the completed type.
 
 ## Relationships
 

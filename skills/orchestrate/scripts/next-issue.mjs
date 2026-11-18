@@ -1,14 +1,13 @@
 #!/usr/bin/env node
-// Prints open, unassigned work as "number-or-path<TAB>title<TAB>spec|ready|triage",
+// Prints open, unassigned work as "key<TAB>title<TAB>spec|ready|triage",
 // specs first, then bugs, then lowest number first. An issue qualifies at one stage:
 // - spec: a parent spec (it has sub-issues, or another issue's "## Parent" section names it)
 //   whose children are all closed, so it is due for verification.
 // - ready: it has the READY label.
 // - triage: a BUG with the TRIAGE label.
-// Specs and triage bugs qualify only when filed by the repo's owner, a member, or a
-// collaborator (a stranger's issue waits for a human). Drops issues with an open blocker
-// (native, or a "Blocked by:" line) and specs with open children.
-// Usage: next-issue.mjs [--local ROOT] READY BUG TRIAGE
+// On GitHub, specs and triage bugs qualify only when filed by the repo's owner,
+// a member, or a collaborator. Each tracker supplies its own dependency evidence.
+// Usage: next-issue.mjs [--local ROOT | --linear PROJECT_ID] READY BUG TRIAGE
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -16,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const TEAM = ["OWNER", "MEMBER", "COLLABORATOR"];
 
-const key = (issue) => issue.localPath ?? issue.number;
+const key = (issue) => issue.linearIdentifier ?? issue.localPath ?? issue.number;
 const parents = (issue) => issue.parents ?? [...(issue.body ?? "").matchAll(/## Parent\s+#(\d+)/g)].map((m) => Number(m[1]));
 
 const blockers = (issue) =>
@@ -30,7 +29,7 @@ export function pick(issues, ready, bug, triage) {
   const labelled = (i, name) => i.labels.some((l) => l.name === name);
 
   const stageOf = (i) => {
-    const team = TEAM.includes(i.author_association);
+    const team = Boolean(i.linearIdentifier) || TEAM.includes(i.author_association);
     const subs = i.sub_issues_summary ?? {};
     if ((subs.total ?? 0) > 0 || children.has(key(i))) {
       const done = (subs.completed ?? 0) === (subs.total ?? 0) && !(children.get(key(i)) ?? []).some((c) => c.state === "open");
@@ -98,16 +97,49 @@ export function loadLocal(root, cwd = process.cwd()) {
   return issues;
 }
 
+// The host resolves relations through its connected MCP and streams the snapshot on stdin.
+function loadLinear(projectId) {
+  const rows = JSON.parse(readFileSync(0, "utf8"));
+  if (!Array.isArray(rows)) throw new Error("Invalid Linear snapshot: expected an array");
+  const issues = [];
+  const seen = new Set();
+  for (const row of rows) {
+    if (!row || typeof row.projectId !== "string" || !row.projectId) throw new Error("Invalid Linear project ID");
+    if (row.projectId !== projectId) continue;
+    const number = typeof row.id === "string" && row.id.match(/^[A-Z0-9][A-Z0-9_-]*-(\d+)$/i);
+    if (!number || seen.has(row.id) || typeof row.title !== "string" || typeof row.statusType !== "string" ||
+        !(row.assigneeId === null || typeof row.assigneeId === "string" && row.assigneeId.length) ||
+        !Array.isArray(row.labels) || !row.labels.every(label => typeof label === "string") ||
+        !Array.isArray(row.blockerStates) || !Array.isArray(row.childStates)) {
+      throw new Error(`Invalid Linear issue snapshot: ${row.id ?? "(missing identifier)"}`);
+    }
+    seen.add(row.id);
+    if (!["triage", "backlog", "unstarted", "started"].includes(row.statusType)) continue;
+    if (row.labels.some(label => label.startsWith("wayfinder:"))) continue;
+    if (row.childStates.length && row.implementationSpec !== true) continue;
+    issues.push({
+      linearIdentifier: row.id, number: Number(number[1]), title: row.title, state: "open",
+      labels: row.labels.map(name => ({ name })), assignees: row.assigneeId ? [row.assigneeId] : [],
+      issue_dependencies_summary: { blocked_by: row.blockerStates.filter(state => state !== "completed").length },
+      sub_issues_summary: { total: row.childStates.length, completed: row.childStates.filter(state => state === "completed").length },
+    });
+  }
+  return issues;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  const local = args[0] === "--local";
-  const root = local ? args.splice(0, 2)[1] : null;
-  if (args.length !== 3 || (local && !root?.trim())) {
-    console.error("usage: next-issue.mjs [--local ROOT] READY BUG TRIAGE");
+  const mode = ["--local", "--linear"].includes(args[0]) ? args.shift() : null;
+  const scope = mode ? args.shift() : null;
+  if (args.length !== 3 || (mode && !scope?.trim())) {
+    console.error("usage: next-issue.mjs [--local ROOT | --linear PROJECT_ID] READY BUG TRIAGE");
     process.exit(1);
   }
   try {
-    const issues = local ? loadLocal(root) : JSON.parse(execFileSync("gh", ["api", "repos/{owner}/{repo}/issues?state=all&per_page=100", "--paginate", "--slurp"], { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 })).flat();
+    let issues;
+    if (mode === "--linear") issues = loadLinear(scope);
+    else if (mode === "--local") issues = loadLocal(scope);
+    else issues = JSON.parse(execFileSync("gh", ["api", "repos/{owner}/{repo}/issues?state=all&per_page=100", "--paginate", "--slurp"], { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 })).flat();
     for (const i of pick(issues, ...args)) console.log(`${key(i)}\t${i.title.replace(/[\t\r\n]/g, " ")}\t${i.stage}`);
   } catch (error) {
     console.error(error.message);

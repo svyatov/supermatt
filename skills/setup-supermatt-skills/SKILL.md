@@ -9,7 +9,7 @@ license: MIT
 
 Scaffold the per-repo configuration that the engineering skills assume:
 
-- **Issue tracker**: where issues live (GitHub by default; GitLab and local markdown are also supported out of the box)
+- **Issue tracker**: choose one source for issues and specs. Built-in options are GitHub, GitLab, Linear MCP, and local markdown.
 - **Triage labels**: the strings used for the seven canonical triage roles (two category, five state)
 - **Domain docs**: where `GLOSSARY.md` and ADRs live, and the consumer rules for reading them
 - **External peers**: whether `code-review` and `jury` stay on the current host or call a configured Claude, Codex, Cursor Agent, or OMP CLI
@@ -40,14 +40,24 @@ Lead each section with the recommended answer so the user can accept it in a wor
 
 > Explainer: The "issue tracker" is where issues live for this repo. Skills like `to-tickets`, `triage`, and `to-spec` read from and write to it. They need to know whether to call `gh issue create`, write a markdown file under `.scratch/`, or follow some other workflow you describe. Pick the place you actually track work for this repo.
 
-Default posture: these skills were designed for GitHub. If a `git remote` points at GitHub, propose that. If a `git remote` points at GitLab (`gitlab.com` or a self-hosted host), propose GitLab. Otherwise (or if the user prefers), offer:
+Preserve the configured tracker on reruns. For first setup, propose GitHub or GitLab when the remote identifies that forge. A GitHub remote can also host PRs for a Linear project. Offer:
 
 - **GitHub**: issues live in the repo's GitHub Issues (uses the `gh` CLI)
 - **GitLab**: issues live in the repo's GitLab Issues (uses the [`glab`](https://gitlab.com/gitlab-org/cli) CLI)
+- **Linear MCP**: issues live in one Linear project dedicated to this repository. GitHub hosts PRs and CI.
 - **Local markdown**: issues live as files under `.scratch/<feature>/` in this repo (good for solo projects or repos without a remote)
-- **Other** (Jira, Linear, etc.): ask the user how their tracker does each operation the GitHub template defines (create, read, list, comment, labels, close, blocking, and the wayfinding operations)
+- **Other** (such as Jira): ask the user how their tracker does each operation the GitHub template defines (create, read, list, comment, labels, close, blocking, and the wayfinding operations)
 
-Record the choice in `docs/agents/issue-tracker.md`. The GitHub and GitLab templates carry a "PRs as a request surface" flag. Default it to **off** for new files; preserve an existing value on reruns. Don't raise it: a user who wants external PRs in the triage queue can flip the flag in the file later.
+For Linear, ask which dedicated project and default creation team to use. Verify them with read-only MCP tools:
+
+1. Identify the workspace with `get_workspace` and resolve the project with `get_project(query)`.
+2. Check the project's teams, using `list_projects(query, fields: ["uuid", "name", "teams"])` if needed. Match the project by ID. Resolve the default team's key and ID with `get_team(query)` and confirm membership.
+3. Inspect each project team's workflow types with `list_issue_statuses(team)`. When a team has multiple eligible completion or cancellation states, ask which to use. Record the selected status IDs by team.
+4. Resolve the GitHub PR repository from its remote or ask if ambiguous.
+
+Use equivalent read operations when the host exposes a different schema. Report inaccessible or ambiguous scope before writing a Linear configuration. Setup makes no Linear mutations.
+
+Record the choice in `docs/agents/issue-tracker.md`. The GitHub, GitLab, and Linear templates carry a "PRs as a request surface" flag. Default it to **off** for new files; preserve an existing value on reruns. Don't raise it: a user who wants external PRs in the triage queue can flip the flag in the file later.
 
 **Section B: Triage label vocabulary.** `to-spec`, `to-tickets`, and `triage` all apply these labels, so this section always runs.
 
@@ -58,6 +68,8 @@ On first setup, ask:
 The defaults are the seven canonical roles, each label string equal to its name: `bug`, `enhancement`, `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. On **yes**, use them as-is. On **no**, collect the overrides so the skills apply existing labels instead of creating duplicates.
 
 On reruns, show the current mappings and ask whether to **keep current** (recommended), **reset to defaults**, or **supply replacements**. The selected mappings are authoritative for both the draft and final file; a reset discards prior overrides.
+
+For Linear, inspect workspace and project-team issue labels. Map all seven roles to applicable labels, including the five triage states. Resolve ambiguous names per team and note missing labels for creation during use. Keep workflow statuses separate from these roles.
 
 **Section C: Domain docs.** Preserve the resolved layout and paths from exploration. An existing map or a map selected by the configured layout establishes **multi-context**, even without monorepo signals. Otherwise keep the configured layout, or default to **single-context**. Ask only to resolve conflicting discoveries or to offer multi-context when monorepo signals exist and no layout is established.
 
@@ -81,6 +93,8 @@ Print the drafts as text in your reply, then ask whether to write them:
 - The contents of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, `docs/agents/triage-labels.md`, and `docs/agents/cross-model.json`
 
 A file taken from its template as-is drafts as its name plus the lines you filled in (the repo slug, selected label mappings, resolved domain layout and paths). Done when every file Step 4 will write has its draft printed above the question. Write after the user answers.
+
+For Linear, include the workspace, dedicated project, default team, GitHub repo, status choices, and PR flag in the draft. Verify every scope placeholder is filled and the seven role mappings are distinct.
 
 ### 4. Write
 
@@ -120,6 +134,7 @@ Then write the docs files using the seed templates in this skill folder as a sta
 
 - [issue-tracker-github.md](./issue-tracker-github.md): GitHub issue tracker
 - [issue-tracker-gitlab.md](./issue-tracker-gitlab.md): GitLab issue tracker
+- [issue-tracker-linear.md](./issue-tracker-linear.md): Linear MCP issue tracker with GitHub PRs
 - [issue-tracker-local.md](./issue-tracker-local.md): local-markdown issue tracker
 - [triage-labels.md](./triage-labels.md): label mapping
 - [domain.md](./domain.md): domain doc consumer rules + layout
@@ -128,6 +143,8 @@ Then write the docs files using the seed templates in this skill folder as a sta
 For every `domain.md` draft, fill the path placeholders with the resolved glossary/map/ADR paths, substitute those paths in the examples too, and remove the unused layout branch.
 
 When a `docs/agents/` file already exists, diff it against its template. Take the template's text, carry over the repo-specific values (the repo slug, resolved glossary/map/ADR paths and layout, and the PR/MR request-surface flag), then apply this run's approved answers. Section B's selected mappings replace any carried-forward label overrides. Show the resulting diff as the Step 3 draft.
+
+On Linear reruns, preserve and revalidate the configured workspace, project, default team, GitHub repository, and per-team status choices.
 
 For `docs/agents/cross-model.json`, require the exact seed shape with every profile present. `mode` accepts only `auto`, `host-only`, `claude`, `codex`, `cursor`, or `omp`. Reject unknown or missing keys. Every `model` is either `null` or a nonempty string. Claude, Codex, and OMP `effort` is either `null` or a nonempty string. Cursor has no `effort` key. Preserve a valid existing file on reruns unless the user changes Section D answers. If the existing file is invalid, draft the seed with the user's answers instead.
 
