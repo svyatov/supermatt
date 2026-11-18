@@ -1,15 +1,15 @@
 ---
 name: orchestrate
-description: "Work through GitHub, Linear, or local Markdown issues unattended in parallel lanes, with workers in Herdr panes and git worktrees."
+description: "Work through GitHub, Linear, or local Markdown issues unattended in parallel lanes, with workers in Herdr or Rex panes and git worktrees."
 argument-hint: "[parallel runs]"
 disable-model-invocation: true
-compatibility: Designed for Claude Code, Codex, Cursor, and OMP. Requires the matching host CLI and Herdr integration, gh for GitHub PR shipping, and Bun or Node.js 18.17 or later (built-in modules only). Linear trackers require a connected Linear MCP. The notification uses osascript, so it shows on macOS only.
+compatibility: Designed for Claude Code, Codex, Cursor, and OMP. Requires the matching host CLI and Herdr integration, or Rex for Codex, gh for GitHub PR shipping, and Bun or Node.js 18.17 or later (built-in modules only). Linear trackers require a connected Linear MCP. The notification uses osascript, so it shows on macOS only.
 license: MIT
 ---
 
 # orchestrate
 
-You are the orchestrator. You do not write code. You pick issues, drive workers in the same harness that runs you, and check their results. The work runs in LANES parallel lanes: each lane is a herdr pane beside yours and a git worktree of its own, and works one issue at a time. A spec whose tickets are all closed comes first: one worker session **V** checks the whole spec against the code (see [SPEC.md](SPEC.md)). Bugs come next, then the other tickets. Each ticket runs through up to four worker sessions, each with a fresh context:
+You are the orchestrator. You do not write code. You pick issues, drive workers in the same harness that runs you, and check their results. The work runs in LANES parallel lanes: each lane has a terminal pane beside yours and a git worktree of its own, and works one issue at a time. A spec whose tickets are all closed comes first: one worker session **V** checks the whole spec against the code (see [SPEC.md](SPEC.md)). Bugs come next, then the other tickets. Each ticket runs through up to four worker sessions, each with a fresh context:
 
 1. **T**: `/triage REF`, only for a bug that is not triaged yet, to make it ready for an agent.
 2. **A**: `/implement REF`, which QAs, reviews, and fixes its own work, then any fixes it left.
@@ -22,7 +22,9 @@ Before dispatching, read the [orchestrator dispatch contract](../../references/h
 
 ## Setup
 
-1. Run `test "${HERDR_ENV:-}" = 1`. If it fails, say you are not inside herdr and stop.
+Select the terminal from the current host session. In Rex, use [Rex terminal operations](REX.md) for setup steps 1 through 4 and every pane or worker operation in the loop. Continue with common setup step 5. In Herdr, use the commands below. When inherited markers identify both, require authoritative current-terminal context before choosing. An ambiguous, incomplete or inaccessible target stops setup. Never fall back to another terminal after an access failure.
+
+1. For Herdr require `HERDR_ENV=1`. Outside either supported terminal, report that `orchestrate` requires Herdr or Rex and stop.
    Check the host's execution restrictions before the first Herdr, GitHub, or Git write call. This run needs access to the local Herdr socket, GitHub, and the checkout's Git metadata. Use the host's permission mechanism for access outside its sandbox, retaining any approval already granted. Confirm socket access with `herdr agent list` and GitHub access with the default-branch query in step 6. Stop if required access is denied or unavailable; report the exact blocked operation.
 2. PROJECT is the repo folder name (`basename "$(git rev-parse --show-toplevel)"`) made into a valid herdr agent name: lowercase it, change each character outside `a-z`, `0-9`, `_` and `-` to `-`, drop leading characters that are not letters, and keep at most 20 characters. Choose K as the lowest positive number unused by live `PROJECT-orch-K` or `PROJECT-work-K-L` agents and by any registered or existing `.claude/worktrees/orch-K-L` path. Check `herdr agent list`, `git worktree list --porcelain`, and the worktree directory before naming this run. Retained lanes reserve their K until separately cleaned up. Now, before any check that can stop, run `herdr agent rename "$HERDR_PANE_ID" PROJECT-orch-K` and `herdr pane report-metadata "$HERDR_PANE_ID" --source orchestrate --display-agent orchestrator`.
 3. Set KIND from the harness running this skill: `claude`, `codex`, `cursor`, or `omp`. Use authoritative current-session harness metadata first. When unavailable, read `herdr agent get "$HERDR_PANE_ID"` `.result.agent.agent`; accept only those four values. If that does not identify it, `CLAUDE_CODE_CHILD_SESSION=1` identifies Claude Code, and any of `CODEX_SANDBOX`, `CODEX_SESSION_ID`, or `CODEX_THREAD_ID` identifies Codex. `CLAUDECODE`, `OMP_PROFILE`, `OMPCODE`, and model or provider names do not identify the host. Set CLI to `agent` for Cursor and to KIND otherwise, then require `command -v "$CLI"`. Every worker and restart uses KIND; a failed launch parks its lane instead of switching harnesses.
@@ -152,9 +154,9 @@ Other lanes may have merged since this branch started. Wait for the ship slot (s
 
 ## Stop conditions
 
-Park the lane when: triage left a bug untriaged, a spec found gaps on its second verification, `/implement` made no commits, a question stays open after three answer rounds (five in session T), a dialog stays open after two answers, the worker asks to run an unsafe action, findings stay unfixed after `/fix-findings`, Check the worker's coverage gate cannot be completed, a rebase stays unfinished after `/resolving-merge-conflicts` or its QA fails, CI recovery stops with an unresolved failure or blocker, a push or merge is refused, the read-only retrospective changes files, a worktree with changes refuses removal, or a Linear MCP, herdr, gh, or git control operation about the lane fails outside a handled recovery path. A nonzero CI check result follows CI recovery instead of this command-failure stop.
+Park the lane when: triage left a bug untriaged, a spec found gaps on its second verification, `/implement` made no commits, a question stays open after three answer rounds (five in session T), a dialog stays open after two answers, the worker asks to run an unsafe action, findings stay unfixed after `/fix-findings`, Check the worker's coverage gate cannot be completed, a rebase stays unfinished after `/resolving-merge-conflicts` or its QA fails, CI recovery stops with an unresolved failure or blocker, a push or merge is refused, the read-only retrospective changes files, a worktree with changes refuses removal, or a Linear MCP, terminal, gh, or git control operation about the lane fails outside a handled recovery path. A nonzero CI check result follows CI recovery instead of this command-failure stop.
 
-Stop the run when every lane is idle or parked (including lanes retained at the merge hold after another lane's recovery stopped): the queue has nothing left that no lane holds, or the operator paused. Stop it at once when a Setup step fails or a herdr command about the run itself fails. On stop, close the panes of idle lanes, and leave the panes and worktrees of parked lanes open, so the operator can inspect them.
+Stop the run when every lane is idle or parked (including lanes retained at the merge hold after another lane's recovery stopped): the queue has nothing left that no lane holds, or the operator paused. Stop it at once when a Setup step fails or a terminal command about the run itself fails. On stop, close the panes of idle lanes, and leave the panes and worktrees of parked lanes open, so the operator can inspect them.
 
 ## Rules
 
