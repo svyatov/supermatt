@@ -173,3 +173,45 @@ test("local CLI uses Markdown without calling gh and preserves paths with spaces
   writeFileSync(join(root, ".scratch/my feature/issues/01-first.md"), "# First\nStatus: ready-for-agent\nClosed: 2026-10-12\n");
   assert.equal(run(), ".scratch/my feature/issues/02-next.md\tNext\tready\n");
 });
+
+function linearQueue(rows) {
+  const script = fileURLToPath(new URL("../skills/orchestrate/scripts/next-issue.mjs", import.meta.url));
+  const args = [script, "--linear", "project-id", "build", "defect", "assess"];
+  return execFileSync(process.execPath, args, {
+    env: { PATH: "" }, encoding: "utf8", input: JSON.stringify(rows), stdio: ["pipe", "pipe", "pipe"],
+  });
+}
+
+const linearIssue = (id, changes = {}) => ({
+  id, projectId: "project-id", title: id, statusType: "unstarted", assigneeId: null,
+  labels: ["build"], blockerStates: [], childStates: [], ...changes,
+});
+
+test("Linear queue preserves team identifiers, project scope, assignment and stage priority", () => {
+  const rows = [
+    linearIssue("UX-2"), linearIssue("ENG-2"),
+    linearIssue("ENG-3", { labels: ["defect", "assess"] }),
+    linearIssue("UX-4", { childStates: ["completed"], title: "Spec\nA" }),
+    linearIssue("EXT-1", { projectId: "another-project" }),
+    linearIssue("UX-5", { assigneeId: "someone" }),
+    linearIssue("ENG-6", { statusType: "canceled" }),
+  ];
+  assert.equal(linearQueue(rows), "UX-4\tSpec A\tspec\nENG-3\tENG-3\ttriage\nENG-2\tENG-2\tready\nUX-2\tUX-2\tready\n");
+});
+
+test("only completed Linear blockers and children release work", () => {
+  for (const field of ["blockerStates", "childStates"]) {
+    for (const state of ["started", "canceled", null, "unknown"]) {
+      assert.equal(linearQueue([linearIssue("ENG-2", { [field]: ["completed", state] })]), "");
+    }
+  }
+  assert.match(linearQueue([linearIssue("ENG-2", { blockerStates: ["completed"] })]), /ready/);
+});
+
+test("incomplete Linear snapshots fail selection", () => {
+  for (const field of ["assigneeId", "labels", "blockerStates", "childStates", "projectId"]) {
+    const row = linearIssue("ENG-2");
+    delete row[field];
+    assert.throws(() => linearQueue([row]), /Invalid Linear/);
+  }
+});
