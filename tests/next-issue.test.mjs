@@ -202,7 +202,7 @@ test("Linear queue preserves team identifiers, project scope, assignment and sta
 test("only completed Linear blockers and children release work", () => {
   for (const field of ["blockerStates", "childStates"]) {
     for (const state of ["started", "canceled", null, "unknown"]) {
-      assert.equal(linearQueue([linearIssue("ENG-2", { [field]: ["completed", state] })]), "");
+      assert.equal(linearQueue([linearIssue("ENG-2", { implementationSpec: true, [field]: ["completed", state] })]), "");
     }
   }
   assert.match(linearQueue([linearIssue("ENG-2", { blockerStates: ["completed"] })]), /ready/);
