@@ -20,7 +20,7 @@ The **frontier** contains pending tickets whose prerequisites are all present on
 
 Discover the default branch and record its current commit as `BASE`, the fixed point for final QA and review. Create a branch from it using the repository's naming convention in a dedicated worktree. Preserve the caller's existing work and branches. If the user supplied an existing integration branch, inspect it, record its merge-base with the default branch as `BASE`, and reconcile the graph against its actual commits before assigning work.
 
-Create each worker's worktree on its own new branch from the current integration tip. Verify that starting commit before dispatch; if the base is wrong, preserve the worktree and correct the assignment instead of resetting existing work. Respect the host's available subagent slots. Without subagents, work one ticket at a time using the same worktree and verification steps.
+Create each worker's worktree on its own new branch from the current integration tip. Verify that starting commit before dispatch; if the base is wrong, preserve the worktree and correct the assignment instead of resetting existing work. Start a new implementer for each ticket with only its brief and the referenced evidence. Select a fresh context when the host defaults to forking the coordinator's conversation. Keep that worker for fixes and integration of its own ticket. Respect the host's available subagent slots. Without fresh workers, use fresh sessions sequentially where possible. Otherwise work one ticket at a time, keep the worktree and verification steps, and report the context limitation.
 
 ## 3. Build and integrate the frontier
 
