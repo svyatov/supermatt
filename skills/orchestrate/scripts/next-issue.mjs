@@ -115,6 +115,8 @@ function loadLinear(projectId) {
     }
     seen.add(row.id);
     if (!["triage", "backlog", "unstarted", "started"].includes(row.statusType)) continue;
+    if (row.labels.some(label => label.startsWith("wayfinder:"))) continue;
+    if (row.childStates.length && row.implementationSpec !== true) continue;
     issues.push({
       linearIdentifier: row.id, number: Number(number[1]), title: row.title, state: "open",
       labels: row.labels.map(name => ({ name })), assignees: row.assigneeId ? [row.assigneeId] : [],

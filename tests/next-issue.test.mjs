@@ -191,7 +191,7 @@ test("Linear queue preserves team identifiers, project scope, assignment and sta
   const rows = [
     linearIssue("UX-2"), linearIssue("ENG-2"),
     linearIssue("ENG-3", { labels: ["defect", "assess"] }),
-    linearIssue("UX-4", { childStates: ["completed"], title: "Spec\nA" }),
+    linearIssue("UX-4", { implementationSpec: true, childStates: ["completed"], title: "Spec\nA" }),
     linearIssue("EXT-1", { projectId: "another-project" }),
     linearIssue("UX-5", { assigneeId: "someone" }),
     linearIssue("ENG-6", { statusType: "canceled" }),
@@ -214,4 +214,18 @@ test("incomplete Linear snapshots fail selection", () => {
     delete row[field];
     assert.throws(() => linearQueue([row]), /Invalid Linear/);
   }
+});
+
+test("a repeated Linear identity invalidates a contradictory snapshot", () => {
+  const blocked = linearIssue("ENG-2", { blockerStates: ["started"] });
+  assert.throws(() => linearQueue([blocked, linearIssue("ENG-2")]), /Invalid Linear issue snapshot: ENG-2/);
+});
+
+test("completed decision children do not turn a Wayfinder map into an implementation spec", () => {
+  const map = linearIssue("ENG-2", { labels: ["wayfinder:map"], implementationSpec: true, childStates: ["completed"] });
+  assert.equal(linearQueue([map]), "");
+});
+
+test("an ordinary Linear parent is not a spec even when all children completed", () => {
+  assert.equal(linearQueue([linearIssue("ENG-2", { childStates: ["completed"] })]), "");
 });
