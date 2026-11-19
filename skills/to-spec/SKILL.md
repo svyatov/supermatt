@@ -30,7 +30,7 @@ Fix the findings that have one clear fix. A finding that needs a decision goes t
 
 5. Publish the spec to the project issue tracker. Apply the configured `ready-for-agent` role (a label on hosted trackers, `Status:` locally): it needs no further triage.
 
-When the spec came from a `wayfinder` map, start its body with `## Parent` and the configured tracker's canonical map reference: `#<number>` for a hosted issue map, or a usable Markdown path/link for a local map. After publishing, comment the spec's link on the map and close the map: the spec is its destination.
+When the spec came from a `wayfinder` map, start its body with `## Parent` and the map's canonical reference (`#<number>` on GitHub, `TEAM-123` or its URL on Linear, a Markdown path/link locally). On Linear also set the map as the native parent. After publishing, comment the spec's link on the map and close the map as completed: the spec is its destination.
 
 <spec-template>
 

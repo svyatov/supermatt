@@ -68,7 +68,7 @@ Then invoke setup once in each repository:
 | Cursor | `/setup-supermatt-skills` |
 | OMP | `/skill:setup-supermatt-skills` |
 
-It asks where you track issues (GitHub, GitLab, or local Markdown files), which triage labels to use, and whether reviews and juries may call an external peer. It then writes:
+Choose one tracker for this repository: GitHub Issues, GitLab Issues, Linear, or local Markdown files. For Linear, connect Linear MCP in your host, then select a dedicated project and a default team for new issues. Triage covers every team in the project. Setup also asks about triage labels and external reviewers, then writes:
 
 ```text
 CLAUDE.md or AGENTS.md          "## Agent skills" section
@@ -122,15 +122,17 @@ flowchart LR
 
 1. `grill-with-docs` sharpens the idea by interview.
 2. `to-spec` turns the conversation into a spec on your issue tracker.
-3. `to-tickets` splits the spec into independently green tickets. Skip it when the work fits in one session.
+3. `to-tickets` splits the spec into independently green tickets. On Linear, each ticket is a sub-issue of the spec. GitHub also supports this link when sub-issues are available. Skip it when the work fits in one session.
 4. Use `implement` for each ticket, or `implement-spec` for the whole spec on one integration branch. Both build through `tdd`, check the running program with `qa`, and finish with `code-review`; `implement-spec` checks the combined result across tickets.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` repairs CI within bounded attempts through `recover-ci`, merges only on green checks, and verifies post-merge workflows. Failed post-merge workflows use follow-up repair PRs. To stop short of the merge, `babysit-pr` opens the PR when needed, handles review feedback and CI, and leaves a ready PR for you to merge.
+
+For Linear, use an issue identifier such as `ENG-123` or its issue URL. Identify the issues a PR resolves in its description. After shipping checks pass, `ship-pr` verifies completion in Linear. External GitHub PR triage is opt-in.
 
 `babysit-pr` accepts a PR number or full URL and an optional duration, such as `$babysit-pr 96 90m` in Codex. It needs an authenticated `gh` CLI and Bun or Node.js 18.17 or later. The default watch lasts eight hours; resuming the same PR keeps its original deadline and recovery budget. A run reports `ready`, `blocked`, `budget-exhausted`, or `closed`. See its [instructions](./skills/babysit-pr/SKILL.md) for extending a watch and handling blockers.
 
 Run `retro` before clearing the session, or provide a verified session ID or path later. It reads local Claude Code, Codex, Cursor, and OMP transcript evidence and reports gaps instead of guessing from the newest file. After a bug fix, use it to identify what would have prevented the bug; use `improve-architecture` when the finding is a missing test seam.
 
-With triaged GitHub issues or local Markdown tickets, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside Herdr. Workers use the harness that started it: Claude Code, Codex, Cursor, or OMP. Cursor and OMP workers receive the authoritative active model ID when available, otherwise they keep the harness default. Local tracker files stay in the main checkout; code changes ship through GitHub PRs.
+With triaged GitHub issues, Linear issues, or local Markdown tickets, `orchestrate` runs steps 4 and 5 unattended for each issue, several issues in parallel if you ask, in worker sessions inside Herdr or Rex. In Rex, start Codex and invoke `$orchestrate` normally. Rex currently supports Codex only and needs no separate integration setup. Workers use the harness that started it: Claude Code, Codex, Cursor, or OMP. Cursor and OMP workers receive the authoritative active model ID when available, otherwise they keep the harness default. Local tracker files stay in the main checkout; code changes ship through GitHub PRs.
 
 An explicit `orchestrate` invocation delegates only its [listed worker commands](./references/harnesses.md#orchestrator-dispatch) within that run. Other user-invoked skills still require a human command; existing safety and approval gates remain in force.
 
@@ -143,15 +145,17 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 - `code-review` adds a third axis, **Adversarial**: how does the change fail in production? Its brief also runs security, public contract, migration, reliability, and concurrency checks where they apply. `docs/agents/cross-model.json` selects current-host readers only, automatic hardened Claude or Codex peers, or an explicit adapter. Cursor and OMP disclose their weaker isolation and require runtime confirmation. Findings carry P0-P3 severities and quoted evidence, and the reader that did not raise a P0, P1, or P2 finding validates it before the verdict. Upstream reviews on two axes, Standards and Spec.
 - `to-spec` checks the draft spec in a fresh subagent or session when available; otherwise it reviews in the current context and discloses the missing independent review before publishing.
 - `tdd` checks that each test goes red for the reason it names, runs affected-seam checks during cycles and the full required gate for completed work, ends with a mutation check, and flags change-detector tests.
-- `diagnosing-bugs` asks what you already tried, rules out the environment and uncommitted work, and fixes nothing until the causal chain has no gaps. It escalates to you after 2-3 dead hypotheses or 3 failed fixes.
+- `diagnosing-bugs` asks what you already tried, rules out the environment and uncommitted work, and fixes nothing until the causal chain has no gaps. Once it proves the cause, it checks other sites for the same defect and fixes confirmed instances within scope. It escalates to you after 2-3 dead hypotheses or 3 failed fixes.
 - `improve-architecture` assesses the codebase first and stops when it is healthy. It finds hot spots by change count over the last year, maps the structure before it looks for friction, visits every module in the map, and skips modules that are shallow by design. `refactor` and `improve-tests` gate on an assessment the same way.
 - `qa`, new in SuperMatt, runs the changed program the way its user would (a terminal program in tmux, a web app in a browser) and checks every requested behavior before `code-review` reads the code.
 - `ideate`, new in SuperMatt, has a fresh subagent or session try to refute each idea before it ranks the survivors. When neither is available, it performs the check itself and reports the lack of an independent verifier; if no idea passes, it reports no survivors.
 
 ### Skills hand off to each other
 
+Both implementation flows consult `codebase-design` for changes to data contracts, state transitions, shared mutable state, or retryable effects. Adversarial review checks duplicate execution and recovery after interruption. Replay requires verified test stores and endpoints; otherwise the review reports the verification gap.
+
 - `implement` completes the full required gate before committing each finished behavior, reuses checks whose inputs are unchanged, runs `qa` in a fresh subagent or session when available and fixes every fail test-first, then passes the spec to `code-review`. When fresh context is unavailable, QA reports the independence gap. Follow-ups check the fix diff and affected behavior. Every verified finding is fixed or raised as a question; the issue stays open until merge.
-- `implement-spec`, adapted from upstream v1.3.1, builds a whole spec through native subagents in ticket worktrees and integrates it into one branch for a single PR. It runs QA and review on the combined spec, serializes merges, and keeps issues open until shipping. Use it for one feature reviewed together; use `orchestrate` to ship a queue of issues separately through Herdr.
+- `implement-spec`, adapted from upstream v1.3.1, builds a whole spec with a fresh implementer and worktree per ticket and integrates it into one branch for a single PR. It runs QA and review on the combined spec, serializes merges, and keeps issues open until shipping. Use it for one feature reviewed together; use `orchestrate` to ship a queue of issues separately through Herdr or Rex.
 - `diagnosing-bugs` writes the regression test through `tdd` and reviews the fix with `code-review`, using the bug report as the spec.
 - Test seams agreed in `to-spec` or `triage` travel through `to-tickets` into `implement` and `tdd`, so no skill asks about them twice.
 - Each planning skill ends by pointing to the next step: `ideate` to `grill-with-docs`, `improve-architecture` to `to-spec` or `implement`, and `wayfinder` to `to-spec`, using the current host's invocation syntax.
@@ -161,6 +165,7 @@ SuperMatt starts from [mattpocock/skills](https://github.com/mattpocock/skills) 
 
 ### Refactors keep behavior
 
+- Before a mechanical sweep, `refactor` checks the automation against verified manual examples in scratch, one per distinct syntactic shape.
 - `implement` pins current behavior with characterization tests, written through `tdd` in their own `test:` commit.
 - `refactor:` commits never touch test files, and `code-review` runs a refactor check on them.
 - A review fix that changes behavior goes test-first.
@@ -193,6 +198,7 @@ Some of the checks above are adapted from other skill sets:
 | [Every's compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin) | `code-review`, `diagnosing-bugs`, `to-spec`, `ideate`, `babysit-pr`. See [attribution](./THIRD-PARTY-NOTICES.md). |
 | [Superpowers](https://github.com/obra/superpowers) | `tdd`, `diagnosing-bugs` |
 | Luke Ramsden's [software-design](https://github.com/lukeramsden/software-design-agent-skill) | `codebase-design` |
+| Robert C. Martin's [ub-mode](https://github.com/unclebob/ub-mode/blob/57a8bdd28e45ed41900ace0bafa2ff76dd9ed70f/SKILL.md) | Data contracts and recovery in `codebase-design`, recovery checks in `code-review`, and verified transformation examples in `refactor`. |
 | Dex Horthy's [show-me](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md) | `pr` |
 | GitHub's [awesome-copilot](https://github.com/github/awesome-copilot) refactor skills | `refactor` |
 | Leonardo Flores's [reducing-entropy](https://github.com/softaworks/agent-toolkit/tree/main/skills/reducing-entropy) | `refactor` |
@@ -214,7 +220,7 @@ The full record of changes is in [CHANGELOG.md](./CHANGELOG.md).
 | **[improve-file-structure](./skills/improve-file-structure/SKILL.md)** | Assess file organization and stop when it is healthy; otherwise design a clearer layout and a behavior-preserving migration plan for `/implement`, with TypeScript, Go, Python, and Ruby guidance. Multi-session specs retain the approved move map, linked from each affected ticket. |
 | **[refactor](./skills/refactor/SKILL.md)** | Refactor code at method, file, or project scope without changing behavior. Assesses first and stops when the code is clean, and gates edits on test coverage and a verified baseline. |
 | **[improve-tests](./skills/improve-tests/SKILL.md)** | Cut a test suite to the tests that catch real bugs and its run time to the minimum: measure first, delete or demote low-value tests, fix slow setup, and prove every cut keeps the checks that matter. |
-| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through GitHub issues or local Markdown tickets unattended in parallel Claude Code, Codex, Cursor, or OMP lanes, with workers in Herdr panes and git worktrees. |
+| **[orchestrate](./skills/orchestrate/SKILL.md)** | Work through GitHub issues, Linear issues, or local Markdown tickets unattended in parallel Claude Code, Codex, Cursor, or OMP lanes, with workers in Herdr panes or Codex workers in Rex panes, each in a git worktree. |
 | **[commit](./skills/commit/SKILL.md)** | Commit all changes on the current branch, main included, after a scan for secrets. |
 | **[ship-pr](./skills/ship-pr/SKILL.md)** | Commit, push, open a pull request, repair CI within bounded attempts, then squash merge and verify post-merge workflows. |
 | **[babysit-pr](./skills/babysit-pr/SKILL.md)** | Watch a pull request until it is ready to merge: open it when the branch has none, handle review feedback before CI, recover CI within a bounded budget, keep the branch current, and stop without merging. |

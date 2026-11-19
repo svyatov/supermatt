@@ -42,6 +42,10 @@ For every child, read its complete body and inspect any top-level `Blocked by:` 
 
 When native dependencies are known unavailable, use the textual fallback instead. A failed native read alone does not establish unavailability; report it as unknown. Parse every reference in `Blocked by:` and read each issue, including closed issues, with **Read an issue** (use an explicit repository for cross-repository references). Every referenced issue must be confirmed closed. A missing line in a completely read fallback body declares no textual blockers; an empty/malformed line, unresolved reference, unreadable issue, or incomplete response is unknown, never zero. The child is eligible only when both its applicable native blockers and textual blockers are satisfied.
 
+### Attach a spec ticket
+
+Use the existing child issue, including when resuming a partial publication. Read its numeric database ID with `gh api repos/<child-owner>/<child-repo>/issues/<child-number> --jq .id`. List all pages of `gh api --paginate repos/<parent-owner>/<parent-repo>/issues/<parent-number>/sub_issues` and check for that ID. If present, the link is complete. If absent, POST once with `gh api --method POST repos/<parent-owner>/<parent-repo>/issues/<parent-number>/sub_issues -F sub_issue_id=<child-db-id>`. Leave any existing different parent in place. After an uncertain write, read the list again before retrying. If verification fails or GitHub rejects the link, report the child, parent, and error. Keep the child's `## Parent` reference and reuse the child on retry.
+
 API reference: [GitHub issue dependencies](https://docs.github.com/en/rest/issues/issue-dependencies) and [sub-issues](https://docs.github.com/en/rest/issues/sub-issues).
 
 ## Wayfinding operations

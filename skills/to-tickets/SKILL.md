@@ -2,7 +2,7 @@
 name: to-tickets
 description: Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker (edges as text in one file per ticket locally, or native blocking links on a real tracker).
 disable-model-invocation: true
-argument-hint: "[spec path, issue number, or URL]"
+argument-hint: "[spec path, issue identifier, or URL]"
 license: MIT
 ---
 
@@ -16,7 +16,7 @@ Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`. If eithe
 
 ### 1. Gather context
 
-Work from whatever is already in the conversation context. If the user passes a reference (a spec path, an issue number or URL) as an argument, fetch it and read its full body and comments.
+Work from whatever is already in the conversation context. If the user passes a reference (a spec path, a tracker identifier or URL) as an argument, fetch it and read its full body and comments.
 
 ### 2. Explore the codebase (optional)
 
@@ -64,9 +64,11 @@ Publish the approved tickets. **How** depends on the tracker `/setup-supermatt-s
 - **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's `Blocked by:` line lists the numbers it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file. Set `Status:` to the configured value for the canonical `ready-for-agent` role.
 - **A real issue tracker (GitHub, Linear, ...)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking relationship where it has one (the **Blocking** operation in `docs/agents/issue-tracker.md`); otherwise put the tracker's `Blocked by:` fallback line at the top of each ticket's body. Apply the configured label for the canonical `ready-for-agent` role; the tickets are agent-grabbable by construction. A label override must still map to that canonical role in `triage-labels.md`.
 
-Preserve an exact `## Parent` reference to the source spec in every child, including local files. Use the tracker's canonical issue reference or a usable Markdown path/link to the local spec. If the source was a spec carrying the canonical `ready-for-agent` role, remove that readiness using the configured label or local `Status:` field: its tickets are now the work, and the spec stays open as their parent. Leave the parent otherwise untouched.
+Preserve an exact `## Parent` reference to the source spec in every child, including local files. Use the tracker's canonical issue reference or a usable Markdown path/link to the local spec. When both the source spec and the published ticket are GitHub issues, also attach the ticket to the spec as a native sub-issue using [Attach a spec ticket](../setup-supermatt-skills/issue-tracker-github.md#attach-a-spec-ticket). On Linear create the children in the configured project and default team, set the native parent to the source Linear spec, and verify the parent and native blocking relations before removing the spec's readiness. If a Linear operation fails, report the partial publication with the identifiers already created. Reconcile those tickets before retrying. For a tracker without native parent links, keep the text reference. Parentage adds no blocking edge.
 
-Then stop. Tell the user to run `/implement` in Claude linked installs or Cursor, `/supermatt:implement` from the Claude plugin, `$implement` in Codex, or `/skill:implement` in OMP on a **frontier** ticket (one whose blockers are all closed) in a fresh context, one ticket per session.
+If the source was a spec carrying the canonical `ready-for-agent` role, remove that readiness using the configured label or local `Status:` field: its tickets are now the work, and the spec stays open as their parent. Leave the parent otherwise untouched.
+
+Then stop. Tell the user to run `/implement` in Claude linked installs or Cursor, `/supermatt:implement` from the Claude plugin, `$implement` in Codex, or `/skill:implement` in OMP on a **frontier** ticket (one whose blockers are all satisfied under the configured tracker's rules) in a fresh context, one ticket per session.
 
 <local-ticket-template>
 
@@ -94,7 +96,7 @@ Blocked by: #<n>, #<n> (only where the tracker has no native blocking; omit it w
 
 ## Parent
 
-A reference to the parent issue on the tracker (if the source was an existing issue, otherwise omit this section).
+The exact issue reference or Markdown path/link to the source spec (omit when there is no source spec).
 
 ## What to build
 

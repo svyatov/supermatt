@@ -46,7 +46,7 @@ Worktree: <absolute WT>; code and Git operations stay here.
 Phase: <current phase and session letter>.
 Approval scope: <the user's actual delegated actions and restrictions for this phase>.
 Use only orchestrate's delegated commands and model-invoked dependencies. Preserve the called skills' safety and mandatory human-consent gates. Stop and report any action outside this scope; the coordinator cannot supply separate human consent.
-Resources and tracker: <current resource ownership; tracker configuration; for local Markdown, the absolute paths and ownership rules from LOCAL.md>.
+Resources and tracker: <current resource ownership; tracker configuration; for Linear, the project, team, identifier and ownership rules from LINEAR.md; for local Markdown, the absolute paths and ownership rules from LOCAL.md>.
 Prior evidence: <relevant handoffs, decisions, unresolved questions, full findings and QA/review reports with checked commits and retained artifact paths, plus intervening changes>.
 Recovery history: <attempts, outcomes, remaining limits, and shipping record when applicable>.
 ```

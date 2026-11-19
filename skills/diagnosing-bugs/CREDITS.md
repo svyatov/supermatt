@@ -1,6 +1,6 @@
 # Credits
 
-The prior-attempts check, the environment and dirty-tree check, the assumption audit, the prediction rule, the heisenbug note, the causal-chain criterion, the failed-fix escalation table, and `BUG-CLASSES.md` are adapted from [Every](https://every.to)'s [`ce-debug`](https://github.com/EveryInc/compound-engineering-plugin/tree/main/skills/ce-debug) skill in the Compound Engineering plugin, mainly its `references/investigate.md`, `references/fix.md`, `references/anti-patterns.md`, and `references/investigation-techniques.md`.
+The prior-attempts check, the environment and dirty-tree check, the assumption audit, the prediction rule, the heisenbug note, the causal-chain criterion, the [search for other instances of a proven defect](https://github.com/EveryInc/compound-engineering-plugin/pull/2080), the failed-fix escalation table, and `BUG-CLASSES.md` are adapted from [Every](https://every.to)'s [`ce-debug`](https://github.com/EveryInc/compound-engineering-plugin/tree/main/skills/ce-debug) skill in the Compound Engineering plugin, mainly its `references/investigate.md`, `references/fix.md`, `references/anti-patterns.md`, and `references/investigation-techniques.md`.
 
 `ce-debug` is distributed under the MIT License, reproduced in [NOTICE](NOTICE).
 
