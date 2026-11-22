@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.25.1] - 2026-11-22
+
 ### Fixed
 
 - `implement-spec`: uses an implementable single-session spec issue as its own ticket when it has no children. Larger specs still require a split.
@@ -746,7 +748,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.25.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.25.1...HEAD
+[0.25.1]: https://github.com/svyatov/supermatt/compare/v0.25.0...v0.25.1
 [0.25.0]: https://github.com/svyatov/supermatt/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/svyatov/supermatt/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/svyatov/supermatt/compare/v0.22.0...v0.23.0
