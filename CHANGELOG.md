@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- `implement-spec`: uses an implementable single-session spec issue as its own ticket when it has no children. Larger specs still require a split.
+- `ask-supermatt`: routes single-session issues directly to `implement-spec` when the user wants an integration branch.
+
 ## [0.25.0] - 2026-11-22
 
 ### Added

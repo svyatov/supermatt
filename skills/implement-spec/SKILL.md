@@ -10,7 +10,13 @@ Implement the supplied spec and its tickets on one **integration branch**, ready
 
 ## 1. Pin the spec and task graph
 
-Read `docs/agents/issue-tracker.md`, then use its operations to read the spec, every child ticket, and their blocking relationships. If the tracker instructions are missing, tell the user to run `/setup-supermatt-skills` in Claude linked installs or Cursor, `/supermatt:setup-supermatt-skills` from the Claude plugin, `$setup-supermatt-skills` in Codex, or `/skill:setup-supermatt-skills` in OMP, then stop. If the spec has no implementation tickets, tell the user to run `/to-tickets` in Claude linked installs or Cursor, `/supermatt:to-tickets` from the Claude plugin, `$to-tickets` in Codex, or `/skill:to-tickets` in OMP, then stop.
+Read `docs/agents/issue-tracker.md`, then use its operations to read the spec, every child ticket, and their blocking relationships. If the tracker instructions are missing, tell the user to run `/setup-supermatt-skills` in Claude linked installs or Cursor, `/supermatt:setup-supermatt-skills` from the Claude plugin, `$setup-supermatt-skills` in Codex, or `/skill:setup-supermatt-skills` in OMP, then stop.
+
+Use the child implementation tickets as the nodes of the graph. Include every state: if the tracker's child query filters to open issues, repeat the lookup across all states, including native and body-linked children. An incomplete lookup blocks graph construction. When the tracker confirms there are no implementation tickets:
+
+- If the issue carries a configured triage state that rules out agent work, such as `ready-for-human` or `wontfix`, report the conflict and stop for a maintainer decision.
+- If the spec is a tracker issue that fits one session and has either acceptance criteria or the configured `ready-for-agent` role, use that issue as the sole ticket. Keep its tracker reference and blocking relationships.
+- For any other spec without tickets, tell the user to run `/to-tickets` in Claude linked installs or Cursor, `/supermatt:to-tickets` from the Claude plugin, `$to-tickets` in Codex, or `/skill:to-tickets` in OMP, then stop.
 
 Build a **task graph** with ticket states `pending`, `running`, `integrated`, and `blocked`. Keep it with the worker assignments, branch names, commit SHAs, and evidence paths in an OS temporary directory outside the repository. A closed ticket counts as integrated only after verifying its implementation is in the integration branch. Surface contradictory criteria before implementation. For Linear, read explicit blockers outside the spec, including cross-project links, without changing them. A verified `completed` workflow type satisfies an external dependency, including work delivered outside this repository. A canceled in-spec ticket blocks the run. For other trackers an open blocker outside this spec stays blocked until its work is merged into the default branch. A dependency cycle needs a user decision.
 

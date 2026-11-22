@@ -109,6 +109,7 @@ flowchart LR
   grill["grill-with-docs<br>sharpen the idea"] --> spec["to-spec<br>publish the spec"]
   spec --> tickets["to-tickets<br>split into tickets"]
   spec -. fits one session .-> implement
+  spec -. single implementable issue .-> implementSpec
   tickets -->|per ticket| implement["implement<br>tdd, qa, then code-review"]
   tickets -->|whole spec| implementSpec["implement-spec<br>parallel worktrees, one branch<br>tdd, qa, then code-review"]
   implement --> ship["refactor, ship-pr<br>clean up, merge"]
@@ -123,7 +124,7 @@ flowchart LR
 1. `grill-with-docs` sharpens the idea by interview.
 2. `to-spec` turns the conversation into a spec on your issue tracker.
 3. `to-tickets` splits the spec into independently green tickets. On Linear, each ticket is a sub-issue of the spec. GitHub also supports this link when sub-issues are available. Skip it when the work fits in one session.
-4. Use `implement` for each ticket, or `implement-spec` for the whole spec on one integration branch. Both build through `tdd`, check the running program with `qa`, and finish with `code-review`; `implement-spec` checks the combined result across tickets.
+4. Use `implement` for each ticket, or `implement-spec` for the whole spec on one integration branch. A single-session spec issue with acceptance criteria or the configured `ready-for-agent` role can go straight to `implement-spec`. Both build through `tdd`, check the running program with `qa`, and finish with `code-review`; `implement-spec` checks the combined result across tickets.
 5. `refactor` cleans up the branch without changing behavior, and `ship-pr` repairs CI within bounded attempts through `recover-ci`, merges only on green checks, and verifies post-merge workflows. Failed post-merge workflows use follow-up repair PRs. To stop short of the merge, `babysit-pr` opens the PR when needed, handles review feedback and CI, and leaves a ready PR for you to merge.
 
 For Linear, use an issue identifier such as `ENG-123` or its issue URL. Identify the issues a PR resolves in its description. After shipping checks pass, `ship-pr` verifies completion in Linear. External GitHub PR triage is opt-in.
