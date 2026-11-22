@@ -153,6 +153,16 @@ export const cases = [
     rubric: ["The caller saves one consolidated report in notes/research/remote-batches.md even though both scouts changed no files.", "The report cites the supplied primary sources, distinguishes the documented exception from implementation observations, and does not infer write's transaction behavior.", "After writing, the caller reads the saved report to verify it and gives that file's path in the final reply.", "The existing note and all supplied sources are preserved."],
   },
   {
+    id: "single-issue-spec", skill: "implement-spec", unchanged: true,
+    files: {
+      "docs/agents/issue-tracker.md": "Use issues.md as the complete tracker snapshot for issue reads, child listings across all states, labels, and blockers.\n",
+      "docs/agents/triage-labels.md": "The ready-for-agent role uses the ready-for-agent label.\n",
+      "issues.md": "Tracker snapshot: each issue is open with no children or blockers. A: fix the help text for one CLI flag. Done when --help shows the new spelling. No labels. B: update the same flag description in its man page. Carries the configured ready-for-agent label. C: replace the CLI parser across three independently shipped packages in successive sessions. Each package has acceptance criteria and C carries the ready-for-agent label.\n"
+    },
+    prompt: "Apply step 1 separately to each spec in issues.md. Report the task graph and next step for each. Stop before implementation and leave the tracker and files unchanged.",
+    rubric: ["A and B each use the original issue as the sole ticket on the integration-branch path without creating a child.", "C stops for to-tickets because its scope requires several sessions despite its criteria and label."],
+  },
+  {
     id: "resources-spec", skill: "implement-spec", unchanged: true,
     files: { "assignments.md": "Ticket A edits api.mjs; ticket B edits ui.mjs. Both test commands reset database app_test, bind port 4100, and rewrite /shared/build. A separate ticket C reads immutable fixtures only.\n" },
     prompt: "Apply only the dispatch-planning part of the skill to assignments.md. Report the worker assignments and prerequisites. Do not create worktrees, contact a tracker, or launch workers in this probe.",
