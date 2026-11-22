@@ -1,0 +1,5 @@
+interface:
+  display_name: "SuperMatt: Improve Comments"
+  short_description: "Remove redundant comments and correct stale wording"
+policy:
+  allow_implicit_invocation: false
