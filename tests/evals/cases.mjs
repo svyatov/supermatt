@@ -156,11 +156,18 @@ export const cases = [
     id: "single-issue-spec", skill: "implement-spec", unchanged: true,
     files: {
       "docs/agents/issue-tracker.md": "Use issues.md as the complete tracker snapshot for issue reads, child listings across all states, labels, and blockers.\n",
-      "docs/agents/triage-labels.md": "The ready-for-agent role uses the ready-for-agent label.\n",
-      "issues.md": "Tracker snapshot: each issue is open with no children or blockers. A: fix the help text for one CLI flag. Done when --help shows the new spelling. No labels. B: update the same flag description in its man page. Carries the configured ready-for-agent label. C: replace the CLI parser across three independently shipped packages in successive sessions. Each package has acceptance criteria and C carries the ready-for-agent label.\n"
+      "docs/agents/triage-labels.md": "The ready-for-agent role uses bot-ok. The ready-for-human role uses manual-only.\n",
+      "issues.md": [
+        "Specs A through E are open and have no blockers. Only D has a child.",
+        "A: fix the help text for one CLI flag. Done when --help shows the corrected spelling. No labels.",
+        "B: update the same flag description in its man page. Label: bot-ok.",
+        "C: replace the CLI parser across three independently shipped packages in successive sessions. Each package has acceptance criteria. Label: bot-ok.",
+        "D: correct the spelling in an example. Label: bot-ok. Open children: none. All states: closed child D1. Its commit has not been verified.",
+        "E: same scope and done-when criterion as A. Label: manual-only.",
+      ].join("\n"),
     },
     prompt: "Apply step 1 separately to each spec in issues.md. Report the task graph and next step for each. Stop before implementation and leave the tracker and files unchanged.",
-    rubric: ["A and B each use the original issue as the sole ticket on the integration-branch path without creating a child.", "C stops for to-tickets because its scope requires several sessions despite its criteria and label."],
+    rubric: ["A and B each use the original issue as the sole ticket on the integration-branch path without creating a child.", "C stops for to-tickets because its scope requires several sessions despite its criteria and label.", "D keeps D1 as the ticket and requires commit verification before counting it as integrated.", "E surfaces the human-only role and does not assign an agent."],
   },
   {
     id: "resources-spec", skill: "implement-spec", unchanged: true,

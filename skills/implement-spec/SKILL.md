@@ -14,6 +14,7 @@ Read `docs/agents/issue-tracker.md`, then use its operations to read the spec, e
 
 Use the child implementation tickets as the nodes of the graph. Include every state: if the tracker's child query filters to open issues, repeat the lookup across all states, including native and body-linked children. An incomplete lookup blocks graph construction. When the tracker confirms there are no implementation tickets:
 
+- If the issue carries a configured triage state that rules out agent work, such as `ready-for-human` or `wontfix`, report the conflict and stop for a maintainer decision.
 - If the spec is a tracker issue that fits one session and has either acceptance criteria or the configured `ready-for-agent` role, use that issue as the sole ticket. Keep its tracker reference and blocking relationships.
 - For any other spec without tickets, tell the user to run `/to-tickets` in Claude linked installs or Cursor, `/supermatt:to-tickets` from the Claude plugin, `$to-tickets` in Codex, or `/skill:to-tickets` in OMP, then stop.
 
