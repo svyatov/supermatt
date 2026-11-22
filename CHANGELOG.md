@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-11-22
+
 ### Added
 
 - `improve-comments`: applies verified comment edits in the requested scope and defaults to the working diff. It traces diff lines to the working file, skips lines whose position cannot be verified, and checks the final edit scope after read-only checks. It preserves the Git index, API documentation, tool directives, and useful rationale.
@@ -739,7 +741,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - Claude Code and Codex marketplaces for the plugin and its 25 engineering and productivity skills.
 
-[unreleased]: https://github.com/svyatov/supermatt/compare/v0.24.0...HEAD
+[unreleased]: https://github.com/svyatov/supermatt/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/svyatov/supermatt/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/svyatov/supermatt/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/svyatov/supermatt/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/svyatov/supermatt/compare/v0.21.0...v0.22.0
