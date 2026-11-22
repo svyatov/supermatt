@@ -13,7 +13,7 @@ Apply verified comment edits as you find them. Preserve information that people 
 
 Use the requested file, directory, diff, or explicit whole-repository scope. With no target, use the current staged and unstaged diff. If that diff is empty, ask for a target.
 
-In a diff, edit only added or modified comment lines. Before editing a diff candidate, confirm its text and context identify one location in the current file. Skip and report absent or ambiguous matches. Preserve the Git index.
+In a diff, edit only added or modified comment lines. Locate each candidate by path and line in the version shown on the added side of the diff. Map staged lines from the index through the unstaged hunks to the working file. For a supplied diff, establish the version on its added side before tracing its lines to the working file. Skip and report lines that were removed, replaced, or cannot be mapped to a single location. Confirm the text at the mapped location and read the full comment in context. Preserve the Git index.
 
 In a directory or repository, focus on project-owned source and skip generated, vendored, and third-party files.
 

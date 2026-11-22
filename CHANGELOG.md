@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
-- `improve-comments`: applies verified comment edits in the requested scope and defaults to the working diff. It skips diff lines it cannot match to the current file and uses read-only checks before verifying the final changes. It preserves the Git index, API documentation, tool directives, and useful rationale.
+- `improve-comments`: applies verified comment edits in the requested scope and defaults to the working diff. It traces diff lines to the working file, skips lines whose position cannot be verified, and checks the final edit scope after read-only checks. It preserves the Git index, API documentation, tool directives, and useful rationale.
 
 ## [0.24.0] - 2026-11-19
 
